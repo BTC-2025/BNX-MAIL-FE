@@ -104,7 +104,7 @@ const Outbox = () => {
       {/* LEFT — LIST */}
       <div
         className={`transition-all duration-300
-          ${selectedEmail ? "hidden lg:block lg:w-2/5" : "w-full"}
+          w-full
           border-r`}
         style={{
           background: theme.bg,
@@ -151,7 +151,7 @@ const Outbox = () => {
       {/* RIGHT — DETAILS */}
       <div
         className={`flex-1 transition-all duration-300
-          ${selectedEmail ? "block" : "hidden lg:block"}`}
+          `}
         style={{ background: theme.bg }}
       >
         <EmailDetails

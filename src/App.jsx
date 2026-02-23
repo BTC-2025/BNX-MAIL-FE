@@ -79,20 +79,28 @@ const AppContent = () => {
           mails = data;
         }
 
-        const normalized = mails.map((mail) => ({
-          uid: mail.uid || mail.id || Date.now().toString(),
-          from: mail.from || "Unknown",
-          senderEmail: mail.from, // Used for reply
-          to: mail.to || "",
-          subject: mail.subject || "(No subject)",
-          body: mail.bodyPreview || mail.body || mail.textBody || "",
-          htmlBody: mail.htmlBody || null,
-          folder: mail.folder || "inbox",
-          isRead: mail.isRead ?? mail.seen ?? true,
-          starred: mail.starred ?? false,
-          receivedDate: mail.receivedDate || mail.date || new Date().toISOString(),
-          attachments: mail.attachments || [],
-        }));
+        // Load starred IDs from localStorage for this user
+        const storedStarredIds = JSON.parse(localStorage.getItem(`starred_emails_${user?.email}`) || '[]');
+
+        const normalized = mails.map((mail, index) => {
+          // Ensure stable IDs across reloads by checking _id, uid, id, or falling back to a deterministic string
+          const rawId = mail._id || mail.uid || mail.id || `mail-${mail.receivedDate || mail.date}-${index}`;
+          const uid = String(rawId);
+          return {
+            uid,
+            from: mail.from || "Unknown",
+            senderEmail: mail.from, // Used for reply
+            to: mail.to || "",
+            subject: mail.subject || "(No subject)",
+            body: mail.bodyPreview || mail.body || mail.textBody || "",
+            htmlBody: mail.htmlBody || null,
+            folder: mail.folder || "inbox",
+            isRead: mail.isRead ?? mail.seen ?? true,
+            starred: storedStarredIds.includes(uid) || (mail.starred ?? false),
+            receivedDate: mail.receivedDate || mail.date || new Date().toISOString(),
+            attachments: mail.attachments || [],
+          };
+        });
         console.log("nandhan", normalized);
         setEmails(normalized);
         setError("");
@@ -177,16 +185,33 @@ const AppContent = () => {
 
   /* -------- STAR TOGGLE -------- */
   const handleStar = (uid) => {
-    setEmails((prev) =>
-      prev.map((m) => (m.uid === uid ? { ...m, starred: !m.starred } : m))
-    );
+    setEmails((prev) => {
+      const newEmails = prev.map((m) => (m.uid === uid ? { ...m, starred: !m.starred } : m));
+
+      if (user?.email) {
+        const storageKey = `starred_emails_${user.email}`;
+        let starredIds = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+        const mail = newEmails.find((m) => m.uid === uid);
+        if (mail) {
+          if (mail.starred && !starredIds.includes(uid)) {
+            starredIds.push(uid);
+          } else if (!mail.starred) {
+            starredIds = starredIds.filter(id => id !== uid);
+          }
+          localStorage.setItem(storageKey, JSON.stringify(starredIds));
+        }
+      }
+
+      return newEmails;
+    });
   };
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: theme.bg }}>
+    <div className="flex h-screen overflow-hidden bg-transparent">
       {isMobileSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-40 md:hidden"
+          className="fixed inset-0 bg-black/40 z-50 md:hidden"
           onClick={() => setIsMobileSidebarOpen(false)}
         />
       )}
@@ -211,7 +236,7 @@ const AppContent = () => {
           <Routes>
             <Route path="/" element={<Inbox emails={emails} searchQuery={searchQuery} onDelete={handleDelete} onStar={handleStar} onArchive={handleArchive} />} />
             <Route path="/inbox" element={<AllMail emails={emails} searchQuery={searchQuery} onDelete={handleDelete} onStar={handleStar} onArchive={handleArchive} />} />
-            <Route path="/starred" element={<Starred emails={emails} onDelete={handleDelete} />} />
+            <Route path="/starred" element={<Starred emails={emails} onDelete={handleDelete} onStar={handleStar} onArchive={handleArchive} />} />
             <Route path="/drafts" element={<Draft emails={emails} onDelete={handleDelete} />} />
             <Route path="/sent" element={<Send emails={emails} onDelete={handleDelete} />} />
             <Route path="/outbox" element={<Outbox emails={emails} onDelete={handleDelete} />} />

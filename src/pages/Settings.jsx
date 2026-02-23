@@ -219,7 +219,7 @@ const Settings = () => {
 
             {loading ? (
               <p>Loading…</p>
-            ) : emails.length === 0 ? (
+            ) : !Array.isArray(emails) || emails.length === 0 ? (
               <p>No email accounts found</p>
             ) : (
               emails.map((email) => (
@@ -266,9 +266,8 @@ const Settings = () => {
                   <button
                     key={t}
                     onClick={() => changeTheme(t)}
-                    className={`p-4 rounded border ${
-                      currentThemeName === t ? "ring-2 ring-blue-500" : ""
-                    }`}
+                    className={`p-4 rounded border ${currentThemeName === t ? "ring-2 ring-blue-500" : ""
+                      }`}
                   >
                     {t}
                   </button>

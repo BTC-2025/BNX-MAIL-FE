@@ -109,40 +109,38 @@ const AllMail = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
+    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-transparent">
       {/* LEFT — LIST */}
       <div
         className={`transition-all duration-300
-          ${selectedEmail ? "hidden lg:block lg:w-2/5" : "w-full"}
-          border-r`}
-        style={{
-          background: theme.bg,
-          borderColor: theme.border,
-        }}
+          w-full
+          border-r-0 sm:border-r border-gray-200/50 dark:border-gray-800/50 relative z-10`}
       >
         {/* HEADER */}
-        <div className="p-4 border-b" style={{ borderColor: theme.border }}>
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <span
-              className="px-3 py-1 text-sm font-medium rounded-full text-white"
-              style={{ background: theme.accent }}
+              className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide"
+              style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
             >
               All Mail ({visibleEmails.length})
             </span>
 
             {/* UI-only filters */}
-            <FilterButton label="From" open={showFrom} setOpen={setShowFrom} />
-            <FilterButton label="To" open={showTo} setOpen={setShowTo} />
-            <FilterButton label="Any time" open={showTime} setOpen={setShowTime} />
+            <div className="flex items-center gap-2">
+              <FilterButton label="From" open={showFrom} setOpen={setShowFrom} />
+              <FilterButton label="To" open={showTo} setOpen={setShowTo} />
+              <FilterButton label="Date" open={showTime} setOpen={setShowTime} />
+            </div>
           </div>
         </div>
 
         {/* EMAIL LIST */}
-        <div className="h-full overflow-y-auto">
+        <div className="h-full overflow-y-auto hidden-scrollbar pb-24">
           {visibleEmails.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full">
-              <span className="text-5xl mb-3">📭</span>
-              <p style={{ color: theme.subText }}>No emails found</p>
+            <div className="flex flex-col items-center justify-center h-full opacity-80 animate-fade-in">
+              <span className="text-6xl mb-4 drop-shadow-md">📭</span>
+              <p className="font-medium text-gray-500 dark:text-gray-400">No emails found</p>
             </div>
           ) : (
             <EmailList
@@ -159,9 +157,8 @@ const AllMail = () => {
 
       {/* RIGHT — DETAILS */}
       <div
-        className={`flex-1 transition-all duration-300
-          ${selectedEmail ? "block" : "hidden lg:block"}`}
-        style={{ background: theme.bg }}
+        className={`flex-1 transition-all duration-300 relative
+          `}
       >
         <EmailDetails
           email={selectedEmail}

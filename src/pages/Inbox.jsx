@@ -39,7 +39,7 @@ const Inbox = ({ emails = [], searchQuery, onDelete, onStar, onArchive }) => {
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">
       <div
-        className={`${selectedEmail ? "hidden lg:block lg:w-2/5" : "w-full"} border-r`}
+        className={`w-full border-r`}
         style={{ backgroundColor: theme.bg }}
       >
         <EmailList
@@ -52,7 +52,7 @@ const Inbox = ({ emails = [], searchQuery, onDelete, onStar, onArchive }) => {
         />
       </div>
 
-      <div className={`flex-1 ${selectedEmail ? "block" : "hidden lg:block"}`}>
+      <div className={`flex-1 `}>
         <EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmail(null)}

@@ -3,27 +3,26 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 
-const SideBar = () => {
+const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
 
   return (
     <aside
-      className="w-64 h-screen sticky top-16 overflow-y-auto border-r"
-      style={{
-        backgroundColor: theme.sidebarBg,
-        borderColor: theme.border,
-        color: theme.sidebarText,
-      }}
+      className={`
+        w-64 h-full overflow-y-auto glass flex-col transition-transform duration-300 border-r border-gray-200/60 dark:border-gray-800/60
+        ${isMobileOpen ? 'fixed inset-y-0 left-0 z-[60] flex translate-x-0' : 'hidden -translate-x-full'}
+        ${isDesktopOpen ? 'md:flex md:relative md:translate-x-0' : 'md:hidden'}
+      `}
     >
       {/* COMPOSE */}
-      <div className="p-4">
+      <div className="p-5 pb-2">
         <button
           onClick={() => navigate("/compose")}
-          className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-lg font-semibold shadow-md transition hover:opacity-90"
+          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
           style={{
-            backgroundColor: theme.accent,
+            background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)`,
             color: "#ffffff",
           }}
         >
@@ -37,7 +36,7 @@ const SideBar = () => {
               strokeLinecap="round"
               strokeLinejoin="round"
               strokeWidth={2}
-              d="M12 4v16m8-8H4"
+              d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
             />
           </svg>
           Compose
@@ -45,33 +44,37 @@ const SideBar = () => {
       </div>
 
       {/* NAVIGATION */}
-      <nav className="px-2 space-y-1">
+      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
         {SIDEBAR_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path;
+          const isActive = location.pathname === item.path || (location.pathname === '/' && item.path === '/inbox');
 
           return (
             <button
               key={item.name}
               onClick={() => navigate(item.path)}
-              className="w-full flex items-center justify-between px-4 py-3 rounded-lg transition"
+              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-300 group
+                ${isActive
+                  ? 'bg-primary/10 dark:bg-primary/20 scale-100 shadow-sm'
+                  : 'hover:bg-gray-100/60 dark:hover:bg-gray-800/40 hover:translate-x-1'
+                }
+              `}
               style={{
-                backgroundColor: isActive
-                  ? `${theme.accent}22`
-                  : "transparent",
-                color: isActive ? theme.accent : theme.sidebarText,
-                fontWeight: isActive ? 600 : 400,
+                color: isActive ? (theme.accent || '#135bec') : theme.sidebarText,
+                fontWeight: isActive ? 600 : 500,
               }}
             >
-              <div className="flex items-center gap-3">
-                <span className="text-lg">{item.icon}</span>
-                <span className="text-sm">{item.name}</span>
+              <div className="flex items-center gap-4">
+                <span className={`text-xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                  {item.icon}
+                </span>
+                <span className="text-sm tracking-wide">{item.name}</span>
               </div>
 
               {item.count > 0 && (
                 <span
-                  className="text-xs px-2 py-0.5 rounded-full"
+                  className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
                   style={{
-                    backgroundColor: theme.accent,
+                    backgroundColor: theme.accent || '#135bec',
                     color: "#fff",
                   }}
                 >
@@ -85,30 +88,26 @@ const SideBar = () => {
 
       {/* STORAGE */}
       <div className="p-4 mt-auto">
-        <div
-          className="rounded-lg p-3"
-          style={{ backgroundColor: theme.cardBg }}
-        >
-          <div className="flex justify-between mb-2">
-            <span className="text-xs" style={{ color: theme.subText }}>
-              Storage
+        <div className="rounded-xl p-4 glass-input dark:bg-gray-800/50">
+          <div className="flex justify-between mb-3 items-center">
+            <span className="text-xs font-semibold" style={{ color: theme.subText }}>
+              STORAGE
             </span>
-            <span className="text-xs font-semibold" style={{ color: theme.text }}>
+            <span className="text-xs font-bold text-primary">
               2.5 GB / 15 GB
             </span>
           </div>
 
-          <div
-            className="w-full h-2 rounded-full"
-            style={{ backgroundColor: theme.border }}
-          >
+          <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
             <div
-              className="h-2 rounded-full"
+              className="h-full rounded-full transition-all duration-1000 ease-out relative"
               style={{
                 width: "16.6%",
-                backgroundColor: theme.accent,
+                background: `linear-gradient(90deg, ${theme.accent || '#135bec'}, #60a5fa)`
               }}
-            />
+            >
+              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+            </div>
           </div>
         </div>
       </div>

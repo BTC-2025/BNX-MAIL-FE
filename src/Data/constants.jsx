@@ -1,49 +1,61 @@
+import React from 'react';
+import {
+  MdInbox,
+  MdStarBorder,
+  MdSend,
+  MdDrafts,
+  MdArchive,
+  MdReport,
+  MdDelete,
+  MdMail
+} from 'react-icons/md';
+
 export const SIDEBAR_ITEMS = [
   {
     name: 'Inbox',
-    icon: '📥',
+    icon: <MdInbox size={22} />,
     path: '/inbox',
     count: 0
   },
   {
     name: 'Starred',
-    icon: '⭐',
+    icon: <MdStarBorder size={22} />,
     path: '/starred',
     count: 0
   },
   {
     name: 'Sent',
-    icon: '📤',
+    icon: <MdSend size={20} />,
     path: '/sent',
     count: 0
   },
   {
     name: 'Draft',
-    icon: '📝',
+    icon: <MdDrafts size={22} />,
     path: '/draft',
     count: 0
   },
   {
     name: 'Archive',
-    icon: '🗄️',
+    icon: <MdArchive size={22} />,
     path: '/archive',
     count: 0
   },
   {
     name: 'Spam',
-    icon: '🚫',
+    icon: <MdReport size={22} />,
     path: '/spam',
     count: 0
   },
   {
     name: 'Trash',
-    icon: '🗑️',
+    icon: <MdDelete size={22} />,
     path: '/trash',
     count: 0
   },
   {
     name: 'All Mail',
-    icon: '📧',
+    icon: <MdMail size={22} />,
     path: '/allmail',
     count: 0
   }

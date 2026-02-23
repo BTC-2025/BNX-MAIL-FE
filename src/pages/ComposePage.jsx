@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { MdSend, MdAttachFile, MdDeleteOutline, MdClose } from "react-icons/md";
 import { mailAPI } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
 
@@ -94,142 +95,144 @@ const ComposePage = () => {
 
   return (
     <div
-      className="min-h-screen p-4"
-      style={{ backgroundColor: theme.bg }}
+      className="h-[calc(100vh-64px)] p-4 sm:p-6 lg:p-10 flex flex-col bg-transparent"
     >
-      <div className="max-w-4xl mx-auto">
+      <div className="flex-1 w-full max-w-4xl mx-auto flex flex-col min-h-0">
         <div
-          className="rounded-lg shadow-lg overflow-hidden"
-          style={{ backgroundColor: theme.cardBg }}
+          className="flex flex-col h-full rounded-2xl shadow-soft dark:shadow-soft-dark border overflow-hidden glass-panel"
+          style={{ borderColor: theme.border }}
         >
           {/* HEADER */}
           <div
-            className="flex items-center justify-between p-4 border-b"
+            className="flex items-center justify-between p-4 sm:p-5 border-b shrink-0 bg-white/40 dark:bg-gray-800/40 backdrop-blur-md"
             style={{ borderColor: theme.border }}
           >
-            <h2 className="text-xl font-semibold" style={{ color: theme.text }}>
+            <h2 className="text-xl font-bold tracking-tight text-gray-800 dark:text-gray-100">
               New Message
             </h2>
             <button
               onClick={() => navigate("/inbox")}
-              className="p-2 rounded hover:opacity-70"
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors tooltip-trigger flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+              title="Close"
             >
-              ✕
+              <MdClose size={22} />
             </button>
           </div>
 
           {/* ALERTS */}
           {error && (
-            <div className="mx-4 mt-4 p-3 rounded bg-red-50 text-red-700">
+            <div className="mx-5 mt-4 p-3 rounded-lg bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-400 border border-red-100 dark:border-red-900/30 text-sm font-medium shrink-0">
               {error}
             </div>
           )}
           {success && (
-            <div className="mx-4 mt-4 p-3 rounded bg-green-50 text-green-700">
+            <div className="mx-5 mt-4 p-3 rounded-lg bg-green-50 dark:bg-green-900/20 text-green-700 dark:text-green-400 border border-green-100 dark:border-green-900/30 text-sm font-medium shrink-0">
               {success}
             </div>
           )}
 
           {/* FORM */}
-          <form onSubmit={handleSend} className="p-4">
-            {/* TO */}
-            <Field
-              label="To"
-              name="to"
-              value={formData.to}
-              onChange={handleChange}
-              extra={
-                <>
-                  <button
-                    type="button"
-                    onClick={() => setShowCc((v) => !v)}
-                    className="text-sm"
-                    style={{ color: theme.accent }}
-                  >
-                    Cc
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setShowBcc((v) => !v)}
-                    className="text-sm"
-                    style={{ color: theme.accent }}
-                  >
-                    Bcc
-                  </button>
-                </>
-              }
-            />
-
-            {showCc && (
+          <form onSubmit={handleSend} className="flex flex-col flex-1 p-5 min-h-0">
+            <div className="flex-1 overflow-y-auto hidden-scrollbar pr-2 flex flex-col gap-1">
+              {/* TO */}
               <Field
-                label="Cc"
-                name="cc"
-                value={formData.cc}
+                label="To"
+                name="to"
+                value={formData.to}
                 onChange={handleChange}
+                theme={theme}
+                extra={
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowCc((v) => !v)}
+                      className="text-sm font-medium px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                      style={{ color: theme.accent || '#135bec' }}
+                    >
+                      Cc
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowBcc((v) => !v)}
+                      className="text-sm font-medium px-2 py-1 rounded hover:bg-black/5 dark:hover:bg-white/10 transition-colors"
+                      style={{ color: theme.accent || '#135bec' }}
+                    >
+                      Bcc
+                    </button>
+                  </>
+                }
               />
-            )}
 
-            {showBcc && (
+              {showCc && (
+                <Field
+                  label="Cc"
+                  name="cc"
+                  value={formData.cc}
+                  onChange={handleChange}
+                  theme={theme}
+                />
+              )}
+
+              {showBcc && (
+                <Field
+                  label="Bcc"
+                  name="bcc"
+                  value={formData.bcc}
+                  onChange={handleChange}
+                  theme={theme}
+                />
+              )}
+
+              {/* SUBJECT */}
               <Field
-                label="Bcc"
-                name="bcc"
-                value={formData.bcc}
+                label="Subject"
+                name="subject"
+                value={formData.subject}
                 onChange={handleChange}
+                theme={theme}
               />
-            )}
 
-            {/* SUBJECT */}
-            <Field
-              label="Subject"
-              name="subject"
-              value={formData.subject}
-              onChange={handleChange}
-            />
-
-            {/* BODY */}
-            <textarea
-              name="body"
-              value={formData.body}
-              onChange={handleChange}
-              rows={14}
-              placeholder="Type your message…"
-              className="w-full resize-none outline-none p-3 rounded mt-4"
-              style={{
-                backgroundColor: theme.bg,
-                color: theme.text,
-                border: `1px solid ${theme.border}`,
-              }}
-            />
+              {/* BODY */}
+              <textarea
+                name="body"
+                value={formData.body}
+                onChange={handleChange}
+                placeholder="Type your message…"
+                className="w-full flex-1 resize-none outline-none p-4 rounded-xl mt-4 min-h-[200px] glass-input text-gray-800 dark:text-gray-100 placeholder:text-gray-400 text-base"
+              />
+            </div>
 
             {/* ACTIONS */}
             <div
-              className="flex items-center justify-between mt-6 pt-4 border-t"
+              className="flex items-center justify-between mt-4 pt-4 border-t shrink-0"
               style={{ borderColor: theme.border }}
             >
-              <div className="flex gap-2">
+              <div className="flex items-center gap-3">
                 <button
                   type="submit"
                   disabled={sending}
-                  className="px-6 py-2 rounded-lg text-white font-medium disabled:opacity-60"
-                  style={{ backgroundColor: theme.accent }}
+                  className="flex items-center gap-2 px-6 py-2.5 rounded-full text-white font-medium shadow-md hover:shadow-lg transition-all disabled:opacity-60 disabled:hover:shadow-md disabled:cursor-not-allowed"
+                  style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
                 >
-                  {sending ? "Sending…" : "Send"} 📤
+                  {sending ? "Sending…" : "Send"}
+                  {!sending && <MdSend size={18} />}
                 </button>
                 <button
                   type="button"
-                  className="p-2 rounded hover:opacity-70"
+                  className="p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 tooltip-trigger"
                   title="Attach file"
                 >
-                  📎
+                  <MdAttachFile size={22} className="transform rotate-45" />
                 </button>
               </div>
 
               <button
                 type="button"
                 onClick={handleDiscard}
-                className="text-red-600 hover:underline"
+                className="flex items-center gap-1.5 px-4 py-2 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
               >
-                🗑 Discard
+                <MdDeleteOutline size={20} />
+                <span>Discard</span>
               </button>
             </div>
           </form>
@@ -240,18 +243,22 @@ const ComposePage = () => {
 };
 
 /* ---------------- FIELD COMPONENT ---------------- */
-const Field = ({ label, name, value, onChange, extra }) => {
+const Field = ({ label, name, value, onChange, extra, theme }) => {
   return (
-    <div className="flex items-center gap-2 border-b py-3">
-      <span className="w-16 text-sm text-gray-500">{label}:</span>
+    <div
+      className="flex items-center gap-3 border-b py-2 sm:py-3 transition-colors focus-within:border-primary/50"
+      style={{ borderColor: theme?.border || '#e5e7eb' }}
+    >
+      <span className="w-16 text-sm font-medium text-gray-500 shrink-0">{label}:</span>
       <input
         name={name}
         value={value}
         onChange={onChange}
-        className="flex-1 outline-none bg-transparent"
-        placeholder={label}
+        className="flex-1 outline-none bg-transparent text-gray-900 dark:text-gray-100 placeholder:text-gray-400 group"
+        placeholder={`Enter ${label.toLowerCase()}...`}
+        spellCheck="false"
       />
-      {extra && <div className="flex gap-2">{extra}</div>}
+      {extra && <div className="flex gap-2 shrink-0">{extra}</div>}
     </div>
   );
 };
