@@ -96,3 +96,12 @@ export const businessAPI = {
     getVerification: (domainId) => api.get(`/api/business/domain/${domainId}/verification`), // ✅ Fixed
     verifyDomain: (domainId) => api.post(`/api/business/domain/${domainId}/verify`), // ✅ Fixed
 };
+
+// Group APIs
+export const groupAPI = {
+    createGroup: (data) => api.post('/api/groups/create', data),
+    getAllGroups: () => api.get('/api/groups/'),
+    addMembers: (groupId, data) => api.post(`/api/groups/${groupId}/members`, data),
+    getMembers: (groupId) => api.get(`/api/groups/${groupId}/members`),
+    sendBroadcast: (groupId, data) => api.post(`/api/groups/${groupId}/send`, data),
+};

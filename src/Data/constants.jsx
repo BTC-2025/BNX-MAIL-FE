@@ -7,7 +7,8 @@ import {
   MdArchive,
   MdReport,
   MdDelete,
-  MdMail
+  MdMail,
+  MdGroup
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -57,6 +58,12 @@ export const SIDEBAR_ITEMS = [
     name: 'All Mail',
     icon: <MdMail size={22} />,
     path: '/allmail',
+    count: 0
+  },
+  {
+    name: 'Groups',
+    icon: <MdGroup size={22} />,
+    path: '/groups',
     count: 0
   }
 ];

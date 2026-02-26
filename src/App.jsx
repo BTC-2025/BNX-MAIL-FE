@@ -25,6 +25,8 @@ import AllMail from "./pages/AllMail";
 import Archive from "./pages/Archive";
 import ComposePage from "./pages/ComposePage";
 import Settings from "./pages/Settings";
+import Groups from "./pages/Groups";
+import GroupDetails from "./pages/GroupDetails";
 
 /* ---------------- PROTECTED ROUTE ---------------- */
 const ProtectedRoute = ({ children }) => {
@@ -246,6 +248,8 @@ const AppContent = () => {
             <Route path="/all-mail" element={<AllMail emails={emails} onDelete={handleDelete} onStar={handleStar} onArchive={handleArchive} />} />
             <Route path="/compose" element={<ComposePage onSend={handleSendEmail} onSaveDraft={handleSaveDraft} />} />
             <Route path="/settings" element={<Settings />} />
+            <Route path="/groups" element={<Groups />} />
+            <Route path="/groups/:id" element={<GroupDetails />} />
           </Routes>
         </main>
       </div>
