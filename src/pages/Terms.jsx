@@ -127,7 +127,7 @@ const Terms = () => {
           </section>
 
           <footer className="mt-12 pt-8 border-t border-slate-200 dark:border-slate-800 text-center text-slate-500 dark:text-slate-400">
-            <p>© 2024 BETA Softnet. All rights reserved.</p>
+            <p>© {new Date().getFullYear()} BETA Softnet. All rights reserved.</p>
           </footer>
         </div>
       </div>
