@@ -17,6 +17,7 @@ export const MailProvider = ({ children }) => {
     const fetchLabelEmails = useCallback(async (labelId) => {
         if (!user) return;
         setLoading(true);
+        setEmails([]); // Clear stale data when switching labels
         setCurrentFolder(`label-${labelId}`);
         try {
             // Fetching all emails for a specific label
@@ -41,6 +42,7 @@ export const MailProvider = ({ children }) => {
     const fetchEmails = useCallback(async (folder = currentFolder) => {
         if (!user) return;
         setLoading(true);
+        setEmails([]); // Clear stale data when switching folders
         setCurrentFolder(folder);
         try {
             let res;
