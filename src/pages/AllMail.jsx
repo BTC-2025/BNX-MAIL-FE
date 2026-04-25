@@ -1,16 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useMail } from "../context/MailContext";
-import { MdMail, MdFilterList } from "react-icons/md";
+import { MdMail, MdFilterList, MdLabel } from "react-icons/md";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 const AllMail = () => {
   const navigate = useNavigate();
+  const { labelId } = useParams();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead } = useMail();
+  const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
+
+  const activeLabel = labels.find(l => l.id.toString() === labelId);
 
   // UI-only filter dropdown states
   const [showTime, setShowTime] = useState(false);
@@ -18,8 +21,12 @@ const AllMail = () => {
   const [showTo, setShowTo] = useState(false);
 
   useEffect(() => {
-    fetchEmails('inbox');
-  }, [fetchEmails]);
+    if (labelId) {
+      fetchLabelEmails(labelId);
+    } else {
+      fetchEmails('inbox');
+    }
+  }, [fetchEmails, fetchLabelEmails, labelId]);
 
   const handleSelectEmail = (email) => {
     setSelectedEmail(email);
@@ -38,6 +45,7 @@ const AllMail = () => {
     });
   };
 
+
   /* ---------------- MAIN UI ---------------- */
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-transparent">
@@ -49,10 +57,11 @@ const AllMail = () => {
         <div className="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-20">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <span
-              className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide"
-              style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+              className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide flex items-center gap-2"
+              style={{ background: activeLabel ? activeLabel.colorHex : `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
             >
-              All Mail ({emails.length})
+              {activeLabel && <MdLabel size={16} />}
+              {activeLabel ? activeLabel.name : 'All Mail'} ({emails.length})
             </span>
 
             {/* RESTORED FILTERS */}
@@ -96,6 +105,7 @@ const AllMail = () => {
           }}
           onStar={(uid) => handleToggleStar(uid, 'inbox')}
           onReply={handleReply}
+          onApplyLabel={handleApplyLabel}
         />
       </div>
     </div>

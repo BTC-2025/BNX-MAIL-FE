@@ -10,6 +10,7 @@ const EmailList = ({
   onStar,
   onArchive,
   onSnooze,
+  showTo = false,
   selectedIds = new Set(),
   onToggleSelect,
 }) => {
@@ -65,7 +66,14 @@ const EmailList = ({
                         : "font-medium text-gray-700 dark:text-gray-300"
                         }`}
                     >
-                      {email.from}
+                      {showTo ? (
+                        <span className="flex items-center gap-1.5">
+                          <span className="text-[10px] uppercase opacity-50 font-bold border border-current px-1 rounded-sm">To</span>
+                          {email.to || email.recipientEmail}
+                        </span>
+                      ) : (
+                        email.from
+                      )}
                     </p>
                   </div>
                   <span className={`text-xs whitespace-nowrap ml-2 ${!email.isRead ? "font-semibold text-primary" : "text-gray-400 dark:text-gray-500"}`}>
@@ -83,6 +91,21 @@ const EmailList = ({
                 >
                   {email.subject || "(No Subject)"}
                 </p>
+
+                {/* Applied Labels */}
+                {email.labels && email.labels.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-0.5">
+                    {email.labels.map(label => (
+                      <span 
+                        key={label.id}
+                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-black/5 dark:border-white/5"
+                        style={{ backgroundColor: label.colorHex, color: '#fff' }}
+                      >
+                        {label.name}
+                      </span>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Star Indicator (Always visible if starred) */}

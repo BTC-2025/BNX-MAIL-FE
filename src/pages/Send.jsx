@@ -93,8 +93,9 @@ const Send = () => {
             emails={emails}
             selectedEmailId={selectedEmail?.uid}
             onSelectEmail={handleSelectEmail}
-            onDelete={handleDelete}
             onStar={(uid) => handleToggleStar(uid, 'sent')}
+            onDelete={(uid) => handleMoveToTrash(uid, 'sent')}
+            showTo={true}
           />
         )}
       </div>

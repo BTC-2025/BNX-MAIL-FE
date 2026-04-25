@@ -1,5 +1,6 @@
 import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
-import { mailAPI } from '../services/api';
+import { mailAPI, api } from '../services/api';
+import { API_ENDPOINTS } from '../Data/constants';
 import { useAuth } from './AuthContext';
 import toast from 'react-hot-toast';
 
@@ -12,6 +13,30 @@ export const MailProvider = ({ children }) => {
     const [loading, setLoading] = useState(false);
     const [unreadCounts, setUnreadCounts] = useState({ inbox: 0, spam: 0, trash: 0 });
     const [labels, setLabels] = useState([]);
+
+    const fetchLabelEmails = useCallback(async (labelId) => {
+        if (!user) return;
+        setLoading(true);
+        setCurrentFolder(`label-${labelId}`);
+        try {
+            // Fetching all emails for a specific label
+            // Assuming the endpoint follows the pattern /api/mail/labels/{id}
+            const res = await api.get(`${API_ENDPOINTS.MAIL.LABELS}/${labelId}`);
+            if (res.data?.success) {
+                const data = res.data.data;
+                const normalizedEmails = (data.emails || data || []).map(m => ({
+                    ...m,
+                    starred: m.starred ?? m.isStarred ?? false
+                }));
+                setEmails(normalizedEmails);
+            }
+        } catch (error) {
+            console.error('Failed to fetch label emails:', error);
+            toast.error('Failed to load labeled emails');
+        } finally {
+            setLoading(false);
+        }
+    }, [user]);
 
     const fetchEmails = useCallback(async (folder = currentFolder) => {
         if (!user) return;
@@ -148,6 +173,16 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleApplyLabel = async (uid, labelId, folder = currentFolder) => {
+        try {
+            await mailAPI.applyLabel(uid, labelId, folder);
+            toast.success('Label applied');
+            fetchEmails(folder);
+        } catch (error) {
+            toast.error('Failed to apply label');
+        }
+    };
+
     return (
         <MailContext.Provider value={{
             emails,
@@ -158,12 +193,14 @@ export const MailProvider = ({ children }) => {
             labels,
             fetchEmails,
             fetchLabels,
+            fetchLabelEmails,
             handleToggleStar,
             handleMarkRead,
             handleMarkUnread,
             handleMoveToTrash,
             handleSnooze,
-            handleCreateLabel
+            handleCreateLabel,
+            handleApplyLabel
         }}>
             {children}
         </MailContext.Provider>

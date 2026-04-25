@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Starred = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
 
   useEffect(() => {
@@ -100,6 +100,7 @@ const Starred = () => {
           }}
           onStar={handleUnstar}
           onReply={handleReply}
+          onApplyLabel={handleApplyLabel}
         />
       </div>
     </div>

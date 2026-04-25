@@ -167,12 +167,25 @@ const EmailDetails = ({
           {/* CONTENT */}
           <div className="flex-1 overflow-y-auto px-5 sm:px-10 py-8 hidden-scrollbar bg-white/60 dark:bg-gray-900/60">
             {/* SUBJECT */}
-            <h1
-              className="text-2xl sm:text-3xl font-bold mb-8 leading-tight tracking-tight dark:text-gray-100"
-              style={{ color: theme.text }}
-            >
-              {localEmail.subject || "(No Subject)"}
-            </h1>
+            <div className="flex flex-wrap items-center gap-3 mb-6">
+              <h1
+                className="text-2xl sm:text-3xl font-bold leading-tight tracking-tight dark:text-gray-100"
+                style={{ color: theme.text }}
+              >
+                {localEmail.subject || "(No Subject)"}
+              </h1>
+              <div className="flex flex-wrap gap-2">
+                {localEmail.labels?.map(label => (
+                  <span 
+                    key={label.id}
+                    className="px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest text-white shadow-sm"
+                    style={{ backgroundColor: label.colorHex }}
+                  >
+                    {label.name}
+                  </span>
+                ))}
+              </div>
+            </div>
 
             {/* SENDER INFO */}
             <div

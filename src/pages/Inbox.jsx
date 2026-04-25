@@ -11,7 +11,7 @@ const Inbox = ({ searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel } = useMail();
 
   const [selectedEmail, setSelectedEmail] = useState(null);
 
@@ -37,14 +37,6 @@ const Inbox = ({ searchQuery }) => {
     }
   };
 
-  const handleApplyLabel = async (uid, labelId) => {
-    try {
-      await mailAPI.applyLabel(uid, labelId, 'INBOX');
-      toast.success('Label applied');
-    } catch (error) {
-      toast.error('Failed to apply label');
-    }
-  };
 
   return (
     <div className="flex h-[calc(100vh-64px)] overflow-hidden">

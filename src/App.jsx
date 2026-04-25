@@ -102,6 +102,7 @@ const AppContent = () => {
             <Route path="/groups/:id" element={<GroupDetails />} />
             <Route path="/chat" element={<Groups />} />
             <Route path="/chat/:chatId" element={<ChatRoom />} />
+            <Route path="/label/:labelId" element={<AllMail />} />
           </Routes>
         </main>
       </div>
