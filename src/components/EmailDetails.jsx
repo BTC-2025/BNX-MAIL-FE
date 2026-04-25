@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { MdArchive, MdDelete, MdStar, MdClose, MdAccessTime, MdLabel } from "react-icons/md";
+import { MdArchive, MdDelete, MdStar, MdClose, MdAccessTime, MdLabel, MdReply, MdForward } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
 

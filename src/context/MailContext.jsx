@@ -135,6 +135,19 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleCreateLabel = async (name, colorHex) => {
+        try {
+            const res = await mailAPI.createLabel({ name, colorHex });
+            if (res.data?.success) {
+                toast.success('Label created');
+                fetchLabels();
+                return res.data.data;
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to create label');
+        }
+    };
+
     return (
         <MailContext.Provider value={{
             emails,
@@ -149,7 +162,8 @@ export const MailProvider = ({ children }) => {
             handleMarkRead,
             handleMarkUnread,
             handleMoveToTrash,
-            handleSnooze
+            handleSnooze,
+            handleCreateLabel
         }}>
             {children}
         </MailContext.Provider>

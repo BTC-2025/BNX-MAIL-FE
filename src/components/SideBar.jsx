@@ -1,15 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { unreadCounts, labels } = useMail();
+  const { unreadCounts, labels, handleCreateLabel } = useMail();
+
+  const [isCreating, setIsCreating] = useState(false);
+  const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec" });
+
+  const COLORS = ["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
+
+  const handleAddLabel = async () => {
+    if (!newLabel.name.trim()) return;
+    const success = await handleCreateLabel(newLabel.name, newLabel.color);
+    if (success) {
+      setIsCreating(false);
+      setNewLabel({ name: "", color: "#135bec" });
+    }
+  };
 
   return (
     <aside
@@ -71,38 +85,72 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         })}
 
         {/* CUSTOM LABELS */}
-        {labels.length > 0 && (
-          <div className="mt-6">
-            <h3 className="px-4 text-xs font-bold uppercase tracking-widest mb-2 opacity-50" style={{ color: theme.sidebarText }}>Labels</h3>
-            {labels.map(label => (
-              <button
-                key={label.id}
-                onClick={() => navigate(`/label/${label.id}`)}
-                className="w-full flex items-center gap-4 px-4 py-2 rounded-xl hover:bg-gray-100/60 transition-all"
-                style={{ color: theme.sidebarText }}
-              >
-                <MdLabel style={{ color: label.colorHex }} size={18} />
-                <span className="text-sm">{label.name}</span>
-              </button>
-            ))}
+        <div className="mt-6">
+          <div className="px-4 flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>Labels</h3>
+            <button 
+              onClick={() => setIsCreating(true)}
+              className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              style={{ color: theme.accent }}
+            >
+              <MdAdd size={18} />
+            </button>
           </div>
-        )}
-      </nav>
 
-      {/* STORAGE */}
-      {/* <div className="p-4 mt-auto">
-        <div className="rounded-xl p-4 glass-input dark:bg-gray-800/50">
-          <div className="flex justify-between mb-3 items-center">
-            <span className="text-xs font-semibold" style={{ color: theme.subText }}>STORAGE</span>
-            <span className="text-xs font-bold text-primary">2.5 GB / 15 GB</span>
-          </div>
-          <div className="w-full h-1.5 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
-            <div className="h-full rounded-full transition-all duration-1000 ease-out relative" style={{ width: "16.6%", background: `linear-gradient(90deg, ${theme.accent || '#135bec'}, #60a5fa)` }}>
-              <div className="absolute inset-0 bg-white/20 animate-pulse"></div>
+          {isCreating && (
+            <div className="px-3 mb-4 animate-in slide-in-from-top-2 duration-200">
+              <div className="p-3 rounded-xl bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-lg">
+                <input 
+                  autoFocus
+                  placeholder="Label name"
+                  value={newLabel.name}
+                  onChange={(e) => setNewLabel({...newLabel, name: e.target.value})}
+                  className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 mb-3 outline-none focus:border-primary transition-colors"
+                  style={{ color: theme.text }}
+                />
+                <div className="flex flex-wrap gap-2 mb-3">
+                  {COLORS.map(c => (
+                    <button 
+                      key={c}
+                      onClick={() => setNewLabel({...newLabel, color: c})}
+                      className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 ${newLabel.color === c ? 'border-white ring-2 ring-primary scale-110' : 'border-transparent'}`}
+                      style={{ backgroundColor: c }}
+                    />
+                  ))}
+                </div>
+                <div className="flex justify-end gap-2">
+                  <button 
+                    onClick={() => setIsCreating(false)}
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    style={{ color: theme.subText }}
+                  >
+                    <MdClose size={18} />
+                  </button>
+                  <button 
+                    onClick={handleAddLabel}
+                    className="p-1 rounded hover:bg-primary/10"
+                    style={{ color: theme.accent }}
+                  >
+                    <MdCheck size={18} />
+                  </button>
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+
+          {labels.map(label => (
+            <button
+              key={label.id}
+              onClick={() => navigate(`/label/${label.id}`)}
+              className="w-full flex items-center gap-4 px-4 py-2 rounded-xl hover:bg-gray-100/60 dark:hover:bg-gray-800/40 transition-all"
+              style={{ color: theme.sidebarText }}
+            >
+              <MdLabel style={{ color: label.colorHex }} size={18} />
+              <span className="text-sm">{label.name}</span>
+            </button>
+          ))}
         </div>
-      </div> */}
+      </nav>
     </aside>
   );
 };

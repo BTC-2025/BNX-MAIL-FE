@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMail } from "../context/MailContext";
-import { MdMail, MdFilterList, MdForward, MdReply } from "react-icons/md";
+import { MdMail, MdFilterList } from "react-icons/md";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
