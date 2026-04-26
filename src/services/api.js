@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { API_ENDPOINTS } from '../Data/constants';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.bnxmail.com';
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 console.log('🔧 API Base URL:', API_BASE_URL);
 
@@ -31,11 +31,11 @@ api.interceptors.response.use(
     (response) => response,
     async (error) => {
         const originalRequest = error.config;
-        
+
         if ((error.response?.status === 401 || error.response?.status === 403) && !originalRequest._retry) {
             originalRequest._retry = true;
             const refreshToken = localStorage.getItem('refreshToken');
-            
+
             if (refreshToken) {
                 try {
                     const res = await axios.post(`${API_BASE_URL}${API_ENDPOINTS.AUTH.REFRESH}`, { refreshToken });
@@ -66,9 +66,24 @@ api.interceptors.response.use(
 // Auth APIs
 export const authAPI = {
     register: (data) => api.post(API_ENDPOINTS.AUTH.REGISTER, data),
-    login: (data) => api.post(API_ENDPOINTS.AUTH.LOGIN, data, {
-        headers: { 'X-Device-Name': 'Web Browser' }
-    }),
+    login: (data, deviceName) => {
+        const name = deviceName || (() => {
+            const ua = navigator.userAgent;
+            console.log('🚀 User Agent:', ua);
+            if (ua.includes('iPhone')) return 'iPhone';
+            if (ua.includes('Android')) return 'Android Device';
+            if (ua.includes('Macintosh')) return 'MacBook / iMac';
+            if (ua.includes('Windows')) return 'Windows PC';
+            if (ua.includes('Linux')) return 'Linux PC';
+            return 'Web Browser';
+        })();
+
+        console.log('🚀 Sending X-Device-Name:', name);
+
+        return api.post(API_ENDPOINTS.AUTH.LOGIN, data, {
+            headers: { 'X-Device-Name': name }
+        });
+    },
     refresh: (refreshToken) => api.post(API_ENDPOINTS.AUTH.REFRESH, { refreshToken }),
     logout: (refreshToken) => api.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }),
     sessions: () => api.get(API_ENDPOINTS.AUTH.SESSIONS),
@@ -92,7 +107,7 @@ export const mailAPI = {
     restore: (uid) => api.post(`${API_ENDPOINTS.MAIL.RESTORE}/${uid}`),
     permanentDelete: (uid) => api.delete(`${API_ENDPOINTS.MAIL.PERMANENT}/${uid}`),
     snooze: (uid, wakeUpAt) => api.post(`${API_ENDPOINTS.MAIL.SNOOZE}/${uid}?wakeUpAt=${wakeUpAt}`),
-    
+
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
     createLabel: (data) => api.post(API_ENDPOINTS.MAIL.LABELS, data),

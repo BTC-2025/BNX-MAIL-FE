@@ -25,6 +25,21 @@ const ChatRoom = () => {
         messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     };
 
+    const fetchChatDetails = async () => {
+        if (chat) return;
+        try {
+            const res = await chatAPI.getUserChats(user.email);
+            console.log(res)
+            if (res.data) {
+                const chatList = Array.isArray(res.data) ? res.data : (res.data.data || []);
+                const currentChat = chatList.find(c => c.id === parseInt(chatId));
+                if (currentChat) setChat(currentChat);
+            }
+        } catch (err) {
+            console.error("Failed to fetch chat details:", err);
+        }
+    };
+
     const fetchHistory = async () => {
         try {
             setLoading(true);
@@ -43,6 +58,7 @@ const ChatRoom = () => {
     };
 
     useEffect(() => {
+        fetchChatDetails();
         fetchHistory();
         
         // Subscribe to live messages
@@ -113,7 +129,8 @@ const ChatRoom = () => {
         }
     };
 
-    const chatName = chat?.name || (chat?.type === 'DIRECT' ? chat.memberEmails?.find(e => e !== user.email) : `Chat #${chatId}`);
+    const chatPartner = chat?.memberEmails?.find(e => e !== user.email);
+    const chatName = chat?.type === 'DIRECT' ? chatPartner?.split('@')[0] : (chat?.name || `Chat #${chatId}`);
 
     return (
         <div className="flex flex-col h-full bg-transparent overflow-hidden">
@@ -167,11 +184,9 @@ const ChatRoom = () => {
                         return (
                             <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                                 <div className={`max-w-[80%] sm:max-w-[70%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                                    {!isMe && chat?.type === 'GROUP' && (
-                                        <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
-                                            {msg.sender.split('@')[0]}
-                                        </span>
-                                    )}
+                                    <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
+                                        {isMe ? (user.username || user.email.split('@')[0]) : msg.sender.split('@')[0]}
+                                    </span>
                                     <div 
                                         className={`px-4 py-2.5 rounded-2xl shadow-sm relative ${
                                             isMe 

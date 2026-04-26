@@ -69,10 +69,10 @@ const EmailList = ({
                       {showTo ? (
                         <span className="flex items-center gap-1.5">
                           <span className="text-[10px] uppercase opacity-50 font-bold border border-current px-1 rounded-sm">To</span>
-                          {email.to || email.recipientEmail}
+                          {(email.to || email.recipientEmail)?.split('@')[0]}
                         </span>
                       ) : (
-                        email.from
+                        email.from?.split('@')[0]
                       )}
                     </p>
                   </div>

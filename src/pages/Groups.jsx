@@ -177,7 +177,8 @@ const Groups = () => {
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         {filteredChats.map((chat) => {
-                            const chatDisplayName = chat.name || chat.memberEmails?.find(e => e !== user.email) || 'Unnamed';
+                            const chatPartner = chat.memberEmails?.find(e => e !== user.email);
+                            const chatDisplayName = chat.type === 'DIRECT' ? chatPartner?.split('@')[0] : (chat.name || 'Unnamed');
                             return (
                                 <div 
                                     key={chat.id}

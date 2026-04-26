@@ -196,14 +196,14 @@ const EmailDetails = ({
                   className="h-14 w-14 rounded-full flex items-center justify-center text-white font-semibold text-xl shadow-md border-2 border-white dark:border-gray-800"
                   style={{ backgroundColor: theme.accent || '#135bec' }}
                 >
-                  {localEmail.from?.[0]?.toUpperCase() || "U"}
+                  {localEmail.from?.split('@')[0]?.[0]?.toUpperCase() || "U"}
                 </div>
                 <div>
                   <p className="font-semibold text-base sm:text-lg text-gray-900 dark:text-gray-100">
-                    {localEmail.from}
+                    {localEmail.from?.replace(/@bnxmail\.com/g, '')}
                   </p>
                   <p className="text-sm text-gray-500 dark:text-gray-400">
-                    to <span className="font-medium text-gray-700 dark:text-gray-300">{localEmail.to || "me"}</span>
+                    to <span className="font-medium text-gray-700 dark:text-gray-300">{(localEmail.to || "me")?.replace(/@bnxmail\.com/g, '')}</span>
                   </p>
                 </div>
               </div>

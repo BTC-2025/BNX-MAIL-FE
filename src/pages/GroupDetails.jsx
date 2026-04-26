@@ -227,10 +227,10 @@ const GroupDetails = () => {
                             <li key={member.id} className="p-4 px-6 flex justify-between items-center transition-colors hover:bg-black/5 dark:hover:bg-white/5">
                                 <div className="flex items-center gap-3">
                                     <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-white shadow-sm" style={{ background: `linear-gradient(135deg, ${theme.accent}, #9333ea)` }}>
-                                        {member.email.charAt(0).toUpperCase()}
+                                        {member.email.split('@')[0].charAt(0).toUpperCase()}
                                     </div>
                                     <div>
-                                        <p className="font-medium text-[15px]">{member.email}</p>
+                                        <p className="font-medium text-[15px]">{member.email.split('@')[0]}</p>
                                         <p className="text-xs" style={{ color: theme.subText }}>
                                             Added {new Date(member.addedAt).toLocaleDateString()}
                                         </p>

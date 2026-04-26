@@ -8,8 +8,7 @@ const SocketContext = createContext();
 
 // Detect environment and set URLs
 // Force WSS for api.bnxmail.com to avoid redirects
-const DEFAULT_WS = 'wss://api.bnxmail.com/ws';
-const WS_URL = import.meta.env.VITE_WS_URL || DEFAULT_WS;
+const WS_URL = import.meta.env.VITE_WS_URL;
 
 export const SocketProvider = ({ children }) => {
     const { isAuthenticated, user } = useAuth();
