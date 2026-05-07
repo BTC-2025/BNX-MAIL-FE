@@ -25,7 +25,7 @@ const ForgotPassword = () => {
         setLoading(true);
         try {
             const res = await authAPI.getForgotPasswordOptions(identifier);
-            if (res.data.status === "success") {
+            if (res.data.success) {
                 setOptions(res.data.data);
                 setStep(2);
             }
@@ -41,7 +41,7 @@ const ForgotPassword = () => {
         setLoading(true);
         try {
             const res = await authAPI.sendOTP({ identifier, method });
-            if (res.data.status === "success") {
+            if (res.data.success) {
                 toast.success(`OTP sent to your ${method.toLowerCase()}`);
                 setStep(3);
             }
@@ -85,7 +85,7 @@ const ForgotPassword = () => {
                 otp,
                 newPassword: passwords.newPassword
             });
-            if (res.data.status === "success") {
+            if (res.data.success) {
                 toast.success("Password reset successfully! Please login.");
                 navigate('/login');
             }

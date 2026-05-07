@@ -6,7 +6,8 @@ import {
   MdSecurity,
   MdEmail,
   MdDevices,
-  MdHistory
+  MdHistory,
+  MdSettingsBackupRestore
 } from "react-icons/md";
 import { emailAPI, authAPI, userAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -87,7 +88,7 @@ const Settings = () => {
     try {
       setLoading(true);
       const res = await userAPI.getRecovery();
-      if (res.data?.status === "success") {
+      if (res.data?.success) {
         setRecoveryInfo(res.data.data);
       }
     } catch {
@@ -102,7 +103,7 @@ const Settings = () => {
     try {
       setLoading(true);
       const res = await userAPI.updateRecovery(recoveryInfo);
-      if (res.data?.status === "success") {
+      if (res.data?.success) {
         toast.success("Recovery info updated successfully");
       }
     } catch (err) {
@@ -153,7 +154,7 @@ const Settings = () => {
         <h2 className="text-xl font-bold mb-4" style={{ color: theme.text }}>Settings</h2>
         <SideTab icon={<MdEmail />} label="Email Accounts" active={activeTab === "accounts"} onClick={() => setActiveTab("accounts")} theme={theme} />
         <SideTab icon={<MdSettings />} label="Account" active={activeTab === "account"} onClick={() => setActiveTab("account")} theme={theme} />
-        <SideTab icon={<MdSecurity />} label="Recovery" active={activeTab === "recovery"} onClick={() => setActiveTab("recovery")} theme={theme} />
+        <SideTab icon={<MdSettingsBackupRestore />} label="Recovery" active={activeTab === "recovery"} onClick={() => setActiveTab("recovery")} theme={theme} />
         <SideTab icon={<MdColorLens />} label="Appearance" active={activeTab === "appearance"} onClick={() => setActiveTab("appearance")} theme={theme} />
         <SideTab icon={<MdSecurity />} label="Security" active={activeTab === "security"} onClick={() => setActiveTab("security")} theme={theme} />
         <SideTab icon={<MdDevices />} label="Active Sessions" active={activeTab === "sessions"} onClick={() => setActiveTab("sessions")} theme={theme} />
