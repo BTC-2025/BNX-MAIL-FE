@@ -33,7 +33,7 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 401 || error.response?.status === 403) {
-            const isAuthPage = ['/login', '/register', '/create-mailbox'].includes(window.location.pathname);
+            const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/create-mailbox'].includes(window.location.pathname);
 
             if (!originalRequest._retry && !isAuthPage) {
                 originalRequest._retry = true;
@@ -90,7 +90,7 @@ export const authAPI = {
     logout: (refreshToken) => api.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }),
     sessions: () => api.get(API_ENDPOINTS.AUTH.SESSIONS),
     changePassword: (data) => api.post(API_ENDPOINTS.AUTH.CHANGE_PASSWORD, data),
-    getForgotPasswordOptions: (identifier) => api.get(`${API_ENDPOINTS.AUTH.FORGOT_PASSWORD_OPTIONS}?identifier=${identifier}`),
+    getForgotPasswordOptions: (identifier) => api.get(`${API_ENDPOINTS.AUTH.FORGOT_PASSWORD_OPTIONS}?identifier=${encodeURIComponent(identifier)}`),
     sendOTP: (data) => api.post(API_ENDPOINTS.AUTH.SEND_OTP, data),
     verifyOTP: (data) => api.post(API_ENDPOINTS.AUTH.VERIFY_OTP, data),
     resetPassword: (data) => api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),

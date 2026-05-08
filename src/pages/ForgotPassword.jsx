@@ -26,6 +26,11 @@ const ForgotPassword = () => {
         try {
             const res = await authAPI.getForgotPasswordOptions(identifier);
             if (res.data.success) {
+                const { recoveryEmail, phoneNumber } = res.data.data;
+                if (!recoveryEmail && !phoneNumber) {
+                    toast.error("No recovery methods found for this account. Please contact support.");
+                    return;
+                }
                 setOptions(res.data.data);
                 setStep(2);
             }
@@ -103,14 +108,14 @@ const ForgotPassword = () => {
                     <form onSubmit={handleGetOptions} className="space-y-6">
                         <div>
                             <label className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-2">
-                                Email
+                                Email or Username
                             </label>
                             <input
                                 type="text"
                                 value={identifier}
                                 onChange={(e) => setIdentifier(e.target.value)}
                                 className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none dark:text-white transition-all"
-                                placeholder="Enter your email"
+                                placeholder="Enter your email or username"
                                 required
                             />
                         </div>
