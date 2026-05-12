@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle } from "react-icons/md";
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
@@ -11,6 +11,8 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, currentThemeName, changeTheme } = useTheme();
+  const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
+
 
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -122,12 +124,17 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               >
                 {user?.email?.[0]?.toUpperCase() || "U"}
               </div>
-              <span
-                className="text-sm font-medium hidden md:block"
-                style={{ color: theme.text }}
-              >
-                {user?.email || "User"}
-              </span>
+              <div className="hidden md:flex items-center gap-1.5">
+                <span
+                  className="text-sm font-medium"
+                  style={{ color: theme.text }}
+                >
+                  {user?.email || "User"}
+                </span>
+                {isPrimary && (
+                  <MdCheckCircle className="text-green-500 shrink-0" size={14} title="Primary Account" />
+                )}
+              </div>
               <svg
                 className="h-4 w-4 hidden md:block"
                 fill="none"
@@ -153,9 +160,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                   <p className="text-sm font-semibold mb-0.5" style={{ color: theme.text }}>
                     {user?.username || "User"}
                   </p>
-                  <p className="text-xs truncate" style={{ color: theme.subText }}>
-                    {user?.email}
-                  </p>
+                  <div className="flex items-center gap-1.5 max-w-full">
+                    <p className="text-xs truncate" style={{ color: theme.subText }}>
+                      {user?.email}
+                    </p>
+                    {isPrimary && (
+                      <MdCheckCircle className="text-green-500 shrink-0" size={12} title="Primary Account" />
+                    )}
+                  </div>
                 </div>
 
                 <div className="p-2">
