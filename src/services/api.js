@@ -86,6 +86,9 @@ export const authAPI = {
             headers: { 'X-Device-Name': name }
         });
     },
+    login2fa: (data) => api.post('/api/auth/login/2fa', data),
+    send2faRecoveryOtp: (tempToken) => api.post('/api/auth/login/2fa/send-otp', { tempToken }),
+    verify2faRecoveryOtp: (tempToken, otp) => api.post('/api/auth/login/2fa/verify-otp', { tempToken, otp }),
     refresh: (refreshToken) => api.post(API_ENDPOINTS.AUTH.REFRESH, { refreshToken }),
     logout: (refreshToken) => api.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }),
     sessions: () => api.get(API_ENDPOINTS.AUTH.SESSIONS),
