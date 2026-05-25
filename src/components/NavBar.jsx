@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts } from "react-icons/md";
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
@@ -171,6 +171,18 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 </div>
 
                 <div className="p-2">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      const token = localStorage.getItem("accessToken") || "";
+                      window.open(`https://account.beta-softnet.com/security?token=${encodeURIComponent(token)}`, "_blank");
+                    }}
+                    className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors flex items-center gap-3 font-semibold"
+                    style={{ color: theme.accent || "#135bec" }}
+                  >
+                    <MdManageAccounts size={20} /> Manage your account
+                  </button>
+
                   <button
                     onClick={() => { setShowDropdown(false); navigate("/settings"); }}
                     className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors flex items-center gap-3"
