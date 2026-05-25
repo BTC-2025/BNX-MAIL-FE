@@ -65,30 +65,44 @@ api.interceptors.response.use(
     }
 );
 
+const getDeviceName = () => {
+    const ua = navigator.userAgent;
+    if (ua.includes('iPhone')) return 'iPhone';
+    if (ua.includes('Android')) return 'Android Device';
+    if (ua.includes('Macintosh')) return 'MacBook / iMac';
+    if (ua.includes('Windows')) return 'Windows PC';
+    if (ua.includes('Linux')) return 'Linux PC';
+    return 'Web Browser';
+};
+
 // Auth APIs
 export const authAPI = {
     register: (data) => api.post(API_ENDPOINTS.AUTH.REGISTER, data),
     login: (data, deviceName) => {
-        const name = deviceName || (() => {
-            const ua = navigator.userAgent;
-            console.log('🚀 User Agent:', ua);
-            if (ua.includes('iPhone')) return 'iPhone';
-            if (ua.includes('Android')) return 'Android Device';
-            if (ua.includes('Macintosh')) return 'MacBook / iMac';
-            if (ua.includes('Windows')) return 'Windows PC';
-            if (ua.includes('Linux')) return 'Linux PC';
-            return 'Web Browser';
-        })();
-
+        const name = deviceName || getDeviceName();
         console.log('🚀 Sending X-Device-Name:', name);
 
         return api.post(API_ENDPOINTS.AUTH.LOGIN, data, {
             headers: { 'X-Device-Name': name }
         });
     },
-    login2fa: (data) => api.post('/api/auth/login/2fa', data),
+    login2fa: (data, deviceName) => {
+        const name = deviceName || getDeviceName();
+        console.log('🚀 Sending X-Device-Name (2FA):', name);
+
+        return api.post('/api/auth/login/2fa', data, {
+            headers: { 'X-Device-Name': name }
+        });
+    },
     send2faRecoveryOtp: (tempToken) => api.post('/api/auth/login/2fa/send-otp', { tempToken }),
-    verify2faRecoveryOtp: (tempToken, otp) => api.post('/api/auth/login/2fa/verify-otp', { tempToken, otp }),
+    verify2faRecoveryOtp: (tempToken, otp, deviceName) => {
+        const name = deviceName || getDeviceName();
+        console.log('🚀 Sending X-Device-Name (2FA Recovery):', name);
+
+        return api.post('/api/auth/login/2fa/verify-otp', { tempToken, otp }, {
+            headers: { 'X-Device-Name': name }
+        });
+    },
     refresh: (refreshToken) => api.post(API_ENDPOINTS.AUTH.REFRESH, { refreshToken }),
     logout: (refreshToken) => api.post(API_ENDPOINTS.AUTH.LOGOUT, { refreshToken }),
     sessions: () => api.get(API_ENDPOINTS.AUTH.SESSIONS),
