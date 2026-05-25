@@ -62,13 +62,13 @@ const EmailDetails = ({
     <>
       {/* BACKGROUND OVERLAY */}
       <div
-        className={`fixed inset-0 bg-black/30 w-full h-full backdrop-blur-sm z-40 transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
+        className={`fixed inset-0 bg-black/30 w-full h-full backdrop-blur-sm z-[60] transition-opacity duration-300 ${mounted ? 'opacity-100' : 'opacity-0'}`}
         onClick={handleClose}
       />
 
       {/* SLIDING PANEL */}
       <div
-        className={`fixed inset-y-0 right-0 z-50 w-full sm:w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] max-w-4xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${mounted ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-y-0 right-0 z-[70] w-full sm:w-[90%] md:w-[70%] lg:w-[60%] xl:w-[50%] max-w-4xl bg-white dark:bg-gray-900 shadow-2xl flex flex-col transform transition-transform duration-300 ease-in-out ${mounted ? 'translate-x-0' : 'translate-x-full'}`}
       >
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* HEADER */}
