@@ -1,6 +1,15 @@
 import React from "react";
-import img from "../assets/img1.jpg";
 import { MdArchive, MdDelete, MdStar, MdStarBorder, MdAccessTime } from "react-icons/md";
+
+const getAvatarColor = (char) => {
+  const colors = [
+    "bg-red-500", "bg-pink-500", "bg-purple-500", "bg-indigo-500",
+    "bg-blue-500", "bg-sky-500", "bg-cyan-500", "bg-teal-500",
+    "bg-emerald-500", "bg-green-500", "bg-amber-500", "bg-orange-500"
+  ];
+  const index = (char.charCodeAt(0) || 0) % colors.length;
+  return colors[index];
+};
 
 const EmailList = ({
   emails,
@@ -23,35 +32,39 @@ const EmailList = ({
         </div>
       ) : (
         <div className="flex flex-col gap-2.5">
-          {emails.map((email, i) => (
-            <div
-              key={email.uid}
-              onClick={() => onSelectEmail(email)}
-              className={`group relative flex items-center gap-4 sm:gap-6
-                cursor-pointer py-3.5 sm:py-4 px-4 sm:px-5 rounded-2xl
-                transition-all duration-300 ease-out
-                ${selectedEmailId === email.uid
-                  ? "bg-white/90 dark:bg-gray-800/90 shadow-soft border-primary/30 ring-1 ring-primary/20 scale-[1.01]"
-                  : "glass hover:bg-white/90 dark:hover:bg-gray-800/90 hover:shadow-soft hover:scale-[1.01] hover:-translate-y-0.5"
-                }`}
-              style={{
-                animationDelay: `${i * 30}ms`,
-                animationFillMode: 'both'
-              }}
-            >
-              {/* Avatar */}
-              <div className="relative shrink-0 hidden sm:block">
-                <img
-                  src={img}
-                  alt={email.from}
-                  className="h-12 w-12 rounded-full object-cover shadow-sm border-2 border-white dark:border-gray-700 transition-transform group-hover:scale-105"
-                />
-                {!email.isRead && (
-                  <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-sm">
-                    <span className="block h-2.5 w-2.5 rounded-full bg-primary" />
-                  </span>
-                )}
-              </div>
+          {emails.map((email, i) => {
+            const sender = showTo ? (email.to || email.recipientEmail) : email.from;
+            const firstLetter = sender ? sender[0].toUpperCase() : 'U';
+
+            return (
+              <div
+                key={email.uid}
+                onClick={() => onSelectEmail(email)}
+                className={`group relative flex items-center gap-4 sm:gap-6
+                  cursor-pointer py-3.5 sm:py-4 px-4 sm:px-5 rounded-2xl
+                  transition-all duration-300 ease-out
+                  ${selectedEmailId === email.uid
+                    ? "bg-white/90 dark:bg-gray-800/90 shadow-soft border-primary/30 ring-1 ring-primary/20 scale-[1.01]"
+                    : "glass hover:bg-white/90 dark:hover:bg-gray-800/90 hover:shadow-soft hover:scale-[1.01] hover:-translate-y-0.5"
+                  }`}
+                style={{
+                  animationDelay: `${i * 30}ms`,
+                  animationFillMode: 'both'
+                }}
+              >
+                {/* Avatar */}
+                <div className="relative shrink-0 hidden sm:block">
+                  <div
+                    className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm border-2 border-white dark:border-gray-700 transition-transform group-hover:scale-105 ${getAvatarColor(firstLetter)}`}
+                  >
+                    {firstLetter}
+                  </div>
+                  {!email.isRead && (
+                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-sm">
+                      <span className="block h-2.5 w-2.5 rounded-full bg-primary" />
+                    </span>
+                  )}
+                </div>
 
               {/* Content */}
               <div className="flex min-w-0 flex-1 flex-col gap-1.5">
@@ -173,7 +186,8 @@ const EmailList = ({
                 </button>
               </div>
             </div>
-          ))}
+          );
+        })}
         </div>
       )}
     </div>
