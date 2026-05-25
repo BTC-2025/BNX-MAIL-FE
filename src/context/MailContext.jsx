@@ -92,6 +92,25 @@ export const MailProvider = ({ children }) => {
         }
     }, [user, fetchEmails, fetchLabels]);
 
+    // Background auto-polling for new emails every 30 seconds
+    useEffect(() => {
+        if (!user) return;
+
+        const interval = setInterval(() => {
+            if (!document.hidden) {
+                console.log('⏰ Auto-polling emails for:', currentFolder);
+                if (currentFolder.startsWith('label-')) {
+                    const labelId = currentFolder.replace('label-', '');
+                    fetchLabelEmails(labelId);
+                } else {
+                    fetchEmails(currentFolder);
+                }
+            }
+        }, 30000);
+
+        return () => clearInterval(interval);
+    }, [user, currentFolder, fetchEmails, fetchLabelEmails]);
+
     const handleToggleStar = async (uid, folder) => {
         // Optimistic update
         setEmails(prev => {

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useMail } from "../context/MailContext";
-import { MdMail, MdFilterList, MdLabel } from "react-icons/md";
+import { MdMail, MdFilterList, MdLabel, MdRefresh } from "react-icons/md";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
@@ -56,13 +56,30 @@ const AllMail = () => {
         {/* HEADER */}
         <div className="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-20">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <span
-              className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide flex items-center gap-2"
-              style={{ background: activeLabel ? activeLabel.colorHex : `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
-            >
-              {activeLabel && <MdLabel size={16} />}
-              {activeLabel ? activeLabel.name : 'All Mail'} ({emails.length})
-            </span>
+            <div className="flex items-center gap-3">
+              <span
+                className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide flex items-center gap-2"
+                style={{ background: activeLabel ? activeLabel.colorHex : `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+              >
+                {activeLabel && <MdLabel size={16} />}
+                {activeLabel ? activeLabel.name : 'All Mail'} ({emails.length})
+              </span>
+
+              <button
+                onClick={() => {
+                  if (labelId) {
+                    fetchLabelEmails(labelId);
+                  } else {
+                    fetchEmails('inbox');
+                  }
+                }}
+                disabled={loading}
+                className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center"
+                title="Refresh mail"
+              >
+                <MdRefresh size={20} className={loading ? "animate-spin" : ""} />
+              </button>
+            </div>
 
             {/* RESTORED FILTERS */}
             <div className="flex items-center gap-2">
