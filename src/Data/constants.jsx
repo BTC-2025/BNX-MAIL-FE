@@ -9,7 +9,8 @@ import {
   MdDelete,
   MdMail,
   MdGroup,
-  MdChat
+  MdChat,
+  MdAssignment
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -59,6 +60,12 @@ export const SIDEBAR_ITEMS = [
     name: 'All Mail',
     icon: <MdMail size={22} />,
     path: '/allmail',
+    count: 0
+  },
+  {
+    name: 'Templates',
+    icon: <MdAssignment size={22} />,
+    path: '/templates',
     count: 0
   },
   {

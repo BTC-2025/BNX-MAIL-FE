@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
-import { MdSend, MdAttachFile, MdDeleteOutline, MdClose } from "react-icons/md";
+import { MdSend, MdAttachFile, MdDeleteOutline, MdClose, MdAssignment } from "react-icons/md";
 import { mailAPI } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
+import { DEFAULT_TEMPLATES } from "./Templates";
 
 const ComposePage = () => {
   const navigate = useNavigate();
@@ -16,6 +17,9 @@ const ComposePage = () => {
   const [showCc, setShowCc] = useState(false);
   const [showBcc, setShowBcc] = useState(false);
 
+  const [showTemplates, setShowTemplates] = useState(false);
+  const [allTemplates, setAllTemplates] = useState([]);
+
   const [formData, setFormData] = useState({
     to: "",
     cc: "",
@@ -24,19 +28,58 @@ const ComposePage = () => {
     body: "",
   });
 
-  /* ---------------- PREFILL ON REPLY ---------------- */
+  // Load Custom + Default templates for inline insertion
   useEffect(() => {
-    if (location.state?.replyTo) {
-      setFormData((prev) => ({
-        ...prev,
-        to: location.state.replyTo,
-        subject: location.state.subject || "",
-        body: location.state.originalBody
-          ? `\n\n--- Original Message ---\n${location.state.originalBody}`
-          : "",
-      }));
+    const saved = localStorage.getItem("bnx_mail_custom_templates");
+    let custom = [];
+    if (saved) {
+      try {
+        custom = JSON.parse(saved);
+      } catch (e) {}
+    }
+    setAllTemplates([...DEFAULT_TEMPLATES, ...custom]);
+  }, [showTemplates]);
+
+  /* ---------------- PREFILL ON ROUTE STATE ---------------- */
+  useEffect(() => {
+    if (location.state) {
+      if (location.state.replyTo) {
+        setFormData((prev) => ({
+          ...prev,
+          to: location.state.replyTo,
+          subject: location.state.subject || "",
+          body: location.state.originalBody
+            ? `\n\n--- Original Message ---\n${location.state.originalBody}`
+            : "",
+        }));
+      } else {
+        setFormData((prev) => ({
+          ...prev,
+          to: location.state.to || prev.to || "",
+          cc: location.state.cc || prev.cc || "",
+          bcc: location.state.bcc || prev.bcc || "",
+          subject: location.state.subject || prev.subject || "",
+          body: location.state.body || prev.body || "",
+        }));
+      }
     }
   }, [location.state]);
+
+  const handleApplyTemplate = (template) => {
+    const confirmApply =
+      !formData.subject.trim() && !formData.body.trim()
+        ? true
+        : window.confirm("Apply template? This will replace your current subject and body.");
+
+    if (confirmApply) {
+      setFormData((prev) => ({
+        ...prev,
+        subject: template.subject,
+        body: template.body,
+      }));
+      setShowTemplates(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData((prev) => ({
@@ -224,12 +267,65 @@ const ComposePage = () => {
                 >
                   <MdAttachFile size={22} className="transform rotate-45" />
                 </button>
+
+                {/* Inline Templates quick selector */}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="flex items-center gap-1.5 px-4 py-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all duration-300 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 font-medium"
+                    title="Insert Template"
+                  >
+                    <MdAssignment size={20} />
+                    <span className="hidden sm:inline">Templates</span>
+                  </button>
+
+                  {showTemplates && (
+                    <div
+                      className="absolute bottom-12 left-0 w-64 max-h-60 overflow-y-auto rounded-xl border shadow-xl z-50 p-2 glass"
+                      style={{
+                        backgroundColor: theme.cardBg,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }}
+                    >
+                      <div className="flex items-center justify-between p-2 mb-1 border-b" style={{ borderColor: theme.border }}>
+                        <span className="text-xs font-bold uppercase tracking-wider opacity-60">Select Template</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowTemplates(false)}
+                          className="text-xs p-1 rounded-md hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
+                        >
+                          <MdClose size={14} />
+                        </button>
+                      </div>
+                      {allTemplates.length === 0 ? (
+                        <p className="text-xs text-center p-3 opacity-60">No templates found</p>
+                      ) : (
+                        <div className="flex flex-col gap-0.5">
+                          {allTemplates.map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleApplyTemplate(t)}
+                              className="w-full text-left px-3 py-2 text-sm rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer"
+                            >
+                              <div className="font-semibold truncate">{t.title}</div>
+                              <div className="text-xs opacity-60 truncate">{t.subject}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <button
                 type="button"
                 onClick={handleDiscard}
                 className="flex items-center gap-1.5 px-4 py-2 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 font-medium transition-colors border border-transparent hover:border-red-100 dark:hover:border-red-900/30"
+
               >
                 <MdDeleteOutline size={20} />
                 <span>Discard</span>

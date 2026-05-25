@@ -33,6 +33,7 @@ import GroupDetails from "./pages/GroupDetails";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import VerifyDomain from "./pages/VerifyDomain";
+import Templates from "./pages/Templates";
 
 /* ---------------- PROTECTED ROUTE ---------------- */
 const ProtectedRoute = ({ children }) => {
@@ -98,6 +99,7 @@ const AppContent = () => {
             <Route path="/archive" element={<Archive />} />
             <Route path="/all-mail" element={<AllMail />} />
             <Route path="/compose" element={<ComposePage />} />
+            <Route path="/templates" element={<Templates />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/groups" element={<Groups />} />
             <Route path="/groups/:id" element={<GroupDetails />} />
