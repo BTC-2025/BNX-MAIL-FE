@@ -17,7 +17,8 @@ export const MailProvider = ({ children }) => {
     const fetchLabelEmails = useCallback(async (labelId) => {
         if (!user) return;
         setLoading(true);
-        setEmails([]); // Clear stale data when switching labels
+        // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
+        setEmails(prev => (currentFolder === `label-${labelId}` ? prev : []));
         setCurrentFolder(`label-${labelId}`);
         try {
             // Fetching all emails for a specific label
@@ -37,12 +38,13 @@ export const MailProvider = ({ children }) => {
         } finally {
             setLoading(false);
         }
-    }, [user]);
+    }, [user, currentFolder]);
 
     const fetchEmails = useCallback(async (folder = currentFolder) => {
         if (!user) return;
         setLoading(true);
-        setEmails([]); // Clear stale data when switching folders
+        // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
+        setEmails(prev => (currentFolder === folder ? prev : []));
         setCurrentFolder(folder);
         try {
             let res;

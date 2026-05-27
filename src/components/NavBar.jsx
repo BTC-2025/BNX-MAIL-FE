@@ -116,10 +116,10 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           </button>
 
           {/* NOTIFICATION */}
-          <button className="p-2.5 rounded-full relative hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
+          {/* <button className="p-2.5 rounded-full relative hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
             <MdNotifications size={24} />
             <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-900" />
-          </button>
+          </button> */}
 
           {/* USER */}
           <div className="relative" ref={dropdownRef}>

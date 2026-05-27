@@ -28,22 +28,22 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   return (
     <aside
       className={`
-        w-64 h-full overflow-y-auto flex flex-col transition-transform duration-300 shrink-0 border-r-0
+        w-56 h-full overflow-y-auto flex flex-col transition-transform duration-300 shrink-0 border-r-0
         ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden -translate-x-full"}
         ${isDesktopOpen ? "md:flex md:relative md:translate-x-0" : "md:hidden"}
       `}
       style={{ backgroundColor: isMobileOpen ? undefined : theme.bg }}
     >
       {/* COMPOSE */}
-      <div className="p-4 pl-3 pb-3">
+      <div className="p-3 pl-3.5 pb-2">
         <button
           onClick={() => navigate("/compose")}
-          className="flex items-center gap-3 px-6 py-4 rounded-[16px] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
+          className="flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
         >
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
+          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
-          <span className="text-[15px] font-medium" style={{ color: theme.text }}>Compose</span>
+          <span className="text-[14px] font-medium" style={{ color: theme.text }}>Compose</span>
         </button>
       </div>
 
@@ -57,7 +57,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <button
               key={item.name}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center justify-between pl-6 pr-4 py-2 rounded-r-full transition-all duration-200 group cursor-pointer
+              className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-2 rounded-full transition-all duration-200 group cursor-pointer
                 ${isActive
                   ? "bg-primary/10 dark:bg-primary/20"
                   : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -68,7 +68,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 fontWeight: isActive ? 600 : 500,
               }}
             >
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-3">
                 <span className={`text-[20px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
                   {item.icon}
                 </span>
@@ -89,7 +89,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
         {/* CUSTOM LABELS */}
         <div className="mt-6">
-          <div className="pl-6 pr-4 flex items-center justify-between mb-2">
+          <div className="pl-4 pr-3 flex items-center justify-between mb-2">
             <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
               Labels
             </h3>
@@ -149,7 +149,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <button
               key={label.id}
               onClick={() => navigate(`/label/${label.id}`)}
-              className="w-full flex items-center gap-4 pl-6 pr-4 py-2 rounded-r-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
+              className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
               style={{ color: theme.sidebarText }}
             >
               <MdLabel style={{ color: label.colorHex }} size={18} />
