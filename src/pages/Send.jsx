@@ -55,64 +55,56 @@ const Send = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300 w-full border-r ${selectedEmail ? 'hidden md:block' : 'block'}`}
-        style={{
-          backgroundColor: theme.bg,
-          borderColor: theme.border,
-        }}
-      >
-        {/* HEADER */}
-        <div
-          className="p-4 border-b"
-          style={{ borderColor: theme.border }}
-        >
-          <h2
-            className="text-xl font-semibold"
-            style={{ color: theme.text }}
-          >
-            Sent
-            <span
-              className="ml-2 text-sm font-normal"
-              style={{ color: theme.subText }}
-            >
-              ({emails.length})
-            </span>
-          </h2>
-        </div>
-
-        {emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <MdSend className="text-6xl mb-4 text-gray-300 dark:text-gray-600 opacity-50" />
-            <p style={{ color: theme.subText }}>No sent emails</p>
-          </div>
-        ) : (
-          <EmailList
-            emails={emails}
-            selectedEmailId={selectedEmail?.uid}
-            onSelectEmail={handleSelectEmail}
-            onStar={(uid) => handleToggleStar(uid, 'sent')}
-            onDelete={(uid) => handleMoveToTrash(uid, 'sent')}
-            showTo={true}
-          />
-        )}
-      </div>
-
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300 ${selectedEmail ? 'block' : 'hidden md:block'}`}
-        style={{ backgroundColor: theme.bg }}
-      >
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmail(null)}
           onDelete={handleDelete}
-          onStar={(uid) => handleToggleStar(uid, 'sent')}
+          onStar={(uid) => handleToggleStar(uid, "sent")}
           onReply={handleReply}
         />
-      </div>
+      ) : (
+        <>
+          {/* HEADER */}
+          <div
+            className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
+            style={{ borderColor: theme.border }}
+          >
+            <h2
+              className="text-base font-bold flex items-center gap-2"
+              style={{ color: theme.text }}
+            >
+              Sent
+              <span
+                className="ml-2 text-xs font-normal"
+                style={{ color: theme.subText }}
+              >
+                ({emails.length})
+              </span>
+            </h2>
+          </div>
+
+          {/* LIST / EMPTY */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {emails.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh]">
+                <MdSend className="text-5xl mb-4 text-gray-300 dark:text-gray-600 opacity-55" />
+                <p className="text-base font-semibold" style={{ color: theme.text }}>No sent emails</p>
+              </div>
+            ) : (
+              <EmailList
+                emails={emails}
+                selectedEmailId={selectedEmail?.uid}
+                onSelectEmail={handleSelectEmail}
+                onStar={(uid) => handleToggleStar(uid, "sent")}
+                onDelete={(uid) => handleMoveToTrash(uid, "sent")}
+                showTo={true}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

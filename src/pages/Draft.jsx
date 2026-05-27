@@ -53,72 +53,8 @@ const Draft = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300
-          ${selectedDraft ? "hidden lg:block lg:w-2/5" : "w-full"}
-          border-r`}
-        style={{
-          backgroundColor: theme.bg,
-          borderColor: theme.border,
-        }}
-      >
-        {/* HEADER */}
-        <div
-          className="p-4 border-b"
-          style={{ borderColor: theme.border }}
-        >
-          <h2
-            className="text-xl font-semibold"
-            style={{ color: theme.text }}
-          >
-            Drafts
-            <span
-              className="ml-2 text-sm font-normal"
-              style={{ color: theme.subText }}
-            >
-              ({drafts.length})
-            </span>
-          </h2>
-        </div>
-
-        {/* EMPTY STATE */}
-        {drafts.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <span className="text-6xl mb-4">📝</span>
-            <p
-              className="text-lg font-medium mb-1"
-              style={{ color: theme.text }}
-            >
-              No drafts
-            </p>
-            <p className="mb-4" style={{ color: theme.subText }}>
-              Draft emails you save will appear here
-            </p>
-            <button
-              onClick={() => navigate("/compose")}
-              className="px-4 py-2 rounded text-white"
-              style={{ backgroundColor: theme.accent }}
-            >
-              Compose Email
-            </button>
-          </div>
-        ) : (
-          <EmailList
-            emails={drafts}
-            selectedEmail={selectedDraft}
-            onSelectEmail={handleSelectDraft}
-          />
-        )}
-      </div>
-
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300
-          ${selectedDraft ? "block" : "hidden lg:block"}`}
-        style={{ backgroundColor: theme.bg }}
-      >
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedDraft ? (
         <EmailDetails
           email={selectedDraft}
           onBack={() => setSelectedDraft(null)}
@@ -130,7 +66,59 @@ const Draft = () => {
             })
           }
         />
-      </div>
+      ) : (
+        <>
+          {/* HEADER */}
+          <div
+            className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
+            style={{ borderColor: theme.border }}
+          >
+            <h2
+              className="text-base font-bold flex items-center gap-2"
+              style={{ color: theme.text }}
+            >
+              Drafts
+              <span
+                className="ml-2 text-xs font-normal"
+                style={{ color: theme.subText }}
+              >
+                ({drafts.length})
+              </span>
+            </h2>
+          </div>
+
+          {/* EMAIL LIST CONTAINER */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {drafts.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <span className="text-5xl mb-3">📝</span>
+                <p
+                  className="text-base font-semibold mb-1"
+                  style={{ color: theme.text }}
+                >
+                  No drafts
+                </p>
+                <p className="text-sm mb-4" style={{ color: theme.subText }}>
+                  Draft emails you save will appear here
+                </p>
+                <button
+                  onClick={() => navigate("/compose")}
+                  className="px-4 py-2 rounded-full text-white text-sm cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
+                  style={{ backgroundColor: theme.accent }}
+                >
+                  Compose Email
+                </button>
+              </div>
+            ) : (
+              <EmailList
+                emails={drafts}
+                selectedEmailId={selectedDraft?.uid}
+                onSelectEmail={handleSelectDraft}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

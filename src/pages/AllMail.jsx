@@ -48,21 +48,30 @@ const AllMail = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden bg-transparent">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300 w-full border-r-0 sm:border-r border-gray-200/50 dark:border-gray-800/50 relative z-10 ${selectedEmail ? 'hidden md:block' : 'block'}`}
-      >
-        {/* HEADER */}
-        <div className="p-4 sm:p-5 border-b border-gray-200/50 dark:border-gray-800/50 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-20">
-          <div className="flex flex-wrap items-center justify-between gap-3">
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedEmail ? (
+        <EmailDetails
+          email={selectedEmail}
+          onBack={() => setSelectedEmail(null)}
+          onDelete={(uid) => {
+            handleMoveToTrash(uid, "inbox");
+            setSelectedEmail(null);
+          }}
+          onStar={(uid) => handleToggleStar(uid, "inbox")}
+          onReply={handleReply}
+          onApplyLabel={handleApplyLabel}
+        />
+      ) : (
+        <>
+          {/* HEADER */}
+          <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3 shrink-0 bg-transparent">
             <div className="flex items-center gap-3">
               <span
-                className="px-4 py-1.5 text-sm font-semibold rounded-full shadow-sm text-white tracking-wide flex items-center gap-2"
-                style={{ background: activeLabel ? activeLabel.colorHex : `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+                className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
+                style={{ background: activeLabel ? activeLabel.colorHex : `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)` }}
               >
-                {activeLabel && <MdLabel size={16} />}
-                {activeLabel ? activeLabel.name : 'All Mail'} ({emails.length})
+                {activeLabel && <MdLabel size={14} />}
+                {activeLabel ? activeLabel.name : "All Mail"} ({emails.length})
               </span>
 
               <button
@@ -70,14 +79,14 @@ const AllMail = () => {
                   if (labelId) {
                     fetchLabelEmails(labelId);
                   } else {
-                    fetchEmails('inbox');
+                    fetchEmails("inbox");
                   }
                 }}
                 disabled={loading}
-                className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center"
+                className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center cursor-pointer"
                 title="Refresh mail"
               >
-                <MdRefresh size={20} className={loading ? "animate-spin" : ""} />
+                <MdRefresh size={18} className={loading ? "animate-spin" : ""} />
               </button>
             </div>
 
@@ -88,43 +97,26 @@ const AllMail = () => {
               <FilterButton label="Date" open={showTime} setOpen={setShowTime} />
             </div>
           </div>
-        </div>
 
-        {/* EMAIL LIST CONTAINER */}
-        <div className="h-full overflow-y-auto hidden-scrollbar pb-24">
-          {emails.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-full opacity-80 animate-fade-in">
-              <MdMail className="text-6xl mb-4 text-gray-300 dark:text-gray-600 drop-shadow-md" />
-              <p className="font-medium text-gray-500 dark:text-gray-400">No emails found</p>
-            </div>
-          ) : (
-            <EmailList
-              emails={emails}
-              selectedEmailId={selectedEmail?.uid}
-              onSelectEmail={handleSelectEmail}
-              onDelete={(uid) => handleMoveToTrash(uid, 'inbox')}
-              onStar={(uid) => handleToggleStar(uid, 'inbox')}
-            />
-          )}
-        </div>
-      </div>
-
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300 relative ${selectedEmail ? 'block' : 'hidden md:block'}`}
-      >
-        <EmailDetails
-          email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
-          onDelete={(uid) => {
-            handleMoveToTrash(uid, 'inbox');
-            setSelectedEmail(null);
-          }}
-          onStar={(uid) => handleToggleStar(uid, 'inbox')}
-          onReply={handleReply}
-          onApplyLabel={handleApplyLabel}
-        />
-      </div>
+          {/* EMAIL LIST CONTAINER */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {emails.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] opacity-85">
+                <MdMail className="text-5xl mb-4 text-gray-300 dark:text-gray-600 drop-shadow-sm" />
+                <p className="text-base font-semibold text-gray-500 dark:text-gray-400">No emails found</p>
+              </div>
+            ) : (
+              <EmailList
+                emails={emails}
+                selectedEmailId={selectedEmail?.uid}
+                onSelectEmail={handleSelectEmail}
+                onDelete={(uid) => handleMoveToTrash(uid, "inbox")}
+                onStar={(uid) => handleToggleStar(uid, "inbox")}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

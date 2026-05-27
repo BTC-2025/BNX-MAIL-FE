@@ -28,55 +28,58 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   return (
     <aside
       className={`
-        w-64 h-full overflow-y-auto glass flex-col transition-transform duration-300 border-r border-gray-200/60 dark:border-gray-800/60
-        ${isMobileOpen ? 'fixed inset-y-0 left-0 z-[60] flex translate-x-0' : 'hidden -translate-x-full'}
-        ${isDesktopOpen ? 'md:flex md:relative md:translate-x-0' : 'md:hidden'}
+        w-64 h-full overflow-y-auto flex flex-col transition-transform duration-300 shrink-0 border-r-0
+        ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden -translate-x-full"}
+        ${isDesktopOpen ? "md:flex md:relative md:translate-x-0" : "md:hidden"}
       `}
+      style={{ backgroundColor: isMobileOpen ? undefined : theme.bg }}
     >
       {/* COMPOSE */}
-      <div className="p-5 pb-2">
+      <div className="p-4 pl-3 pb-3">
         <button
           onClick={() => navigate("/compose")}
-          className="w-full flex items-center justify-center gap-3 px-4 py-3.5 rounded-xl font-semibold transition-all duration-300 shadow-md hover:shadow-lg hover:-translate-y-0.5"
-          style={{
-            background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)`,
-            color: "#ffffff",
-          }}
+          className="flex items-center gap-3 px-6 py-4 rounded-[16px] font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
         >
-          <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
           </svg>
-          Compose
+          <span className="text-[15px] font-medium" style={{ color: theme.text }}>Compose</span>
         </button>
       </div>
 
       {/* NAVIGATION */}
-      <nav className="flex-1 px-3 py-4 space-y-1.5 overflow-y-auto">
+      <nav className="flex-1 pr-0 py-2 space-y-0.5 overflow-y-auto">
         {SIDEBAR_ITEMS.map((item) => {
-          const isActive = location.pathname === item.path || (location.pathname === '/' && item.path === '/inbox');
+          const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
           const count = unreadCounts[item.name.toLowerCase()] || 0;
 
           return (
             <button
               key={item.name}
               onClick={() => navigate(item.path)}
-              className={`w-full flex items-center justify-between px-4 py-2.5 rounded-xl transition-all duration-300 group
-                ${isActive ? 'bg-primary/10 dark:bg-primary/20 scale-100 shadow-sm' : 'hover:bg-gray-100/60 dark:hover:bg-gray-800/40 hover:translate-x-1'}
+              className={`w-full flex items-center justify-between pl-6 pr-4 py-2 rounded-r-full transition-all duration-200 group cursor-pointer
+                ${isActive
+                  ? "bg-primary/10 dark:bg-primary/20"
+                  : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                }
               `}
               style={{
-                color: isActive ? (theme.accent || '#135bec') : theme.sidebarText,
+                color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
                 fontWeight: isActive ? 600 : 500,
               }}
             >
               <div className="flex items-center gap-4">
-                <span className={`text-xl transition-transform duration-300 ${isActive ? 'scale-110' : 'group-hover:scale-110'}`}>
+                <span className={`text-[20px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
                   {item.icon}
                 </span>
                 <span className="text-sm tracking-wide">{item.name}</span>
               </div>
 
               {count > 0 && (
-                <span className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm" style={{ backgroundColor: theme.accent || '#135bec', color: "#fff" }}>
+                <span
+                  className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                  style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                >
                   {count}
                 </span>
               )}
@@ -86,11 +89,13 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
         {/* CUSTOM LABELS */}
         <div className="mt-6">
-          <div className="px-4 flex items-center justify-between mb-2">
-            <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>Labels</h3>
-            <button 
+          <div className="pl-6 pr-4 flex items-center justify-between mb-2">
+            <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
+              Labels
+            </h3>
+            <button
               onClick={() => setIsCreating(true)}
-              className="p-1 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+              className="p-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors cursor-pointer"
               style={{ color: theme.accent }}
             >
               <MdAdd size={18} />
@@ -100,35 +105,37 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           {isCreating && (
             <div className="px-3 mb-4 animate-in slide-in-from-top-2 duration-200">
               <div className="p-3 rounded-xl bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-lg">
-                <input 
+                <input
                   autoFocus
                   placeholder="Label name"
                   value={newLabel.name}
-                  onChange={(e) => setNewLabel({...newLabel, name: e.target.value})}
+                  onChange={(e) => setNewLabel({ ...newLabel, name: e.target.value })}
                   className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 mb-3 outline-none focus:border-primary transition-colors"
                   style={{ color: theme.text }}
                 />
                 <div className="flex flex-wrap gap-2 mb-3">
-                  {COLORS.map(c => (
-                    <button 
+                  {COLORS.map((c) => (
+                    <button
                       key={c}
-                      onClick={() => setNewLabel({...newLabel, color: c})}
-                      className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 ${newLabel.color === c ? 'border-white ring-2 ring-primary scale-110' : 'border-transparent'}`}
+                      onClick={() => setNewLabel({ ...newLabel, color: c })}
+                      className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer ${
+                        newLabel.color === c ? "border-white ring-2 ring-primary scale-110" : "border-transparent"
+                      }`}
                       style={{ backgroundColor: c }}
                     />
                   ))}
                 </div>
                 <div className="flex justify-end gap-2">
-                  <button 
+                  <button
                     onClick={() => setIsCreating(false)}
-                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700"
+                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
                     style={{ color: theme.subText }}
                   >
                     <MdClose size={18} />
                   </button>
-                  <button 
+                  <button
                     onClick={handleAddLabel}
-                    className="p-1 rounded hover:bg-primary/10"
+                    className="p-1 rounded hover:bg-primary/10 cursor-pointer"
                     style={{ color: theme.accent }}
                   >
                     <MdCheck size={18} />
@@ -138,11 +145,11 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             </div>
           )}
 
-          {labels.map(label => (
+          {labels.map((label) => (
             <button
               key={label.id}
               onClick={() => navigate(`/label/${label.id}`)}
-              className="w-full flex items-center gap-4 px-4 py-2 rounded-xl hover:bg-gray-100/60 dark:hover:bg-gray-800/40 transition-all"
+              className="w-full flex items-center gap-4 pl-6 pr-4 py-2 rounded-r-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
               style={{ color: theme.sidebarText }}
             >
               <MdLabel style={{ color: label.colorHex }} size={18} />

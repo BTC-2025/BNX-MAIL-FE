@@ -44,84 +44,85 @@ const Trash = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300 w-full border-r ${selectedEmail ? 'hidden md:block' : 'block'}`}
-        style={{
-          backgroundColor: theme.bg,
-          borderColor: theme.border,
-        }}
-      >
-        {/* HEADER */}
-        <div
-          className="p-4 border-b flex justify-between items-center"
-          style={{ borderColor: theme.border }}
-        >
-          <h2
-            className="text-xl font-semibold flex items-center gap-2"
-            style={{ color: theme.text }}
-          >
-            <MdDelete size={24} className="text-gray-500" /> Trash
-            <span
-              className="ml-2 text-sm font-normal"
-              style={{ color: theme.subText }}
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedEmail ? (
+        <div className="h-full flex flex-col overflow-hidden">
+          {/* TRASH QUICK ACTIONS */}
+          <div className="p-3 border-b flex gap-3 shrink-0" style={{ borderColor: theme.border }}>
+            <button
+              onClick={() => setSelectedEmail(null)}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 cursor-pointer"
+              title="Back"
             >
-              ({emails.length})
-            </span>
-          </h2>
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+              </svg>
+            </button>
+            <button
+              onClick={() => handleRestore(selectedEmail.uid)}
+              className="px-4 py-1.5 text-xs font-semibold rounded-full bg-green-600 text-white hover:bg-green-700 transition-all cursor-pointer shadow-sm hover:shadow"
+            >
+              Restore
+            </button>
+            <button
+              onClick={() => handlePermanentDelete(selectedEmail.uid)}
+              className="px-4 py-1.5 text-xs font-semibold rounded-full bg-red-600 text-white hover:bg-red-700 transition-all cursor-pointer shadow-sm hover:shadow"
+            >
+              Delete Permanently
+            </button>
+          </div>
+          <div className="flex-1 overflow-hidden">
+            <EmailDetails
+              email={selectedEmail}
+              onBack={() => setSelectedEmail(null)}
+              onDelete={handlePermanentDelete}
+            />
+          </div>
         </div>
-
-        {emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center px-4">
-            <MdDelete size={64} className="text-gray-300 dark:text-gray-600 mb-4 opacity-50" />
-            <p
-              className="text-lg font-medium mb-1"
+      ) : (
+        <>
+          {/* HEADER */}
+          <div
+            className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
+            style={{ borderColor: theme.border }}
+          >
+            <h2
+              className="text-base font-bold flex items-center gap-2"
               style={{ color: theme.text }}
             >
-              Trash is empty
-            </p>
+              <MdDelete size={20} className="text-gray-500" /> Trash
+              <span
+                className="ml-2 text-xs font-normal"
+                style={{ color: theme.subText }}
+              >
+                ({emails.length})
+              </span>
+            </h2>
           </div>
-        ) : (
-          <EmailList
-            emails={emails}
-            selectedEmailId={selectedEmail?.uid}
-            onSelectEmail={handleSelectEmail}
-            onDelete={handlePermanentDelete}
-          />
-        )}
-      </div>
 
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300 ${selectedEmail ? 'block' : 'hidden md:block'}`}
-        style={{ backgroundColor: theme.bg }}
-      >
-        {selectedEmail && (
-          <div className="h-full flex flex-col">
-             <div className="p-4 border-b flex gap-4" style={{ borderColor: theme.border }}>
-                <button 
-                  onClick={() => handleRestore(selectedEmail.uid)}
-                  className="px-4 py-2 rounded bg-green-600 text-white hover:bg-green-700 transition-colors"
+          {/* LIST / EMPTY */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {emails.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <MdDelete size={52} className="text-gray-300 dark:text-gray-600 mb-4 opacity-50" />
+                <p
+                  className="text-base font-semibold mb-1"
+                  style={{ color: theme.text }}
                 >
-                  Restore
-                </button>
-                <button 
-                  onClick={() => handlePermanentDelete(selectedEmail.uid)}
-                  className="px-4 py-2 rounded bg-red-600 text-white hover:bg-red-700 transition-colors"
-                >
-                  Delete Permanently
-                </button>
-             </div>
-             <div className="flex-1 overflow-hidden">
-                <EmailDetails
-                  email={selectedEmail}
-                  onBack={() => setSelectedEmail(null)}
-                />
-             </div>
+                  Trash is empty
+                </p>
+              </div>
+            ) : (
+              <EmailList
+                emails={emails}
+                selectedEmailId={selectedEmail?.uid}
+                onSelectEmail={handleSelectEmail}
+                onDelete={handlePermanentDelete}
+              />
+            )}
           </div>
-        )}
-      </div>
+        </>
+      )}
     </div>
   );
 };

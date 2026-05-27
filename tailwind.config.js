@@ -16,8 +16,8 @@ module.exports = {
         }
       },
       fontFamily: {
-        sans: ["Inter", "system-ui", "sans-serif"],
-        display: ["Inter", "sans-serif"],
+        sans: ["Outfit", "Inter", "system-ui", "sans-serif"],
+        display: ["Outfit", "Inter", "sans-serif"],
       },
       boxShadow: {
         'glass': '0 4px 30px rgba(0, 0, 0, 0.05)',

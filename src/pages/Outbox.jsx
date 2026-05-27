@@ -100,60 +100,8 @@ const Outbox = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300
-          w-full
-          border-r`}
-        style={{
-          background: theme.bg,
-          borderColor: theme.border,
-        }}
-      >
-        {/* HEADER */}
-        <div className="p-4 border-b" style={{ borderColor: theme.border }}>
-          <h2
-            className="text-xl font-semibold"
-            style={{ color: theme.text }}
-          >
-            📤 Outbox
-            <span
-              className="ml-2 text-sm font-normal"
-              style={{ color: theme.subText }}
-            >
-              ({emails.length})
-            </span>
-          </h2>
-        </div>
-
-        {/* LIST / EMPTY */}
-        {emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <span className="text-5xl mb-3">📭</span>
-            <p style={{ color: theme.subText }}>Outbox is empty</p>
-            <p className="text-sm" style={{ color: theme.subText }}>
-              Emails waiting to be sent will appear here
-            </p>
-          </div>
-        ) : (
-          <EmailList
-            emails={emails}
-            selectedEmailId={selectedEmail?.uid}
-            onSelectEmail={setSelectedEmail}
-            onDelete={handleDelete}
-            onStar={handleStar}
-            onArchive={handleArchive}
-          />
-        )}
-      </div>
-
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300
-          `}
-        style={{ background: theme.bg }}
-      >
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
           onClose={() => setSelectedEmail(null)}
@@ -161,7 +109,50 @@ const Outbox = () => {
           onStar={handleStar}
           onArchive={handleArchive}
         />
-      </div>
+      ) : (
+        <>
+          {/* HEADER */}
+          <div
+            className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
+            style={{ borderColor: theme.border }}
+          >
+            <h2
+              className="text-base font-bold flex items-center gap-2"
+              style={{ color: theme.text }}
+            >
+              📤 Outbox
+              <span
+                className="ml-2 text-xs font-normal"
+                style={{ color: theme.subText }}
+              >
+                ({emails.length})
+              </span>
+            </h2>
+          </div>
+
+          {/* LIST / EMPTY */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {emails.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <span className="text-5xl mb-3">📭</span>
+                <p className="text-base font-semibold" style={{ color: theme.text }}>Outbox is empty</p>
+                <p className="text-sm" style={{ color: theme.subText }}>
+                  Emails waiting to be sent will appear here
+                </p>
+              </div>
+            ) : (
+              <EmailList
+                emails={emails}
+                selectedEmailId={selectedEmail?.uid}
+                onSelectEmail={setSelectedEmail}
+                onDelete={handleDelete}
+                onStar={handleStar}
+                onArchive={handleArchive}
+              />
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

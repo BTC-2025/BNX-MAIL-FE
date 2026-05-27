@@ -47,13 +47,23 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   };
 
   return (
-    <nav className="sticky top-0 z-50 px-4 py-3 glass border-b-0 backdrop-blur-xl bg-white/70 dark:bg-surface-dark/80 transition-colors duration-300">
+    <nav
+      className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300"
+      style={{ backgroundColor: theme.bg }}
+    >
       <div className="flex items-center justify-between">
         {/* LEFT */}
-        <div className="flex items-center gap-4 sm:gap-6 flex-1">
+        <div className="flex items-center gap-4 flex-1">
           <button
-            onClick={onOpenMenu}
-            className="md:hidden p-2 -ml-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200"
+            onClick={() => {
+              if (window.innerWidth >= 768) {
+                onToggleDesktopSidebar?.();
+              } else {
+                onOpenMenu?.();
+              }
+            }}
+            className="p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 transition-colors flex items-center justify-center cursor-pointer"
+            title="Main menu"
           >
             <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
@@ -63,26 +73,25 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           <img
             src={logo}
             alt="BNX Mail"
-            className="h-8 sm:h-9 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
+            className="h-7 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
             onClick={() => navigate("/inbox")}
           />
 
-          <form onSubmit={handleSearch} className="flex-1 max-w-2xl hidden md:block">
+          <form onSubmit={handleSearch} className="flex-1 max-w-3xl ml-4 hidden md:block">
             <div className="relative group">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search mail..."
-                className="w-full px-5 py-2.5 pl-11 rounded-full glass-input text-sm placeholder:text-gray-400 dark:placeholder:text-gray-500"
+                placeholder="Search mail"
+                className="w-full px-5 py-2.5 pl-12 pr-12 rounded-full text-[14px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-black/[0.04] dark:bg-white/[0.06] focus:bg-white dark:focus:bg-gray-950 focus:shadow-md border border-transparent outline-none transition-all duration-200"
                 style={{ color: theme.text }}
               />
               <svg
-                className="absolute left-4 top-3 h-4 w-4 transition-colors group-focus-within:text-primary"
+                className="absolute left-4 top-3.5 h-4 w-4 transition-colors text-gray-500 dark:text-gray-400 group-focus-within:text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: theme.subText }}
               >
                 <path
                   strokeLinecap="round"
@@ -118,12 +127,20 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               onClick={() => setShowDropdown(!showDropdown)}
               className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             >
-              <div
-                className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm"
-                style={{ backgroundColor: theme.accent || "#135bec" }}
-              >
-                {user?.email?.[0]?.toUpperCase() || "U"}
-              </div>
+              {user?.profilePictureUrl ? (
+                <img
+                  src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${user.profilePictureUrl}`}
+                  alt="Profile"
+                  className="h-8 w-8 rounded-full object-cover shadow-sm border border-white dark:border-gray-700 shrink-0"
+                />
+              ) : (
+                <div
+                  className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0"
+                  style={{ backgroundColor: theme.accent || "#135bec" }}
+                >
+                  {user?.email?.[0]?.toUpperCase() || "U"}
+                </div>
+              )}
               <div className="hidden md:flex items-center gap-1.5">
                 <span
                   className="text-sm font-medium"

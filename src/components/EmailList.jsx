@@ -1,16 +1,6 @@
 import React from "react";
 import { MdArchive, MdDelete, MdStar, MdStarBorder, MdAccessTime } from "react-icons/md";
 
-const getAvatarColor = (char) => {
-  const colors = [
-    "bg-red-500", "bg-pink-500", "bg-purple-500", "bg-indigo-500",
-    "bg-blue-500", "bg-sky-500", "bg-cyan-500", "bg-teal-500",
-    "bg-emerald-500", "bg-green-500", "bg-amber-500", "bg-orange-500"
-  ];
-  const index = (char.charCodeAt(0) || 0) % colors.length;
-  return colors[index];
-};
-
 const EmailList = ({
   emails,
   selectedEmailId,
@@ -24,170 +14,160 @@ const EmailList = ({
   onToggleSelect,
 }) => {
   return (
-    <div className="flex-1 overflow-y-auto p-3 sm:p-5 pt-2 hidden-scrollbar bg-transparent">
+    <div className="flex-1 overflow-y-auto bg-transparent">
       {emails.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] text-gray-400 glass-panel rounded-3xl m-2 animate-fade-in">
-          <span className="text-6xl mb-5 opacity-80 drop-shadow-md">📭</span>
-          <p className="text-lg font-medium text-gray-500 dark:text-gray-400">Your folder is empty</p>
+        <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-400 p-8">
+          <span className="text-5xl mb-4 opacity-75">📭</span>
+          <p className="text-base font-medium text-gray-500 dark:text-gray-400">Your folder is empty</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2.5">
+        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60">
           {emails.map((email, i) => {
             const sender = showTo ? (email.to || email.recipientEmail) : email.from;
-            const firstLetter = sender ? sender[0].toUpperCase() : 'U';
+            const isUnread = !email.isRead;
+            const isSelected = selectedEmailId === email.uid;
 
             return (
               <div
                 key={email.uid}
                 onClick={() => onSelectEmail(email)}
-                className={`group relative flex items-center gap-4 sm:gap-6
-                  cursor-pointer py-3.5 sm:py-4 px-4 sm:px-5 rounded-2xl
-                  transition-all duration-300 ease-out
-                  ${selectedEmailId === email.uid
-                    ? "bg-white/90 dark:bg-gray-800/90 shadow-soft border-primary/30 ring-1 ring-primary/20 scale-[1.01]"
-                    : "glass hover:bg-white/90 dark:hover:bg-gray-800/90 hover:shadow-soft hover:scale-[1.01] hover:-translate-y-0.5"
+                className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none
+                  ${isSelected
+                    ? "bg-primary/5 dark:bg-primary/10 border-l-[3px] border-primary"
+                    : isUnread
+                      ? "bg-black/[0.01] dark:bg-white/[0.02] hover:bg-black/[0.03] dark:hover:bg-white/[0.04] border-l-[3px] border-transparent"
+                      : "bg-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02] border-l-[3px] border-transparent"
                   }`}
-                style={{
-                  animationDelay: `${i * 30}ms`,
-                  animationFillMode: 'both'
-                }}
               >
-                {/* Avatar */}
-                <div className="relative shrink-0 hidden sm:block">
-                  <div
-                    className={`h-12 w-12 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-sm border-2 border-white dark:border-gray-700 transition-transform group-hover:scale-105 ${getAvatarColor(firstLetter)}`}
-                  >
-                    {firstLetter}
-                  </div>
-                  {!email.isRead && (
-                    <span className="absolute -bottom-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-white dark:bg-gray-800 shadow-sm">
-                      <span className="block h-2.5 w-2.5 rounded-full bg-primary" />
-                    </span>
-                  )}
+                {/* Checkbox */}
+                <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
+                  <input
+                    type="checkbox"
+                    checked={selectedIds.has(email.uid)}
+                    onChange={() => onToggleSelect?.(email.uid)}
+                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+                  />
                 </div>
 
-              {/* Content */}
-              <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {!email.isRead && (
-                      <span className="sm:hidden block h-2.5 w-2.5 rounded-full bg-primary shrink-0" />
+                {/* Star Button */}
+                <div className="flex items-center shrink-0">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onStar?.(email.uid);
+                    }}
+                    className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-400 dark:text-gray-500 hover:text-yellow-500 cursor-pointer"
+                    title={email.starred ? "Unstar" : "Star"}
+                  >
+                    {email.starred ? (
+                      <MdStar size={20} className="text-yellow-500 fill-current" />
+                    ) : (
+                      <MdStarBorder size={20} className="text-gray-400 dark:text-gray-500" />
                     )}
-                    <p
-                      className={`truncate text-sm sm:text-base ${!email.isRead
+                  </button>
+                </div>
+
+                {/* Sender Name */}
+                <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
+                  <span
+                    className={`text-sm ${
+                      isUnread
                         ? "font-bold text-gray-900 dark:text-gray-100"
-                        : "font-medium text-gray-700 dark:text-gray-300"
-                        }`}
-                    >
-                      {showTo ? (
-                        <span className="flex items-center gap-1.5">
-                          <span className="text-[10px] uppercase opacity-50 font-bold border border-current px-1 rounded-sm">To</span>
-                          {(email.to || email.recipientEmail)?.split('@')[0]}
-                        </span>
-                      ) : (
-                        email.from?.split('@')[0]
-                      )}
-                    </p>
-                  </div>
-                  <span className={`text-xs whitespace-nowrap ml-2 ${!email.isRead ? "font-semibold text-primary" : "text-gray-400 dark:text-gray-500"}`}>
-                    {email.receivedDate
-                      ? new Date(email.receivedDate).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
-                      : ""}
+                        : "font-medium text-gray-600 dark:text-gray-300"
+                    }`}
+                  >
+                    {showTo ? (
+                      <span className="flex items-center gap-1">
+                        <span className="text-[9px] font-bold border border-current px-0.5 rounded-sm opacity-50">TO</span>
+                        {(email.to || email.recipientEmail)?.split("@")[0]}
+                      </span>
+                    ) : (
+                      sender?.split("@")[0] || sender
+                    )}
                   </span>
                 </div>
 
-                <p
-                  className={`truncate text-sm pr-6 ${!email.isRead
-                    ? "font-medium text-gray-800 dark:text-gray-200"
-                    : "text-gray-500 dark:text-gray-400"
+                {/* Subject & Snippet */}
+                <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
+                  <span
+                    className={`text-sm truncate ${
+                      isUnread
+                        ? "font-bold text-gray-900 dark:text-gray-100"
+                        : "font-medium text-gray-800 dark:text-gray-200"
                     }`}
-                >
-                  {email.subject || "(No Subject)"}
-                </p>
+                  >
+                    {email.subject || "(No Subject)"}
+                  </span>
+                  <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
+                    — {email.body ? email.body.replace(/\s+/g, " ") : ""}
+                  </span>
+                </div>
 
-                {/* Applied Labels */}
+                {/* Labels */}
                 {email.labels && email.labels.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-0.5">
-                    {email.labels.map(label => (
-                      <span 
+                  <div className="hidden sm:flex gap-1 shrink-0 mr-2 select-none">
+                    {email.labels.map((label) => (
+                      <span
                         key={label.id}
-                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tighter shadow-sm border border-black/5 dark:border-white/5"
-                        style={{ backgroundColor: label.colorHex, color: '#fff' }}
+                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tight text-white border border-black/5 dark:border-white/5"
+                        style={{ backgroundColor: label.colorHex }}
                       >
                         {label.name}
                       </span>
                     ))}
                   </div>
                 )}
-              </div>
 
-              {/* Star Indicator (Always visible if starred) */}
-              {email.starred && (
-                <div className="shrink-0 absolute right-4 top-1/2 -translate-y-1/2 group-hover:opacity-0 transition-opacity">
-                  <MdStar size={20} className="text-yellow-400 drop-shadow-sm" />
+                {/* Date / Hover Actions */}
+                <div className="w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full">
+                  <span
+                    className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${
+                      isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
+                    }`}
+                  >
+                    {email.receivedDate
+                      ? new Date(email.receivedDate).toLocaleDateString(undefined, {
+                          month: "short",
+                          day: "numeric",
+                        })
+                      : ""}
+                  </span>
+
+                  {/* Quick actions that fade-in on row hover */}
+                  <div
+                    className="absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 opacity-0 group-hover:opacity-100 transition-opacity duration-150"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <button
+                      onClick={() => onArchive?.(email.uid)}
+                      className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+                      title="Archive"
+                    >
+                      <MdArchive size={18} />
+                    </button>
+                    <button
+                      onClick={() => onDelete?.(email.uid)}
+                      className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
+                      title="Delete"
+                    >
+                      <MdDelete size={18} />
+                    </button>
+                    <button
+                      onClick={() => {
+                        const wakeUpAt = new Date();
+                        wakeUpAt.setDate(wakeUpAt.getDate() + 1);
+                        onSnooze?.(email.uid, wakeUpAt.toISOString());
+                      }}
+                      className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
+                      title="Snooze"
+                    >
+                      <MdAccessTime size={18} />
+                    </button>
+                  </div>
                 </div>
-              )}
-
-              {/* Hover Actions */}
-              <div
-                className="absolute top-1/2 -translate-y-1/2 right-4
-             flex items-center gap-1.5 rounded-xl
-             glass-panel bg-white/90 p-1.5 shadow-soft opacity-0 scale-95
-             transition-all duration-300 group-hover:opacity-100 group-hover:scale-100 dark:bg-gray-800/90"
-              >
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onArchive?.(email.uid);
-                  }}
-                  className="rounded-lg p-2 hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300 transition-colors tooltip-trigger"
-                  title="Archive"
-                >
-                  <MdArchive size={18} />
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete?.(email.uid);
-                  }}
-                  className="rounded-lg p-2 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 text-gray-600 dark:text-gray-300 transition-colors tooltip-trigger"
-                  title="Delete"
-                >
-                  <MdDelete size={18} />
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    const wakeUpAt = new Date();
-                    wakeUpAt.setDate(wakeUpAt.getDate() + 1); // Default to tomorrow
-                    onSnooze?.(email.uid, wakeUpAt.toISOString());
-                  }}
-                  className="rounded-lg p-2 hover:bg-blue-50 hover:text-blue-500 dark:hover:bg-blue-900/30 text-gray-600 dark:text-gray-300 transition-colors tooltip-trigger"
-                  title="Snooze"
-                >
-                  <MdAccessTime size={18} />
-                </button>
-
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onStar?.(email.uid);
-                  }}
-                  className="rounded-lg p-2 hover:bg-yellow-50 hover:text-yellow-500 dark:hover:bg-yellow-900/30 text-gray-600 dark:text-gray-300 transition-colors tooltip-trigger"
-                  title={email.starred ? "Unstar" : "Star"}
-                >
-                  {email.starred ? (
-                    <MdStar size={18} className="text-yellow-500" />
-                  ) : (
-                    <MdStarBorder size={18} />
-                  )}
-                </button>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
         </div>
       )}
     </div>

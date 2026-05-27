@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import { Toaster } from "react-hot-toast";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { ThemeProvider } from "./context/ThemeContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { MailProvider } from "./context/MailContext";
 import { SocketProvider } from "./context/SocketContext";
 
@@ -60,33 +60,40 @@ const AppContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const { theme } = useTheme();
 
   return (
-    <div className="flex h-screen overflow-hidden bg-transparent">
-      {isMobileSidebarOpen && (
-        <div
-          className="fixed inset-0 bg-black/40 z-50 md:hidden"
-          onClick={() => setIsMobileSidebarOpen(false)}
-        />
-      )}
-
-      <SideBar
-        isDesktopOpen={isDesktopSidebarOpen}
-        isMobileOpen={isMobileSidebarOpen}
-        onCloseMobile={() => setIsMobileSidebarOpen(false)}
+    <div className="flex flex-col h-screen overflow-hidden" style={{ backgroundColor: theme.bg }}>
+      <NavBar
+        searchQuery={searchQuery}
+        setSearchQuery={setSearchQuery}
+        onToggleDesktopSidebar={() =>
+          setIsDesktopSidebarOpen((v) => !v)
+        }
+        onOpenMenu={() => setIsMobileSidebarOpen(true)}
       />
 
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <NavBar
-          searchQuery={searchQuery}
-          setSearchQuery={setSearchQuery}
-          onToggleDesktopSidebar={() =>
-            setIsDesktopSidebarOpen((v) => !v)
-          }
-          onOpenMenu={() => setIsMobileSidebarOpen(true)}
+      <div className="flex-1 flex overflow-hidden relative">
+        {isMobileSidebarOpen && (
+          <div
+            className="fixed inset-0 bg-black/40 z-50 md:hidden"
+            onClick={() => setIsMobileSidebarOpen(false)}
+          />
+        )}
+
+        <SideBar
+          isDesktopOpen={isDesktopSidebarOpen}
+          isMobileOpen={isMobileSidebarOpen}
+          onCloseMobile={() => setIsMobileSidebarOpen(false)}
         />
 
-        <main className="flex-1 overflow-hidden">
+        <main
+          className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
+          style={{
+            backgroundColor: theme.cardBg,
+            borderColor: theme.border,
+          }}
+        >
           <Routes>
             <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
             <Route path="/inbox" element={<AllMail searchQuery={searchQuery} />} />

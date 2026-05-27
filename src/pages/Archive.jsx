@@ -105,22 +105,21 @@ const Archive = () => {
 
   /* ---------------- MAIN UI ---------------- */
   return (
-    <div className="flex h-[calc(100vh-64px)] overflow-hidden">
-      {/* LEFT — LIST */}
-      <div
-        className={`transition-all duration-300
-          w-full
-          border-r`}
-        style={{
-          background: theme.bg,
-          borderColor: theme.border,
-        }}
-      >
-        {/* HEADER */}
-        <div className="p-4 border-b" style={{ borderColor: theme.border }}>
-          <div className="flex flex-wrap items-center gap-3">
+    <div className="h-full flex flex-col overflow-hidden bg-transparent">
+      {selectedEmail ? (
+        <EmailDetails
+          email={selectedEmail}
+          onClose={() => setSelectedEmail(null)}
+          onDelete={handleDelete}
+          onStar={handleStar}
+          onArchive={handleUnarchive}
+        />
+      ) : (
+        <>
+          {/* HEADER */}
+          <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3 shrink-0 bg-transparent">
             <span
-              className="px-3 py-1 text-sm font-medium rounded-full text-white"
+              className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
               style={{ background: theme.accent }}
             >
               📦 Archive ({emails.length})
@@ -131,43 +130,30 @@ const Archive = () => {
             <FilterButton label="To" open={showTo} setOpen={setShowTo} />
             <FilterButton label="Any time" open={showTime} setOpen={setShowTime} />
           </div>
-        </div>
 
-        {/* LIST / EMPTY */}
-        {emails.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full">
-            <span className="text-5xl mb-3">📭</span>
-            <p style={{ color: theme.subText }}>No archived emails</p>
-            <p className="text-sm" style={{ color: theme.subText }}>
-              Archive emails to keep your inbox clean
-            </p>
+          {/* LIST / EMPTY */}
+          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+            {emails.length === 0 ? (
+              <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
+                <span className="text-5xl mb-3">📭</span>
+                <p className="text-base font-semibold" style={{ color: theme.text }}>No archived emails</p>
+                <p className="text-sm" style={{ color: theme.subText }}>
+                  Archive emails to keep your inbox clean
+                </p>
+              </div>
+            ) : (
+              <EmailList
+                emails={emails}
+                selectedEmailId={selectedEmail?.uid}
+                onSelectEmail={setSelectedEmail}
+                onDelete={handleDelete}
+                onStar={handleStar}
+                onArchive={handleUnarchive}
+              />
+            )}
           </div>
-        ) : (
-          <EmailList
-            emails={emails}
-            selectedEmailId={selectedEmail?.uid}
-            onSelectEmail={setSelectedEmail}
-            onDelete={handleDelete}
-            onStar={handleStar}
-            onArchive={handleUnarchive}
-          />
-        )}
-      </div>
-
-      {/* RIGHT — DETAILS */}
-      <div
-        className={`flex-1 transition-all duration-300
-          `}
-        style={{ background: theme.bg }}
-      >
-        <EmailDetails
-          email={selectedEmail}
-          onClose={() => setSelectedEmail(null)}
-          onDelete={handleDelete}
-          onStar={handleStar}
-          onArchive={handleUnarchive}
-        />
-      </div>
+        </>
+      )}
     </div>
   );
 };
@@ -177,14 +163,14 @@ const FilterButton = ({ label, open, setOpen }) => (
   <div className="relative">
     <button
       onClick={() => setOpen(!open)}
-      className="px-3 py-1 border rounded-full text-sm bg-white"
+      className="px-3 py-1 border rounded-full text-sm bg-white dark:bg-gray-850 dark:border-gray-700 dark:text-gray-200 cursor-pointer"
     >
       {label} ▾
     </button>
 
     {open && (
-      <div className="absolute mt-2 w-56 bg-white shadow rounded p-3 z-10 text-sm">
-        <p className="text-gray-500">Filter UI only</p>
+      <div className="absolute mt-2 w-56 bg-white dark:bg-gray-800 shadow-xl rounded-xl p-3 z-10 text-sm border dark:border-gray-700">
+        <p className="text-gray-500 dark:text-gray-400">Filter UI only</p>
       </div>
     )}
   </div>
