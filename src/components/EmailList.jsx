@@ -82,7 +82,9 @@ const EmailList = ({
                         {(email.to || email.recipientEmail)?.split("@")[0]}
                       </span>
                     ) : (
-                      sender?.split("@")[0] || sender
+                      sender?.includes("<") 
+                      ? sender.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim() 
+                      : (sender?.split("@")[0] || sender)
                     )}
                   </span>
                 </div>

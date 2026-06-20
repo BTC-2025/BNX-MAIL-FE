@@ -173,8 +173,10 @@ const EmailDetails = ({
               {email.from?.split("@")[0]?.[0]?.toUpperCase() || "U"}
             </div>
             <div>
-              <p className="font-semibold text-sm sm:text-base" style={{ color: theme.text }}>
-                {email.from?.replace(/@bnxmail\.com/g, "")}
+              <p className="font-semibold text-sm sm:text-base" style={{ color: theme.text }} title={email.from}>
+                {email.from?.includes("<") 
+                  ? email.from.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim() 
+                  : email.from?.replace(/@bnxmail\.com/g, "")}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 to <span className="font-medium text-gray-700 dark:text-gray-300">{(email.to || "me")?.replace(/@bnxmail\.com/g, "")}</span>
