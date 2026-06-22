@@ -75,7 +75,7 @@ export const SIDEBAR_ITEMS = [
     count: 0
   },
   {
-    name: 'Messages',
+    name: 'Chat',
     icon: <MdChat size={22} />,
     path: '/chat',
     count: 0
