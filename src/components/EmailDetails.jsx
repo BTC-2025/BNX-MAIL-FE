@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MdArchive, MdDelete, MdStar, MdAccessTime, MdLabel, MdReply, MdForward } from "react-icons/md";
+import { MdArchive, MdUnarchive, MdDelete, MdStar, MdAccessTime, MdLabel, MdReply, MdForward } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
 
@@ -13,6 +13,7 @@ const EmailDetails = ({
   onSnooze,
   onApplyLabel,
   onClose,
+  isArchiveFolder = false,
 }) => {
   const { theme } = useTheme();
   const { labels } = useMail();
@@ -59,9 +60,9 @@ const EmailDetails = ({
           <button
             onClick={() => onArchive?.(email.uid)}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 cursor-pointer"
-            title="Archive"
+            title={isArchiveFolder ? "Unarchive" : "Archive"}
           >
-            <MdArchive size={20} />
+            {isArchiveFolder ? <MdUnarchive size={20} /> : <MdArchive size={20} />}
           </button>
 
           <button

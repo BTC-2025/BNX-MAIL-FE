@@ -1,5 +1,5 @@
 import React from "react";
-import { MdArchive, MdDelete, MdStar, MdStarBorder, MdAccessTime } from "react-icons/md";
+import { MdArchive, MdUnarchive, MdDelete, MdStar, MdStarBorder, MdAccessTime } from "react-icons/md";
 
 const EmailList = ({
   emails,
@@ -12,6 +12,7 @@ const EmailList = ({
   showTo = false,
   selectedIds = new Set(),
   onToggleSelect,
+  isArchiveFolder = false,
 }) => {
   return (
     <div className="flex-1 overflow-y-auto bg-transparent">
@@ -143,9 +144,9 @@ const EmailList = ({
                     <button
                       onClick={() => onArchive?.(email.uid)}
                       className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
-                      title="Archive"
+                      title={isArchiveFolder ? "Unarchive" : "Archive"}
                     >
-                      <MdArchive size={18} />
+                      {isArchiveFolder ? <MdUnarchive size={18} /> : <MdArchive size={18} />}
                     </button>
                     <button
                       onClick={() => onDelete?.(email.uid)}

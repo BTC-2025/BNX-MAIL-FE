@@ -58,6 +58,7 @@ const Archive = () => {
             handleUnarchive(uid);
             setSelectedEmail(null);
           }}
+          isArchiveFolder={true}
         />
       ) : (
         <>
@@ -94,6 +95,7 @@ const Archive = () => {
                 onDelete={(uid) => handleMoveToTrash(uid, "archive")}
                 onStar={(uid) => handleToggleStar(uid, "archive")}
                 onArchive={handleUnarchive}
+                isArchiveFolder={true}
               />
             )}
           </div>
