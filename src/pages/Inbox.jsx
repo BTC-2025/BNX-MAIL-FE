@@ -12,7 +12,7 @@ const Inbox = ({ searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive } = useMail();
 
   const [selectedEmail, setSelectedEmail] = useState(null);
 
@@ -50,6 +50,10 @@ const Inbox = ({ searchQuery }) => {
             setSelectedEmail(null);
           }}
           onStar={(uid) => handleToggleStar(uid, "inbox")}
+          onArchive={(uid) => {
+            handleArchive(uid, "inbox");
+            setSelectedEmail(null);
+          }}
           onSnooze={handleSnooze}
           onApplyLabel={handleApplyLabel}
           onReply={(email) =>
@@ -94,6 +98,7 @@ const Inbox = ({ searchQuery }) => {
               onSelectEmail={handleSelectEmail}
               onDelete={(uid) => handleMoveToTrash(uid, "inbox")}
               onStar={(uid) => handleToggleStar(uid, "inbox")}
+              onArchive={(uid) => handleArchive(uid, "inbox")}
               onSnooze={handleSnooze}
             />
           </div>

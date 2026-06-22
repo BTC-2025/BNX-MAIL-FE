@@ -55,6 +55,7 @@ export const MailProvider = ({ children }) => {
                 case 'trash': res = await mailAPI.getTrash(); break;
                 case 'spam': res = await mailAPI.getSpam(); break;
                 case 'snoozed': res = await mailAPI.getSnoozed(); break;
+                case 'archive': res = await mailAPI.getArchive(); break;
                 default: res = await mailAPI.getInbox();
             }
 
@@ -206,6 +207,28 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleArchive = async (uid, folder) => {
+        try {
+            await mailAPI.archive(uid, folder);
+            setEmails(prev => prev.filter(m => m.uid !== uid));
+            toast.success('Email archived');
+        } catch (error) {
+            console.error('Failed to archive:', error);
+            toast.error('Failed to archive email');
+        }
+    };
+
+    const handleUnarchive = async (uid) => {
+        try {
+            await mailAPI.unarchive(uid);
+            setEmails(prev => prev.filter(m => m.uid !== uid));
+            toast.success('Email restored to Inbox');
+        } catch (error) {
+            console.error('Failed to unarchive:', error);
+            toast.error('Failed to unarchive email');
+        }
+    };
+
     return (
         <MailContext.Provider value={{
             emails,
@@ -223,7 +246,9 @@ export const MailProvider = ({ children }) => {
             handleMoveToTrash,
             handleSnooze,
             handleCreateLabel,
-            handleApplyLabel
+            handleApplyLabel,
+            handleArchive,
+            handleUnarchive
         }}>
             {children}
         </MailContext.Provider>

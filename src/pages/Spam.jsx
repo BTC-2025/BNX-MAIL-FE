@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Spam = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
 
   useEffect(() => {
@@ -42,6 +42,10 @@ const Spam = () => {
             setSelectedEmail(null);
           }}
           onStar={(uid) => handleToggleStar(uid, "spam")}
+          onArchive={(uid) => {
+            handleArchive(uid, "spam");
+            setSelectedEmail(null);
+          }}
           onReply={handleReply}
         />
       ) : (
@@ -87,6 +91,7 @@ const Spam = () => {
                 onSelectEmail={handleSelectEmail}
                 onDelete={(uid) => handleMoveToTrash(uid, "spam")}
                 onStar={(uid) => handleToggleStar(uid, "spam")}
+                onArchive={(uid) => handleArchive(uid, "spam")}
               />
             )}
           </div>

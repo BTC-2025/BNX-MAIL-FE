@@ -130,6 +130,9 @@ export const mailAPI = {
     restore: (uid) => api.post(`${API_ENDPOINTS.MAIL.RESTORE}/${uid}`),
     permanentDelete: (uid) => api.delete(`${API_ENDPOINTS.MAIL.PERMANENT}/${uid}`),
     snooze: (uid, wakeUpAt) => api.post(`${API_ENDPOINTS.MAIL.SNOOZE}/${uid}?wakeUpAt=${wakeUpAt}`),
+    getArchive: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.ARCHIVE}?limit=${limit}`),
+    archive: (uid, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.MOVE_ARCHIVE}/${uid}?folder=${folder}`),
+    unarchive: (uid) => api.post(`${API_ENDPOINTS.MAIL.UNARCHIVE}/${uid}`),
 
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
