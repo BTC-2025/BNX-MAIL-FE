@@ -138,7 +138,13 @@ const ChatRoom = () => {
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-10">
                 <div className="flex items-center gap-3">
                     <button 
-                        onClick={() => navigate("/groups")}
+                        onClick={() => {
+                            if (chat?.type === 'DIRECT') {
+                                navigate("/chat");
+                            } else {
+                                navigate("/groups");
+                            }
+                        }}
                         className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
                         style={{ color: theme.text }}
                     >
