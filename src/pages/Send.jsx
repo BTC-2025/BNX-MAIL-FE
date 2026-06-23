@@ -11,7 +11,7 @@ const Send = () => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
+  const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   useEffect(() => {
     fetchEmails('sent');

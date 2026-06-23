@@ -15,7 +15,7 @@ const Inbox = ({ searchQuery }) => {
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
+  const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   useEffect(() => {
     fetchEmails('inbox');

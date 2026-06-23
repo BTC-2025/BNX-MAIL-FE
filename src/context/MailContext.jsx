@@ -118,9 +118,9 @@ export const MailProvider = ({ children }) => {
         // Optimistic update
         setEmails(prev => {
             if (folder?.toLowerCase() === 'starred') {
-                return prev.filter(m => m.uid !== uid);
+                return prev.filter(m => String(m.uid) !== String(uid));
             }
-            return prev.map(m => m.uid === uid ? { ...m, starred: !m.starred } : m);
+            return prev.map(m => String(m.uid) === String(uid) ? { ...m, starred: !m.starred } : m);
         });
 
         try {
@@ -140,7 +140,7 @@ export const MailProvider = ({ children }) => {
         try {
             await mailAPI.markRead(uid);
             setEmails(prev => prev.map(m => {
-                if (m.uid === uid && !m.isRead) {
+                if (String(m.uid) === String(uid) && !m.isRead) {
                     // Update unread counts locally
                     setUnreadCounts(counts => ({
                         ...counts,
@@ -158,7 +158,7 @@ export const MailProvider = ({ children }) => {
     const handleMarkUnread = async (uid) => {
         try {
             await mailAPI.markUnread(uid);
-            setEmails(prev => prev.map(m => m.uid === uid ? { ...m, isRead: false } : m));
+            setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, isRead: false } : m));
         } catch (error) {
             console.error('Mark unread failed:', error);
         }
@@ -167,7 +167,7 @@ export const MailProvider = ({ children }) => {
     const handleMoveToTrash = async (uid, folder) => {
         try {
             await mailAPI.trash(uid, folder);
-            setEmails(prev => prev.filter(m => m.uid !== uid));
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             toast.success('Moved to trash');
         } catch (error) {
             toast.error('Failed to move to trash');
@@ -177,7 +177,7 @@ export const MailProvider = ({ children }) => {
     const handleSnooze = async (uid, wakeUpAt) => {
         try {
             await mailAPI.snooze(uid, wakeUpAt);
-            setEmails(prev => prev.filter(m => m.uid !== uid));
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             toast.success('Snoozed email');
         } catch (error) {
             toast.error('Failed to snooze');
@@ -210,7 +210,7 @@ export const MailProvider = ({ children }) => {
     const handleArchive = async (uid, folder) => {
         try {
             await mailAPI.archive(uid, folder);
-            setEmails(prev => prev.filter(m => m.uid !== uid));
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             toast.success('Email archived');
         } catch (error) {
             console.error('Failed to archive:', error);
@@ -221,7 +221,7 @@ export const MailProvider = ({ children }) => {
     const handleUnarchive = async (uid) => {
         try {
             await mailAPI.unarchive(uid);
-            setEmails(prev => prev.filter(m => m.uid !== uid));
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             toast.success('Email restored to Inbox');
         } catch (error) {
             console.error('Failed to unarchive:', error);

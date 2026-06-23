@@ -12,7 +12,7 @@ const AllMail = () => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
+  const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   const activeLabel = labels.find(l => l.id.toString() === labelId);
 

@@ -9,7 +9,7 @@ const Archive = () => {
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleUnarchive } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
+  const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   // UI-only filter states
   const [showTime, setShowTime] = useState(false);
