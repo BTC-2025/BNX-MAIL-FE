@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Send = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, handleSnooze, handleApplyLabel } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -63,6 +63,12 @@ const Send = () => {
           onBack={() => setSelectedEmailUid(null)}
           onDelete={handleDelete}
           onStar={(uid) => handleToggleStar(uid, "sent")}
+          onArchive={(uid) => {
+            handleArchive(uid, "sent");
+            setSelectedEmailUid(null);
+          }}
+          onSnooze={handleSnooze}
+          onApplyLabel={handleApplyLabel}
           onReply={handleReply}
         />
       ) : (
@@ -100,6 +106,8 @@ const Send = () => {
                 onSelectEmail={handleSelectEmail}
                 onStar={(uid) => handleToggleStar(uid, "sent")}
                 onDelete={(uid) => handleMoveToTrash(uid, "sent")}
+                onArchive={(uid) => handleArchive(uid, "sent")}
+                onSnooze={handleSnooze}
                 showTo={true}
               />
             )}
