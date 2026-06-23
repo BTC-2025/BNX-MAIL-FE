@@ -6,6 +6,7 @@ import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
+import bitToolLogo from "../assets/BIT-TOOL.png";
 
 const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar }) => {
   const navigate = useNavigate();
@@ -54,28 +55,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
       <div className="flex items-center justify-between">
         {/* LEFT */}
         <div className="flex items-center gap-4 flex-1">
-          <button
-            onClick={() => {
-              if (window.innerWidth >= 768) {
-                onToggleDesktopSidebar?.();
-              } else {
-                onOpenMenu?.();
-              }
-            }}
-            className="p-2.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-700 dark:text-gray-200 transition-colors flex items-center justify-center cursor-pointer"
-            title="Main menu"
-          >
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-
-          <img
-            src={logo}
-            alt="BNX Mail"
-            className="h-7 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
-            onClick={() => navigate("/inbox")}
-          />
+          <div className="w-[200px] shrink-0 flex items-center">
+            <img
+              src={logo}
+              alt="BNX Mail"
+              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
+              onClick={() => navigate("/inbox")}
+            />
+          </div>
 
           <form onSubmit={handleSearch} className="flex-1 max-w-3xl ml-4 hidden md:block">
             <div className="relative group">
@@ -107,13 +94,13 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         {/* RIGHT */}
         <div className="flex items-center gap-3 sm:gap-5">
           {/* THEME TOGGLE */}
-          <button
+          {/* <button
             onClick={handleThemeToggle}
             className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors tooltip-trigger flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
             title="Toggle theme"
           >
             {currentThemeName === "Dark" ? <MdLightMode size={22} className="text-yellow-400" /> : <MdDarkMode size={22} className="text-blue-600" />}
-          </button>
+          </button> */}
 
           {/* NOTIFICATION */}
           {/* <button className="p-2.5 rounded-full relative hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
@@ -228,6 +215,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               </div>
             )}
           </div>
+          
+          <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
+          
+          <img 
+            src={bitToolLogo} 
+            alt="BIT Tool" 
+            className="h-8 object-contain ml-2" 
+          />
         </div>
       </div>
     </nav>
