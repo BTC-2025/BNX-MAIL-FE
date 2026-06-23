@@ -188,8 +188,7 @@ const Templates = () => {
 
   return (
     <div
-      className="h-full flex flex-col overflow-hidden"
-      style={{ backgroundColor: theme.bg }}
+      className="h-full flex flex-col overflow-hidden bg-transparent"
     >
       {/* HEADER */}
       <div
