@@ -88,6 +88,47 @@ const EmailDetails = ({
   const { theme } = useTheme();
   const { labels } = useMail();
   const [showLabels, setShowLabels] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState({});
+
+  React.useEffect(() => {
+    if (!email || !email.attachments) {
+      return () => {
+        setImagePreviews((prev) => {
+          Object.values(prev).forEach((url) => URL.revokeObjectURL(url));
+          return {};
+        });
+      };
+    }
+
+    setImagePreviews((prev) => {
+      Object.values(prev).forEach((url) => URL.revokeObjectURL(url));
+      return {};
+    });
+
+    email.attachments.forEach(async (file) => {
+      const ext = file.split('.').pop().toLowerCase();
+      const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
+      if (isImage) {
+        try {
+          const res = await mailAPI.downloadAttachment(email.uid, file);
+          const blobUrl = URL.createObjectURL(new Blob([res.data]));
+          setImagePreviews((prev) => ({
+            ...prev,
+            [file]: blobUrl
+          }));
+        } catch (err) {
+          console.error("Failed to load image preview for", file, err);
+        }
+      }
+    });
+
+    return () => {
+      setImagePreviews((prev) => {
+        Object.values(prev).forEach((url) => URL.revokeObjectURL(url));
+        return {};
+      });
+    };
+  }, [email]);
 
   const handleDownloadAttachment = async (fileName) => {
     try {
@@ -320,53 +361,64 @@ const EmailDetails = ({
                 return (
                   <div
                     key={i}
-                    className="w-[180px] h-[130px] rounded-xl border overflow-hidden flex flex-col hover:shadow-md transition-all relative group shadow-sm bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                    className="w-[180px] h-[130px] rounded-xl border overflow-hidden flex flex-col hover:shadow-md transition-all relative shadow-sm bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
                     style={{ borderColor: theme.border }}
                   >
                     {/* Upper preview / icon block */}
                     <div 
-                      className="h-[85px] w-full flex flex-col items-center justify-center bg-black/[0.03] dark:bg-white/[0.03] border-b relative"
+                      className="h-[85px] w-full flex flex-col items-center justify-center bg-black/[0.03] dark:bg-white/[0.03] border-b relative overflow-hidden"
                       style={{ borderColor: theme.border }}
                     >
-                      <span className="text-3xl filter drop-shadow-sm select-none">{fileInfo.icon}</span>
-                      <span 
-                        className="text-[9px] font-extrabold uppercase tracking-wider mt-1.5 px-2 py-0.5 rounded-full select-none"
-                        style={{ backgroundColor: `${fileInfo.color}15`, color: fileInfo.color }}
-                      >
-                        {fileInfo.name}
-                      </span>
-
-                      {/* Hover action overlay */}
-                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-                        <button
-                          onClick={() => handlePreviewAttachment(file)}
-                          className="p-1.5 rounded-full bg-white/20 hover:bg-white/35 text-white transition-all scale-90 group-hover:scale-100 cursor-pointer"
-                          title="Preview file"
-                        >
-                          <MdRemoveRedEye size={16} />
-                        </button>
-                        <button
-                          onClick={() => handleDownloadAttachment(file)}
-                          className="p-1.5 rounded-full bg-white/20 hover:bg-white/35 text-white transition-all scale-90 group-hover:scale-100 cursor-pointer"
-                          title="Download file"
-                        >
-                          <MdFileDownload size={16} />
-                        </button>
-                      </div>
+                      {imagePreviews[file] ? (
+                        <img 
+                          src={imagePreviews[file]} 
+                          alt={file} 
+                          className="w-full h-full object-cover select-none" 
+                        />
+                      ) : (
+                        <>
+                          <span className="text-3xl filter drop-shadow-sm select-none">{fileInfo.icon}</span>
+                          <span 
+                            className="text-[9px] font-extrabold uppercase tracking-wider mt-1.5 px-2 py-0.5 rounded-full select-none"
+                            style={{ backgroundColor: `${fileInfo.color}15`, color: fileInfo.color }}
+                          >
+                            {fileInfo.name}
+                          </span>
+                        </>
+                      )}
                     </div>
 
                     {/* Lower details block */}
-                    <div className="p-2 flex flex-col justify-center flex-1 min-w-0">
-                      <span 
-                        className="text-[11px] font-semibold truncate select-all" 
-                        style={{ color: theme.text }}
-                        title={file}
-                      >
-                        {file}
-                      </span>
-                      <span className="text-[9px] opacity-50 font-medium select-none truncate">
-                        Hover for actions
-                      </span>
+                    <div className="p-2 flex items-center justify-between gap-1 flex-1 min-w-0">
+                      <div className="flex flex-col min-w-0 flex-1">
+                        <span 
+                          className="text-[11px] font-semibold truncate select-all text-left" 
+                          style={{ color: theme.text }}
+                          title={file}
+                        >
+                          {file}
+                        </span>
+                        <span className="text-[9px] opacity-50 font-medium select-none truncate text-left">
+                          {fileInfo.name} File
+                        </span>
+                      </div>
+                      
+                      <div className="flex items-center gap-0.5 shrink-0">
+                        <button
+                          onClick={() => handlePreviewAttachment(file)}
+                          className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
+                          title="Preview file"
+                        >
+                          <MdRemoveRedEye size={15} />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadAttachment(file)}
+                          className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
+                          title="Download file"
+                        >
+                          <MdFileDownload size={15} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
