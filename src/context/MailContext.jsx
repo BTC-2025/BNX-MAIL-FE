@@ -238,6 +238,23 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const [isComposeOpen, setIsComposeOpen] = useState(false);
+    const [isComposeMinimized, setIsComposeMinimized] = useState(false);
+    const [isComposeMaximized, setIsComposeMaximized] = useState(false);
+    const [composeData, setComposeData] = useState(null);
+
+    const openCompose = useCallback((data = null) => {
+        setComposeData(data);
+        setIsComposeOpen(true);
+        setIsComposeMinimized(false);
+        setIsComposeMaximized(false);
+    }, []);
+
+    const closeCompose = useCallback(() => {
+        setIsComposeOpen(false);
+        setComposeData(null);
+    }, []);
+
     return (
         <MailContext.Provider value={{
             emails,
@@ -257,7 +274,17 @@ export const MailProvider = ({ children }) => {
             handleCreateLabel,
             handleApplyLabel,
             handleArchive,
-            handleUnarchive
+            handleUnarchive,
+            isComposeOpen,
+            setIsComposeOpen,
+            isComposeMinimized,
+            setIsComposeMinimized,
+            isComposeMaximized,
+            setIsComposeMaximized,
+            composeData,
+            setComposeData,
+            openCompose,
+            closeCompose
         }}>
             {children}
         </MailContext.Provider>

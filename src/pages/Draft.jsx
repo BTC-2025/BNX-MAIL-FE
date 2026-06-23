@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Draft = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -23,11 +23,10 @@ const Draft = () => {
 
   const handleReply = (email) => {
     // Open draft in composer
-    navigate("/compose", {
-      state: {
-        draft: email
-      },
+    openCompose({
+      draft: email
     });
+    setSelectedEmailUid(null); // Close the detail view
   };
 
   if (loading) {
@@ -99,7 +98,7 @@ const Draft = () => {
                   Draft emails you save will appear here
                 </p>
                 <button
-                  onClick={() => navigate("/compose")}
+                  onClick={() => openCompose()}
                   className="px-4 py-2 rounded-full text-white text-sm cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
                   style={{ backgroundColor: theme.accent }}
                 >

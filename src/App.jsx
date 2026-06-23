@@ -10,6 +10,7 @@ import { SocketProvider } from "./context/SocketContext";
 /* Layout */
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
+import FloatingCompose from "./components/FloatingCompose";
 
 /* Pages */
 import Login from "./pages/Login";
@@ -25,7 +26,6 @@ import Spam from "./pages/Spam";
 import Trash from "./pages/Trash";
 import AllMail from "./pages/AllMail";
 import Archive from "./pages/Archive";
-import ComposePage from "./pages/ComposePage";
 import Settings from "./pages/Settings";
 import Groups from "./pages/Groups";
 import ChatRoom from "./pages/ChatRoom";
@@ -105,7 +105,6 @@ const AppContent = () => {
             <Route path="/trash" element={<Trash />} />
             <Route path="/archive" element={<Archive />} />
             <Route path="/all-mail" element={<AllMail />} />
-            <Route path="/compose" element={<ComposePage />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/groups" element={<Groups />} />
@@ -116,6 +115,7 @@ const AppContent = () => {
           </Routes>
         </main>
       </div>
+      <FloatingCompose />
       <Toaster />
     </div>
   );

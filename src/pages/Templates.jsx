@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
+import { useMail } from "../context/MailContext";
 import {
   MdSearch,
   MdAdd,
@@ -58,6 +59,7 @@ export const DEFAULT_TEMPLATES = [
 const Templates = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
+  const { openCompose } = useMail();
 
   const [customTemplates, setCustomTemplates] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,11 +180,9 @@ const Templates = () => {
 
   // Use template
   const handleUseTemplate = (template) => {
-    navigate("/compose", {
-      state: {
-        subject: template.subject,
-        body: template.body,
-      },
+    openCompose({
+      subject: template.subject,
+      body: template.body,
     });
   };
 

@@ -10,7 +10,7 @@ const AllMail = () => {
   const navigate = useNavigate();
   const { labelId } = useParams();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive } = useMail();
+  const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -37,12 +37,10 @@ const AllMail = () => {
   };
 
   const handleReply = (email) => {
-    navigate("/compose", {
-      state: {
-        replyTo: email.senderEmail || email.from,
-        subject: `Re: ${email.subject || ""}`,
-        originalBody: email.body,
-      },
+    openCompose({
+      replyTo: email.senderEmail || email.from,
+      subject: `Re: ${email.subject || ""}`,
+      originalBody: email.body,
     });
   };
 

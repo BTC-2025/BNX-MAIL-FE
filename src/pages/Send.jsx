@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Send = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, handleSnooze, handleApplyLabel } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, handleSnooze, handleApplyLabel, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -27,12 +27,10 @@ const Send = () => {
   };
 
   const handleReply = (email) => {
-    navigate("/compose", {
-      state: {
-        replyTo: email.to || email.senderEmail || email.from, // For sent mail, reply to the recipient
-        subject: `Re: ${email.subject || ""}`,
-        originalBody: email.body,
-      },
+    openCompose({
+      replyTo: email.to || email.senderEmail || email.from, // For sent mail, reply to the recipient
+      subject: `Re: ${email.subject || ""}`,
+      originalBody: email.body,
     });
   };
 

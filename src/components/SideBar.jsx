@@ -9,7 +9,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { unreadCounts, labels, handleCreateLabel } = useMail();
+  const { unreadCounts, labels, handleCreateLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
   const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec" });
@@ -37,7 +37,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
       {/* COMPOSE */}
       <div className="p-3 pl-3.5 pb-2">
         <button
-          onClick={() => navigate("/compose")}
+          onClick={() => openCompose()}
           className="flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
         >
           <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>

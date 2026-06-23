@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Spam = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -22,12 +22,10 @@ const Spam = () => {
   };
 
   const handleReply = (email) => {
-    navigate("/compose", {
-      state: {
-        replyTo: email.senderEmail || email.from,
-        subject: `Re: ${email.subject || ""}`,
-        originalBody: email.body,
-      },
+    openCompose({
+      replyTo: email.senderEmail || email.from,
+      subject: `Re: ${email.subject || ""}`,
+      originalBody: email.body,
     });
   };
 

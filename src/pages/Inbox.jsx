@@ -12,7 +12,7 @@ const Inbox = ({ searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive, openCompose } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
@@ -58,12 +58,10 @@ const Inbox = ({ searchQuery }) => {
           onSnooze={handleSnooze}
           onApplyLabel={handleApplyLabel}
           onReply={(email) =>
-            navigate("/compose", {
-              state: {
-                replyTo: email.from,
-                subject: `Re: ${email.subject}`,
-                originalBody: email.body,
-              },
+            openCompose({
+              replyTo: email.from,
+              subject: `Re: ${email.subject}`,
+              originalBody: email.body,
             })
           }
         />
