@@ -230,9 +230,9 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleCreateLabel = async (name, colorHex) => {
+    const handleCreateLabel = async (name, colorHex, parentId = null) => {
         try {
-            const res = await mailAPI.createLabel({ name, colorHex });
+            const res = await mailAPI.createLabel({ name, colorHex, parentId });
             if (res.data?.success) {
                 toast.success('Label created');
                 fetchLabels();
@@ -240,6 +240,18 @@ export const MailProvider = ({ children }) => {
             }
         } catch (error) {
             toast.error(error.response?.data?.message || 'Failed to create label');
+        }
+    };
+
+    const handleDeleteLabel = async (labelId) => {
+        try {
+            const res = await mailAPI.deleteLabel(labelId);
+            if (res.data?.success) {
+                toast.success('Label deleted');
+                fetchLabels();
+            }
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to delete label');
         }
     };
 
@@ -312,6 +324,7 @@ export const MailProvider = ({ children }) => {
             handleApplyLabel,
             handleArchive,
             handleUnarchive,
+            handleDeleteLabel,
             isComposeOpen,
             setIsComposeOpen,
             isComposeMinimized,

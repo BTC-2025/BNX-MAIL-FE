@@ -3,25 +3,26 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel, MdAdd, MdClose, MdCheck } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme } = useTheme();
-  const { unreadCounts, labels, handleCreateLabel, openCompose } = useMail();
+  const { unreadCounts, labels, handleCreateLabel, handleDeleteLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
-  const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec" });
+  const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec", parentId: "" });
 
   const COLORS = ["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
 
   const handleAddLabel = async () => {
     if (!newLabel.name.trim()) return;
-    const success = await handleCreateLabel(newLabel.name, newLabel.color);
+    const parentId = newLabel.parentId ? parseInt(newLabel.parentId) : null;
+    const success = await handleCreateLabel(newLabel.name, newLabel.color, parentId);
     if (success) {
       setIsCreating(false);
-      setNewLabel({ name: "", color: "#135bec" });
+      setNewLabel({ name: "", color: "#135bec", parentId: "" });
     }
   };
 
@@ -113,6 +114,19 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                   className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 mb-3 outline-none focus:border-primary transition-colors"
                   style={{ color: theme.text }}
                 />
+                <div className="mb-3">
+                  <select
+                    value={newLabel.parentId}
+                    onChange={(e) => setNewLabel({ ...newLabel, parentId: e.target.value })}
+                    className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 outline-none focus:border-primary transition-colors"
+                    style={{ color: theme.text }}
+                  >
+                    <option value="">No Parent (Top Level)</option>
+                    {labels.map(l => (
+                      <option key={l.id} value={l.id}>{l.name}</option>
+                    ))}
+                  </select>
+                </div>
                 <div className="flex flex-wrap gap-2 mb-3">
                   {COLORS.map((c) => (
                     <button
@@ -145,17 +159,38 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             </div>
           )}
 
-          {labels.map((label) => (
-            <button
-              key={label.id}
-              onClick={() => navigate(`/label/${label.id}`)}
-              className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
-              style={{ color: theme.sidebarText }}
-            >
-              <MdLabel style={{ color: label.colorHex }} size={18} />
-              <span className="text-sm">{label.name}</span>
-            </button>
-          ))}
+          {(() => {
+            const renderLabelTree = (parentId, depth = 0) => {
+              const children = labels.filter(l => l.parentId === parentId || (!l.parentId && parentId === null));
+              return children.map(label => (
+                <div key={label.id} className="group">
+                  <div
+                    className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1.5 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
+                    style={{ color: theme.sidebarText, paddingLeft: `${16 + (depth * 16)}px` }}
+                  >
+                    <div className="flex items-center gap-3 w-full" onClick={() => navigate(`/label/${label.id}`)}>
+                      <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
+                      <span className="text-sm truncate">{label.name}</span>
+                    </div>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (window.confirm('Are you sure you want to delete this label? Sub-labels will also be deleted.')) {
+                          handleDeleteLabel(label.id);
+                        }
+                      }}
+                      className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10 dark:hover:bg-white/10 shrink-0"
+                      style={{ color: theme.sidebarText }}
+                    >
+                      <MdDelete size={14} />
+                    </button>
+                  </div>
+                  {renderLabelTree(label.id, depth + 1)}
+                </div>
+              ));
+            };
+            return renderLabelTree(null);
+          })()}
         </div>
       </nav>
     </aside>
