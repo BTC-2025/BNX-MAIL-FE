@@ -14,7 +14,8 @@ const Inbox = ({ searchQuery }) => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive } = useMail();
 
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   useEffect(() => {
     fetchEmails('inbox');
@@ -28,11 +29,11 @@ const Inbox = ({ searchQuery }) => {
   );
 
   useEffect(() => {
-    setSelectedEmail(null);
+    setSelectedEmailUid(null);
   }, [location.pathname]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
     if (!email.isRead) {
       handleMarkRead(email.uid);
     }
@@ -44,15 +45,15 @@ const Inbox = ({ searchQuery }) => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "inbox");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onStar={(uid) => handleToggleStar(uid, "inbox")}
           onArchive={(uid) => {
             handleArchive(uid, "inbox");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onSnooze={handleSnooze}
           onApplyLabel={handleApplyLabel}

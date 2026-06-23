@@ -8,7 +8,8 @@ const Archive = () => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleUnarchive } = useMail();
 
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   // UI-only filter states
   const [showTime, setShowTime] = useState(false);
@@ -20,7 +21,7 @@ const Archive = () => {
   }, [fetchEmails]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
   };
 
   /* ---------------- LOADING ---------------- */
@@ -47,16 +48,16 @@ const Archive = () => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
-          onClose={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
+          onClose={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "archive");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onStar={(uid) => handleToggleStar(uid, "archive")}
           onArchive={(uid) => {
             handleUnarchive(uid);
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           isArchiveFolder={true}
         />

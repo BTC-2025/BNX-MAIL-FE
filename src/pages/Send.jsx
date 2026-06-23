@@ -10,19 +10,20 @@ const Send = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash } = useMail();
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   useEffect(() => {
     fetchEmails('sent');
   }, [fetchEmails]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
   };
 
   const handleDelete = (uid) => {
     handleMoveToTrash(uid, 'sent');
-    setSelectedEmail(null);
+    setSelectedEmailUid(null);
   };
 
   const handleReply = (email) => {
@@ -59,7 +60,7 @@ const Send = () => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
           onDelete={handleDelete}
           onStar={(uid) => handleToggleStar(uid, "sent")}
           onReply={handleReply}

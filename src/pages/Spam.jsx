@@ -10,14 +10,15 @@ const Spam = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive } = useMail();
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   useEffect(() => {
     fetchEmails('spam');
   }, [fetchEmails]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
   };
 
   const handleReply = (email) => {
@@ -36,15 +37,15 @@ const Spam = () => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "spam");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onStar={(uid) => handleToggleStar(uid, "spam")}
           onArchive={(uid) => {
             handleArchive(uid, "spam");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onReply={handleReply}
         />

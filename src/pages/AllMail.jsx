@@ -11,7 +11,8 @@ const AllMail = () => {
   const { labelId } = useParams();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive } = useMail();
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   const activeLabel = labels.find(l => l.id.toString() === labelId);
 
@@ -29,7 +30,7 @@ const AllMail = () => {
   }, [fetchEmails, fetchLabelEmails, labelId]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
     if (!email.isRead) {
       handleMarkRead(email.uid);
     }
@@ -52,15 +53,15 @@ const AllMail = () => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, currentFolder || "inbox");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onStar={(uid) => handleToggleStar(uid, currentFolder || "inbox")}
           onArchive={(uid) => {
             handleArchive(uid, currentFolder || "inbox");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}

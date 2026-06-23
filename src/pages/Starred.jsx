@@ -10,14 +10,15 @@ const Starred = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive } = useMail();
-  const [selectedEmail, setSelectedEmail] = useState(null);
+  const [selectedEmailUid, setSelectedEmailUid] = useState(null);
+  const selectedEmail = emails.find((e) => e.uid === selectedEmailUid);
 
   useEffect(() => {
     fetchEmails('starred');
   }, [fetchEmails]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmail(email);
+    setSelectedEmailUid(email.uid);
   };
 
   const handleUnstar = async (uid) => {
@@ -40,16 +41,16 @@ const Starred = () => {
       {selectedEmail ? (
         <EmailDetails
           email={selectedEmail}
-          onBack={() => setSelectedEmail(null)}
-          onClose={() => setSelectedEmail(null)}
+          onBack={() => setSelectedEmailUid(null)}
+          onClose={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "starred");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onStar={handleUnstar}
           onArchive={(uid) => {
             handleArchive(uid, "starred");
-            setSelectedEmail(null);
+            setSelectedEmailUid(null);
           }}
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}
