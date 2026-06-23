@@ -119,7 +119,7 @@ export const mailAPI = {
     getSent: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SENT}?limit=${limit}`),
     getDrafts: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.DRAFTS}?limit=${limit}`),
     saveDraft: (data) => api.post(API_ENDPOINTS.MAIL.DRAFTS, data),
-    downloadAttachment: (uid, fileName) => api.get(`/api/mail/${uid}/attachments/${fileName}`, { responseType: 'blob' }),
+    downloadAttachment: (uid, fileName, folder = 'INBOX') => api.get(`/api/mail/${uid}/attachments/${fileName}?folder=${folder}`, { responseType: 'blob' }),
     createDbDraft: (data) => api.post('/api/mail/drafts', data),
     uploadDraftAttachment: (id, formData) => api.post(`/api/mail/drafts/${id}/attachments`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }

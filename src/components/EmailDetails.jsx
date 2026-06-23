@@ -90,6 +90,17 @@ const EmailDetails = ({
   const [showLabels, setShowLabels] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
 
+  const getFolder = () => {
+    if (isArchiveFolder) return "Archive";
+    if (!email.category) return "INBOX";
+    const cat = email.category.toUpperCase();
+    if (cat === "SENT") return "Sent";
+    if (cat === "TRASH") return "Trash";
+    if (cat === "SPAM") return "Spam";
+    if (cat === "DRAFTS") return "Drafts";
+    return "INBOX";
+  };
+
   React.useEffect(() => {
     if (!email || !email.attachments) {
       return () => {
@@ -110,7 +121,7 @@ const EmailDetails = ({
       const isImage = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'].includes(ext);
       if (isImage) {
         try {
-          const res = await mailAPI.downloadAttachment(email.uid, file);
+          const res = await mailAPI.downloadAttachment(email.uid, file, getFolder());
           const blobUrl = URL.createObjectURL(new Blob([res.data]));
           setImagePreviews((prev) => ({
             ...prev,
@@ -133,7 +144,7 @@ const EmailDetails = ({
   const handleDownloadAttachment = async (fileName) => {
     try {
       toast.loading(`Downloading ${fileName}...`, { id: "download-attachment" });
-      const res = await mailAPI.downloadAttachment(email.uid, fileName);
+      const res = await mailAPI.downloadAttachment(email.uid, fileName, getFolder());
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement("a");
       link.href = url;
@@ -151,7 +162,7 @@ const EmailDetails = ({
   const handlePreviewAttachment = async (fileName) => {
     try {
       toast.loading(`Opening ${fileName}...`, { id: "preview-attachment" });
-      const res = await mailAPI.downloadAttachment(email.uid, fileName);
+      const res = await mailAPI.downloadAttachment(email.uid, fileName, getFolder());
       const fileBlob = new Blob([res.data], { type: getMimeType(fileName) });
       const url = window.URL.createObjectURL(fileBlob);
       window.open(url, "_blank");
