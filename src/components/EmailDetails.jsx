@@ -1,9 +1,77 @@
 import React, { useState } from "react";
-import { MdArchive, MdUnarchive, MdDelete, MdStar, MdAccessTime, MdLabel, MdReply, MdForward } from "react-icons/md";
+import { 
+  MdArchive, 
+  MdUnarchive, 
+  MdDelete, 
+  MdStar, 
+  MdAccessTime, 
+  MdLabel, 
+  MdReply, 
+  MdForward,
+  MdFileDownload,
+  MdRemoveRedEye
+} from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
 import { mailAPI } from "../services/api";
 import toast from "react-hot-toast";
+
+const getMimeType = (fileName) => {
+  const ext = fileName.split('.').pop().toLowerCase();
+  switch (ext) {
+    case 'pdf': return 'application/pdf';
+    case 'png': return 'image/png';
+    case 'jpg':
+    case 'jpeg': return 'image/jpeg';
+    case 'gif': return 'image/gif';
+    case 'webp': return 'image/webp';
+    case 'svg': return 'image/svg+xml';
+    case 'txt': return 'text/plain';
+    case 'html': return 'text/html';
+    default: return 'application/octet-stream';
+  }
+};
+
+const getFileIcon = (fileName) => {
+  const ext = fileName.split('.').pop().toLowerCase();
+  switch (ext) {
+    case 'pdf':
+      return { icon: '📄', color: '#ea4335', name: 'PDF' };
+    case 'doc':
+    case 'docx':
+      return { icon: '📝', color: '#1a73e8', name: 'Word' };
+    case 'xls':
+    case 'xlsx':
+      return { icon: '📊', color: '#1e8e3e', name: 'Excel' };
+    case 'ppt':
+    case 'pptx':
+      return { icon: '📈', color: '#f86734', name: 'PowerPoint' };
+    case 'png':
+    case 'jpg':
+    case 'jpeg':
+    case 'gif':
+    case 'webp':
+    case 'svg':
+      return { icon: '🖼️', color: '#12a4b4', name: 'Image' };
+    case 'zip':
+    case 'rar':
+    case '7z':
+    case 'tar':
+    case 'gz':
+      return { icon: '📦', color: '#e37400', name: 'Archive' };
+    case 'mp3':
+    case 'wav':
+    case 'ogg':
+      return { icon: '🎵', color: '#aa00ff', name: 'Audio' };
+    case 'mp4':
+    case 'avi':
+    case 'mov':
+    case 'mkv':
+      return { icon: '🎥', color: '#d500f9', name: 'Video' };
+    default:
+      return { icon: '📎', color: '#5f6368', name: 'File' };
+  }
+};
 
 const EmailDetails = ({
   email,
@@ -36,6 +104,20 @@ const EmailDetails = ({
     } catch (err) {
       console.error("Failed to download attachment:", err);
       toast.error("Failed to download attachment", { id: "download-attachment" });
+    }
+  };
+
+  const handlePreviewAttachment = async (fileName) => {
+    try {
+      toast.loading(`Opening ${fileName}...`, { id: "preview-attachment" });
+      const res = await mailAPI.downloadAttachment(email.uid, fileName);
+      const fileBlob = new Blob([res.data], { type: getMimeType(fileName) });
+      const url = window.URL.createObjectURL(fileBlob);
+      window.open(url, "_blank");
+      toast.success(`Opened ${fileName}`, { id: "preview-attachment" });
+    } catch (err) {
+      console.error("Failed to preview attachment:", err);
+      toast.error("Failed to preview attachment", { id: "preview-attachment" });
     }
   };
 
@@ -229,29 +311,66 @@ const EmailDetails = ({
         {/* ATTACHMENTS */}
         {email.attachments?.length > 0 && (
           <div className="mt-8 pt-6 border-t" style={{ borderColor: theme.border }}>
-            <p className="text-xs font-bold mb-3 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+            <p className="text-xs font-bold mb-4 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
               Attachments ({email.attachments.length})
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              {email.attachments.map((file, i) => (
-                <div
-                  key={i}
-                  className="flex items-center justify-between p-2.5 rounded-xl border bg-black/[0.01] dark:bg-white/[0.01] hover:shadow-sm transition-all group"
-                  style={{ borderColor: theme.border }}
-                >
-                  <div className="flex items-center gap-3 overflow-hidden">
-                    <div className="h-8 w-8 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-base shrink-0">📎</div>
-                    <span className="text-xs font-medium truncate" style={{ color: theme.text }}>{file}</span>
-                  </div>
-                  <button 
-                    onClick={() => handleDownloadAttachment(file)}
-                    className="text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0 cursor-pointer"
-                    title="Download attachment"
+            <div className="flex flex-wrap gap-4">
+              {email.attachments.map((file, i) => {
+                const fileInfo = getFileIcon(file);
+                return (
+                  <div
+                    key={i}
+                    className="w-[180px] h-[130px] rounded-xl border overflow-hidden flex flex-col hover:shadow-md transition-all relative group shadow-sm bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
+                    style={{ borderColor: theme.border }}
                   >
-                    ↓
-                  </button>
-                </div>
-              ))}
+                    {/* Upper preview / icon block */}
+                    <div 
+                      className="h-[85px] w-full flex flex-col items-center justify-center bg-black/[0.03] dark:bg-white/[0.03] border-b relative"
+                      style={{ borderColor: theme.border }}
+                    >
+                      <span className="text-3xl filter drop-shadow-sm select-none">{fileInfo.icon}</span>
+                      <span 
+                        className="text-[9px] font-extrabold uppercase tracking-wider mt-1.5 px-2 py-0.5 rounded-full select-none"
+                        style={{ backgroundColor: `${fileInfo.color}15`, color: fileInfo.color }}
+                      >
+                        {fileInfo.name}
+                      </span>
+
+                      {/* Hover action overlay */}
+                      <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
+                        <button
+                          onClick={() => handlePreviewAttachment(file)}
+                          className="p-1.5 rounded-full bg-white/20 hover:bg-white/35 text-white transition-all scale-90 group-hover:scale-100 cursor-pointer"
+                          title="Preview file"
+                        >
+                          <MdRemoveRedEye size={16} />
+                        </button>
+                        <button
+                          onClick={() => handleDownloadAttachment(file)}
+                          className="p-1.5 rounded-full bg-white/20 hover:bg-white/35 text-white transition-all scale-90 group-hover:scale-100 cursor-pointer"
+                          title="Download file"
+                        >
+                          <MdFileDownload size={16} />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Lower details block */}
+                    <div className="p-2 flex flex-col justify-center flex-1 min-w-0">
+                      <span 
+                        className="text-[11px] font-semibold truncate select-all" 
+                        style={{ color: theme.text }}
+                        title={file}
+                      >
+                        {file}
+                      </span>
+                      <span className="text-[9px] opacity-50 font-medium select-none truncate">
+                        Hover for actions
+                      </span>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}
