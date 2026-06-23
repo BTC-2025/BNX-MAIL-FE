@@ -25,7 +25,7 @@ const AllMail = () => {
     if (labelId) {
       fetchLabelEmails(labelId);
     } else {
-      fetchEmails('inbox');
+      fetchEmails('all-mail');
     }
   }, [fetchEmails, fetchLabelEmails, labelId]);
 
@@ -82,7 +82,7 @@ const AllMail = () => {
                   if (labelId) {
                     fetchLabelEmails(labelId);
                   } else {
-                    fetchEmails("inbox");
+                    fetchEmails("all-mail");
                   }
                 }}
                 disabled={loading}

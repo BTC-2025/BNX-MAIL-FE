@@ -64,6 +64,39 @@ export const MailProvider = ({ children }) => {
                 case 'spam': res = await mailAPI.getSpam(); break;
                 case 'snoozed': res = await mailAPI.getSnoozed(); break;
                 case 'archive': res = await mailAPI.getArchive(); break;
+                case 'all-mail':
+                case 'allmail': {
+                    const [inboxRes, sentRes] = await Promise.all([
+                        mailAPI.getInbox().catch(() => ({ data: { success: false } })),
+                        mailAPI.getSent().catch(() => ({ data: { success: false } }))
+                    ]);
+                    
+                    let mergedEmails = [];
+                    if (inboxRes.data?.success && inboxRes.data.data?.emails) {
+                        mergedEmails = [...mergedEmails, ...inboxRes.data.data.emails];
+                    }
+                    if (sentRes.data?.success && sentRes.data.data?.emails) {
+                        mergedEmails = [...mergedEmails, ...sentRes.data.data.emails];
+                    }
+                    
+                    // Sort descending by date
+                    mergedEmails.sort((a, b) => {
+                        const dateA = new Date(a.date || a.sentDate || a.receivedDate || 0);
+                        const dateB = new Date(b.date || b.sentDate || b.receivedDate || 0);
+                        return dateB - dateA;
+                    });
+                    
+                    res = {
+                        data: {
+                            success: true,
+                            data: {
+                                emails: mergedEmails,
+                                unreadCount: (inboxRes.data?.success && inboxRes.data.data?.unreadCount) ? inboxRes.data.data.unreadCount : 0
+                            }
+                        }
+                    };
+                    break;
+                }
                 default: res = await mailAPI.getInbox();
             }
 
