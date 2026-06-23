@@ -1,4 +1,4 @@
-import React, { createContext, useState, useContext, useEffect, useCallback } from 'react';
+import React, { createContext, useState, useContext, useEffect, useCallback, useRef } from 'react';
 import { mailAPI, api } from '../services/api';
 import { API_ENDPOINTS } from '../Data/constants';
 import { useAuth } from './AuthContext';
@@ -10,9 +10,14 @@ export const MailProvider = ({ children }) => {
     const { user } = useAuth();
     const [emails, setEmails] = useState([]);
     const [currentFolder, setCurrentFolder] = useState('inbox');
+    const currentFolderRef = useRef('inbox');
     const [loading, setLoading] = useState(false);
     const [unreadCounts, setUnreadCounts] = useState({ inbox: 0, spam: 0, trash: 0 });
     const [labels, setLabels] = useState([]);
+
+    useEffect(() => {
+        currentFolderRef.current = currentFolder;
+    }, [currentFolder]);
 
     const fetchLabelEmails = useCallback(async (labelId) => {
         if (!user) return;
@@ -46,6 +51,7 @@ export const MailProvider = ({ children }) => {
         // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
         setEmails(prev => (currentFolder === folder ? prev : []));
         setCurrentFolder(folder);
+        currentFolderRef.current = folder;
         try {
             let res;
             switch (folder.toLowerCase()) {
@@ -60,13 +66,15 @@ export const MailProvider = ({ children }) => {
             }
 
             if (res.data?.success) {
-                const data = res.data.data;
-                const normalizedEmails = (data.emails || []).map(m => ({
-                    ...m,
-                    starred: m.starred ?? m.isStarred ?? false
-                }));
-                setEmails(normalizedEmails);
-                setUnreadCounts(prev => ({ ...prev, [folder]: data.unreadCount || 0 }));
+                if (currentFolderRef.current === folder) {
+                    const data = res.data.data;
+                    const normalizedEmails = (data.emails || []).map(m => ({
+                        ...m,
+                        starred: m.starred ?? m.isStarred ?? false
+                    }));
+                    setEmails(normalizedEmails);
+                    setUnreadCounts(prev => ({ ...prev, [folder]: data.unreadCount || 0 }));
+                }
             }
         } catch (error) {
             console.error(`Failed to fetch ${folder}:`, error);
@@ -90,10 +98,9 @@ export const MailProvider = ({ children }) => {
 
     useEffect(() => {
         if (user) {
-            fetchEmails();
             fetchLabels();
         }
-    }, [user, fetchEmails, fetchLabels]);
+    }, [user, fetchLabels]);
 
     // Background auto-polling for new emails every 30 seconds
     useEffect(() => {
