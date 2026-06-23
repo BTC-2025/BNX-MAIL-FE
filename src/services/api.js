@@ -119,6 +119,13 @@ export const mailAPI = {
     getSent: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SENT}?limit=${limit}`),
     getDrafts: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.DRAFTS}?limit=${limit}`),
     saveDraft: (data) => api.post(API_ENDPOINTS.MAIL.DRAFTS, data),
+    downloadAttachment: (uid, fileName) => api.get(`/api/mail/${uid}/attachments/${fileName}`, { responseType: 'blob' }),
+    createDbDraft: (data) => api.post('/api/mail/drafts', data),
+    uploadDraftAttachment: (id, formData) => api.post(`/api/mail/drafts/${id}/attachments`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    removeDraftAttachment: (id, fileName) => api.delete(`/api/mail/drafts/${id}/attachments/${fileName}`),
+    sendDbDraft: (id) => api.post(`/api/mail/drafts/${id}/send`),
     getStarred: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.STARRED}?limit=${limit}`),
     getTrash: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.TRASH}?limit=${limit}`),
     getSpam: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SPAM}?limit=${limit}`),

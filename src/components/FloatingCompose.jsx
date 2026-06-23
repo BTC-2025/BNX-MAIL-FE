@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Rnd } from "react-rnd";
 import { 
   MdSend, 
@@ -10,10 +10,11 @@ import {
   MdOpenInFull, 
   MdCloseFullscreen 
 } from "react-icons/md";
-import { mailAPI } from "../services/api";
+import { mailAPI, api } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
 import { DEFAULT_TEMPLATES } from "../pages/Templates";
+import toast from "react-hot-toast";
 
 const FloatingCompose = () => {
   const { theme } = useTheme();
@@ -27,6 +28,8 @@ const FloatingCompose = () => {
     composeData,
     fetchEmails
   } = useMail();
+
+  const fileInputRef = useRef(null);
 
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -45,6 +48,10 @@ const FloatingCompose = () => {
     subject: "",
     body: "",
   });
+
+  const [draftId, setDraftId] = useState(null);
+  const [attachments, setAttachments] = useState([]);
+  const [uploading, setUploading] = useState(false);
 
   const [size, setSize] = useState({ width: 540, height: 500 });
   const [position, setPosition] = useState({ x: window.innerWidth - 570, y: window.innerHeight - 520 });
@@ -83,6 +90,10 @@ const FloatingCompose = () => {
   /* ---------------- PREFILL ON COMPOSE DATA CHANGE ---------------- */
   useEffect(() => {
     if (isComposeOpen) {
+      setDraftId(null);
+      setAttachments([]);
+      setUploading(false);
+
       if (composeData) {
         if (composeData.replyTo) {
           setFormData({
@@ -158,6 +169,77 @@ const FloatingCompose = () => {
     setError("");
   };
 
+  /* ---------------- ATTACHMENT UPLOAD HANDLER ---------------- */
+  const handleFileChange = async (e) => {
+    const files = Array.from(e.target.files);
+    if (files.length === 0) return;
+
+    try {
+      setUploading(true);
+      setError("");
+      
+      let activeDraftId = draftId;
+
+      // 1. If we don't have a database draftId yet, create one to attach files to
+      if (!activeDraftId) {
+        const payload = {
+          to: formData.to,
+          cc: formData.cc,
+          bcc: formData.bcc,
+          subject: formData.subject || "(No Subject)",
+          body: formData.body,
+          isHtml: false
+        };
+        const draftRes = await mailAPI.createDbDraft(payload);
+        if (draftRes.data?.success) {
+          activeDraftId = draftRes.data.data.id;
+          setDraftId(activeDraftId);
+        } else {
+          throw new Error("Failed to initialize draft session");
+        }
+      }
+
+      // 2. Upload each file in sequence
+      for (const file of files) {
+        const fileForm = new FormData();
+        fileForm.append("file", file);
+
+        toast.loading(`Uploading ${file.name}...`, { id: "upload-attachment" });
+        const uploadRes = await mailAPI.uploadDraftAttachment(activeDraftId, fileForm);
+        if (uploadRes.data?.success) {
+          const info = uploadRes.data.data;
+          setAttachments((prev) => [...prev, info]);
+          toast.success(`${file.name} uploaded`, { id: "upload-attachment" });
+        } else {
+          throw new Error(`Failed to upload ${file.name}`);
+        }
+      }
+    } catch (err) {
+      console.error("Attachment upload error:", err);
+      setError(err.response?.data?.message || err.message || "Failed to upload attachments");
+      toast.error("Upload failed", { id: "upload-attachment" });
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
+
+  /* ---------------- ATTACHMENT REMOVAL HANDLER ---------------- */
+  const handleRemoveAttachment = async (fileName) => {
+    if (!draftId) return;
+    try {
+      toast.loading(`Removing ${fileName}...`, { id: "remove-attachment" });
+      const res = await mailAPI.removeDraftAttachment(draftId, fileName);
+      if (res.data?.success) {
+        setAttachments((prev) => prev.filter((a) => a.fileName !== fileName));
+        toast.success("Attachment removed", { id: "remove-attachment" });
+      }
+    } catch (err) {
+      console.error("Failed to remove attachment:", err);
+      toast.error("Failed to remove attachment", { id: "remove-attachment" });
+    }
+  };
+
   /* ---------------- SEND EMAIL ---------------- */
   const handleSend = async (e) => {
     e.preventDefault();
@@ -174,6 +256,11 @@ const FloatingCompose = () => {
       return;
     }
 
+    if (uploading) {
+      setError("Please wait for files to finish uploading");
+      return;
+    }
+
     try {
       setSending(true);
 
@@ -186,7 +273,20 @@ const FloatingCompose = () => {
       if (formData.cc) payload.cc = formData.cc;
       if (formData.bcc) payload.bcc = formData.bcc;
 
-      const response = await mailAPI.send(payload);
+      let response;
+      if (draftId) {
+        // Update the DB draft content first
+        await mailAPI.createDbDraft({
+          id: draftId,
+          ...payload,
+          isHtml: false
+        });
+        // Send the DB draft
+        response = await mailAPI.sendDbDraft(draftId);
+      } else {
+        // Direct Send if no draft ID/attachments exists
+        response = await mailAPI.send(payload);
+      }
 
       if (response.data?.success) {
         setSuccess("Email sent successfully");
@@ -223,8 +323,15 @@ const FloatingCompose = () => {
     closeCompose();
   };
 
-  const handleDiscard = () => {
+  const handleDiscard = async () => {
     if (window.confirm("Discard this email?")) {
+      if (draftId) {
+        try {
+          await api.delete(`/api/mail/drafts/${draftId}`);
+        } catch (e) {
+          console.error("Failed to discard DB draft:", e);
+        }
+      }
       closeCompose();
     }
   };
@@ -405,14 +512,47 @@ const FloatingCompose = () => {
               className="w-full flex-1 resize-none outline-none py-2 text-sm bg-transparent border-none mt-2 placeholder:text-gray-400 min-h-[120px]"
               style={{ color: theme.text }}
             />
+
+            {/* ATTACHMENT CHIPS RENDERING */}
+            {attachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 py-2 mt-2 border-t" style={{ borderColor: theme.border }}>
+                {attachments.map((file, i) => (
+                  <div 
+                    key={i}
+                    className="flex items-center gap-2 bg-black/[0.03] dark:bg-white/[0.04] border px-2.5 py-1 rounded-xl text-xs"
+                    style={{ borderColor: theme.border, color: theme.text }}
+                  >
+                    <span className="truncate max-w-[150px]">{file.fileName}</span>
+                    <span className="opacity-55 font-medium">({Math.round(file.size / 1024)} KB)</span>
+                    <button 
+                      type="button" 
+                      onClick={() => handleRemoveAttachment(file.fileName)}
+                      className="text-red-500 hover:text-red-700 font-bold text-sm leading-none cursor-pointer"
+                      title="Remove attachment"
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
+
+          {/* FILE UPLOAD INPUT */}
+          <input
+            type="file"
+            ref={fileInputRef}
+            onChange={handleFileChange}
+            className="hidden"
+            multiple
+          />
 
           {/* ACTIONS FOOTER */}
           <div className="flex items-center justify-between border-t pt-3 mt-2 shrink-0" style={{ borderColor: theme.border }}>
             <div className="flex items-center gap-2">
               <button
                 type="submit"
-                disabled={sending}
+                disabled={sending || uploading}
                 className="flex items-center gap-1.5 px-5 py-2 rounded-full text-white text-xs font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-60 cursor-pointer"
                 style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
               >
@@ -422,7 +562,8 @@ const FloatingCompose = () => {
 
               <button
                 type="button"
-                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
                 title="Attach file"
               >
                 <MdAttachFile size={18} className="transform rotate-45" />
@@ -484,7 +625,7 @@ const FloatingCompose = () => {
             <button
               type="button"
               onClick={handleDiscard}
-              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-semibold transition-colors"
+              className="flex items-center gap-1 px-3 py-1.5 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-semibold transition-colors cursor-pointer"
             >
               <MdDeleteOutline size={18} />
               <span>Discard</span>

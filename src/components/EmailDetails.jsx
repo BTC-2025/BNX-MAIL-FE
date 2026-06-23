@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { MdArchive, MdUnarchive, MdDelete, MdStar, MdAccessTime, MdLabel, MdReply, MdForward } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
+import { mailAPI } from "../services/api";
+import toast from "react-hot-toast";
 
 const EmailDetails = ({
   email,
@@ -18,6 +20,24 @@ const EmailDetails = ({
   const { theme } = useTheme();
   const { labels } = useMail();
   const [showLabels, setShowLabels] = useState(false);
+
+  const handleDownloadAttachment = async (fileName) => {
+    try {
+      toast.loading(`Downloading ${fileName}...`, { id: "download-attachment" });
+      const res = await mailAPI.downloadAttachment(email.uid, fileName);
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", fileName);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      toast.success(`${fileName} downloaded successfully`, { id: "download-attachment" });
+    } catch (err) {
+      console.error("Failed to download attachment:", err);
+      toast.error("Failed to download attachment", { id: "download-attachment" });
+    }
+  };
 
   const handleClose = onBack || onClose;
 
@@ -223,7 +243,11 @@ const EmailDetails = ({
                     <div className="h-8 w-8 rounded-lg bg-black/[0.04] dark:bg-white/[0.06] flex items-center justify-center text-base shrink-0">📎</div>
                     <span className="text-xs font-medium truncate" style={{ color: theme.text }}>{file}</span>
                   </div>
-                  <button className="text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0 cursor-pointer">
+                  <button 
+                    onClick={() => handleDownloadAttachment(file)}
+                    className="text-sm font-medium text-primary opacity-0 group-hover:opacity-100 transition-opacity ml-2 shrink-0 cursor-pointer"
+                    title="Download attachment"
+                  >
                     ↓
                   </button>
                 </div>
