@@ -141,31 +141,23 @@ const ComposePage = () => {
     }
   };
 
-  const handleClose = async () => {
+  const handleClose = () => {
     const hasContent = formData.to.trim() || formData.subject.trim() || formData.body.trim() || formData.cc.trim() || formData.bcc.trim();
     if (hasContent) {
-      try {
-        setSending(true);
-        setError("");
-        setSuccess("Saving draft...");
-        const payload = {
-          to: formData.to,
-          subject: formData.subject || "(No Subject)",
-          body: formData.body,
-        };
-        if (formData.cc) payload.cc = formData.cc;
-        if (formData.bcc) payload.bcc = formData.bcc;
+      const payload = {
+        to: formData.to,
+        subject: formData.subject || "(No Subject)",
+        body: formData.body,
+      };
+      if (formData.cc) payload.cc = formData.cc;
+      if (formData.bcc) payload.bcc = formData.bcc;
 
-        await mailAPI.saveDraft(payload);
-        setSuccess("Draft saved successfully");
-        setTimeout(() => navigate("/inbox"), 1000);
-      } catch (err) {
-        setError(err.response?.data?.message || "Failed to save draft");
-        setSending(false);
-      }
-    } else {
-      navigate("/inbox");
+      // Save draft in the background
+      mailAPI.saveDraft(payload).catch((err) => {
+        console.error("Failed to auto-save draft in the background:", err);
+      });
     }
+    navigate("/inbox");
   };
 
   const handleDiscard = () => {
