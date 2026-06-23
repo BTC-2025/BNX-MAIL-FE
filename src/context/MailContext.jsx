@@ -79,6 +79,10 @@ export const MailProvider = ({ children }) => {
                         mergedEmails = [...mergedEmails, ...sentRes.data.data.emails];
                     }
                     
+                    console.log('📬 [All Mail] Inbox count:', inboxRes.data?.data?.emails?.length);
+                    console.log('📬 [All Mail] Sent count:', sentRes.data?.data?.emails?.length);
+                    console.log('📬 [All Mail] Merged count:', mergedEmails.length);
+                    
                     // Sort descending by date
                     mergedEmails.sort((a, b) => {
                         const dateA = new Date(a.date || a.sentDate || a.receivedDate || 0);

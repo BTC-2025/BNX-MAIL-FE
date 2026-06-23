@@ -96,7 +96,7 @@ const AppContent = () => {
         >
           <Routes>
             <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
-            <Route path="/inbox" element={<AllMail searchQuery={searchQuery} />} />
+            <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
             <Route path="/starred" element={<Starred />} />
             <Route path="/draft" element={<Draft />} />
             <Route path="/sent" element={<Send />} />
@@ -105,6 +105,7 @@ const AppContent = () => {
             <Route path="/trash" element={<Trash />} />
             <Route path="/archive" element={<Archive />} />
             <Route path="/all-mail" element={<AllMail />} />
+            <Route path="/allmail" element={<AllMail />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="/groups" element={<Groups />} />
