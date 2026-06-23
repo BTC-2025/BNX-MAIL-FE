@@ -9,7 +9,8 @@ import {
   MdReply, 
   MdForward,
   MdFileDownload,
-  MdRemoveRedEye
+  MdRemoveRedEye,
+  MdClose
 } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
@@ -141,6 +142,24 @@ const EmailDetails = ({
     };
   }, [email]);
 
+  const [previewFile, setPreviewFile] = useState(null);
+
+  React.useEffect(() => {
+    return () => {
+      setPreviewFile((prev) => {
+        if (prev) URL.revokeObjectURL(prev.blobUrl);
+        return null;
+      });
+    };
+  }, [email]);
+
+  const closePreview = () => {
+    setPreviewFile((prev) => {
+      if (prev) URL.revokeObjectURL(prev.blobUrl);
+      return null;
+    });
+  };
+
   const handleDownloadAttachment = async (fileName) => {
     try {
       toast.loading(`Downloading ${fileName}...`, { id: "download-attachment" });
@@ -161,12 +180,27 @@ const EmailDetails = ({
 
   const handlePreviewAttachment = async (fileName) => {
     try {
-      toast.loading(`Opening ${fileName}...`, { id: "preview-attachment" });
+      toast.loading(`Loading preview...`, { id: "preview-attachment" });
       const res = await mailAPI.downloadAttachment(email.uid, fileName, getFolder());
-      const fileBlob = new Blob([res.data], { type: getMimeType(fileName) });
-      const url = window.URL.createObjectURL(fileBlob);
-      window.open(url, "_blank");
-      toast.success(`Opened ${fileName}`, { id: "preview-attachment" });
+      const mime = getMimeType(fileName);
+      
+      let textContent = "";
+      if (mime === "text/plain") {
+        const reader = new FileReader();
+        textContent = await new Promise((resolve) => {
+          reader.onload = () => resolve(reader.result);
+          reader.readAsText(new Blob([res.data]));
+        });
+      }
+
+      const url = window.URL.createObjectURL(new Blob([res.data], { type: mime }));
+      setPreviewFile({
+        fileName,
+        blobUrl: url,
+        mimeType: mime,
+        textContent
+      });
+      toast.success("Loaded preview", { id: "preview-attachment" });
     } catch (err) {
       console.error("Failed to preview attachment:", err);
       toast.error("Failed to preview attachment", { id: "preview-attachment" });
@@ -459,6 +493,72 @@ const EmailDetails = ({
           <MdForward size={18} /> Forward
         </button>
       </div>
+
+      {/* INLINE PREVIEW OVERLAY */}
+      {previewFile && (
+        <div className="fixed inset-0 bg-black/90 z-[1000] flex flex-col animate-fade-in">
+          {/* HEADER */}
+          <div className="flex items-center justify-between px-6 py-4 bg-black/30 border-b border-white/5 text-white select-none">
+            <div className="flex flex-col min-w-0">
+              <span className="text-sm font-semibold truncate max-w-[60vw]">
+                {previewFile.fileName}
+              </span>
+              <span className="text-[10px] opacity-60">
+                {previewFile.mimeType}
+              </span>
+            </div>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => handleDownloadAttachment(previewFile.fileName)}
+                className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                title="Download file"
+              >
+                <MdFileDownload size={20} />
+              </button>
+              <button
+                onClick={closePreview}
+                className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                title="Close preview"
+              >
+                <MdClose size={20} />
+              </button>
+            </div>
+          </div>
+
+          {/* CONTENT AREA */}
+          <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
+            {previewFile.mimeType.startsWith("image/") ? (
+              <img
+                src={previewFile.blobUrl}
+                alt={previewFile.fileName}
+                className="max-w-full max-h-[82vh] object-contain rounded shadow-2xl select-none"
+              />
+            ) : previewFile.mimeType === "application/pdf" ? (
+              <iframe
+                src={previewFile.blobUrl}
+                title={previewFile.fileName}
+                className="w-[90vw] h-[80vh] rounded-lg shadow-2xl bg-white border-none"
+              />
+            ) : previewFile.mimeType === "text/plain" ? (
+              <pre className="bg-zinc-950 text-zinc-100 p-6 rounded-xl shadow-2xl overflow-auto max-w-[90vw] max-h-[80vh] text-left font-mono text-xs sm:text-sm leading-relaxed border border-zinc-800 hidden-scrollbar">
+                {previewFile.textContent}
+              </pre>
+            ) : (
+              <div className="flex flex-col items-center justify-center bg-zinc-900/60 text-white p-8 rounded-2xl border border-zinc-800 max-w-sm text-center shadow-xl">
+                <span className="text-5xl mb-4 select-none">📎</span>
+                <p className="font-semibold text-sm mb-1 truncate max-w-[280px]">{previewFile.fileName}</p>
+                <p className="text-[11px] text-gray-400 mb-6">No inline preview available for this file type</p>
+                <button
+                  onClick={() => handleDownloadAttachment(previewFile.fileName)}
+                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                >
+                  <MdFileDownload size={15} /> Download Attachment
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
