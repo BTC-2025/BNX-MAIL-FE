@@ -22,7 +22,7 @@ const Send = () => {
   };
 
   const handleDelete = (uid) => {
-    handleMoveToTrash(uid, 'sent');
+    handleMoveToTrash(uid, 'Sent');
     setSelectedEmailUid(null);
   };
 
@@ -62,9 +62,9 @@ const Send = () => {
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onDelete={handleDelete}
-          onStar={(uid) => handleToggleStar(uid, "sent")}
+          onStar={(uid) => handleToggleStar(uid, "Sent")}
           onArchive={(uid) => {
-            handleArchive(uid, "sent");
+            handleArchive(uid, "Sent");
             setSelectedEmailUid(null);
           }}
           onSnooze={handleSnooze}
@@ -104,9 +104,9 @@ const Send = () => {
                 emails={emails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
-                onStar={(uid) => handleToggleStar(uid, "sent")}
-                onDelete={(uid) => handleMoveToTrash(uid, "sent")}
-                onArchive={(uid) => handleArchive(uid, "sent")}
+                onStar={(uid) => handleToggleStar(uid, "Sent")}
+                onDelete={(uid) => handleMoveToTrash(uid, "Sent")}
+                onArchive={(uid) => handleArchive(uid, "Sent")}
                 onSnooze={handleSnooze}
                 showTo={true}
               />
