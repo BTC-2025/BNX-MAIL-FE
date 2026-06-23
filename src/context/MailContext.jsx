@@ -66,9 +66,11 @@ export const MailProvider = ({ children }) => {
                 case 'archive': res = await mailAPI.getArchive(); break;
                 case 'all-mail':
                 case 'allmail': {
-                    const [inboxRes, sentRes] = await Promise.all([
+                    const [inboxRes, sentRes, draftRes, archiveRes] = await Promise.all([
                         mailAPI.getInbox().catch(() => ({ data: { success: false } })),
-                        mailAPI.getSent().catch(() => ({ data: { success: false } }))
+                        mailAPI.getSent().catch(() => ({ data: { success: false } })),
+                        mailAPI.getDrafts().catch(() => ({ data: { success: false } })),
+                        mailAPI.getArchive().catch(() => ({ data: { success: false } }))
                     ]);
                     
                     let mergedEmails = [];
@@ -78,9 +80,17 @@ export const MailProvider = ({ children }) => {
                     if (sentRes.data?.success && sentRes.data.data?.emails) {
                         mergedEmails = [...mergedEmails, ...sentRes.data.data.emails];
                     }
+                    if (draftRes.data?.success && draftRes.data.data?.emails) {
+                        mergedEmails = [...mergedEmails, ...draftRes.data.data.emails];
+                    }
+                    if (archiveRes.data?.success && archiveRes.data.data?.emails) {
+                        mergedEmails = [...mergedEmails, ...archiveRes.data.data.emails];
+                    }
                     
                     console.log('📬 [All Mail] Inbox count:', inboxRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Sent count:', sentRes.data?.data?.emails?.length);
+                    console.log('📬 [All Mail] Draft count:', draftRes.data?.data?.emails?.length);
+                    console.log('📬 [All Mail] Archive count:', archiveRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Merged count:', mergedEmails.length);
                     
                     // Sort descending by date
