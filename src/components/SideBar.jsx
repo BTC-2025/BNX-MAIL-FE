@@ -27,6 +27,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   };
 
   return (
+    <>
     <aside
       className={`
         w-56 h-full overflow-y-auto flex flex-col transition-transform duration-300 shrink-0 border-r-0
@@ -103,61 +104,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             </button>
           </div>
 
-          {isCreating && (
-            <div className="px-3 mb-4 animate-in slide-in-from-top-2 duration-200">
-              <div className="p-3 rounded-xl bg-white dark:bg-gray-800 border dark:border-gray-700 shadow-lg">
-                <input
-                  autoFocus
-                  placeholder="Label name"
-                  value={newLabel.name}
-                  onChange={(e) => setNewLabel({ ...newLabel, name: e.target.value })}
-                  className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 mb-3 outline-none focus:border-primary transition-colors"
-                  style={{ color: theme.text }}
-                />
-                <div className="mb-3">
-                  <select
-                    value={newLabel.parentId}
-                    onChange={(e) => setNewLabel({ ...newLabel, parentId: e.target.value })}
-                    className="w-full text-sm bg-transparent border-b dark:border-gray-700 pb-1 outline-none focus:border-primary transition-colors"
-                    style={{ color: theme.text }}
-                  >
-                    <option value="">No Parent (Top Level)</option>
-                    {labels.map(l => (
-                      <option key={l.id} value={l.id}>{l.name}</option>
-                    ))}
-                  </select>
-                </div>
-                <div className="flex flex-wrap gap-2 mb-3">
-                  {COLORS.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setNewLabel({ ...newLabel, color: c })}
-                      className={`w-5 h-5 rounded-full border-2 transition-transform hover:scale-110 cursor-pointer ${
-                        newLabel.color === c ? "border-white ring-2 ring-primary scale-110" : "border-transparent"
-                      }`}
-                      style={{ backgroundColor: c }}
-                    />
-                  ))}
-                </div>
-                <div className="flex justify-end gap-2">
-                  <button
-                    onClick={() => setIsCreating(false)}
-                    className="p-1 rounded hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
-                    style={{ color: theme.subText }}
-                  >
-                    <MdClose size={18} />
-                  </button>
-                  <button
-                    onClick={handleAddLabel}
-                    className="p-1 rounded hover:bg-primary/10 cursor-pointer"
-                    style={{ color: theme.accent }}
-                  >
-                    <MdCheck size={18} />
-                  </button>
-                </div>
-              </div>
-            </div>
-          )}
+
 
           {(() => {
             const renderLabelTree = (parentId, depth = 0) => {
@@ -194,6 +141,86 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
       </nav>
     </aside>
+
+    {/* CREATE LABEL MODAL */}
+    {isCreating && (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+        <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl border dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
+          <div className="flex items-center justify-between px-5 py-4 border-b dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+            <h2 className="text-lg font-semibold" style={{ color: theme.text }}>New Label</h2>
+            <button onClick={() => setIsCreating(false)} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer" style={{ color: theme.subText }}>
+              <MdClose size={20} />
+            </button>
+          </div>
+          
+          <div className="p-5 space-y-5">
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: theme.subText }}>Label Name</label>
+              <input
+                autoFocus
+                placeholder="e.g. Work, Personal, Receipts"
+                value={newLabel.name}
+                onChange={(e) => setNewLabel({ ...newLabel, name: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg bg-transparent outline-none transition-all"
+                style={{ color: theme.text, borderColor: theme.border }}
+              />
+            </div>
+            
+            <div>
+              <label className="block text-sm font-medium mb-1.5" style={{ color: theme.subText }}>Nest label under</label>
+              <select
+                value={newLabel.parentId}
+                onChange={(e) => setNewLabel({ ...newLabel, parentId: e.target.value })}
+                className="w-full px-3 py-2 border rounded-lg bg-transparent outline-none transition-all cursor-pointer"
+                style={{ color: theme.text, borderColor: theme.border }}
+              >
+                <option value="" style={{ color: "black" }}>Top Level (No Parent)</option>
+                {labels.map(l => (
+                  <option key={l.id} value={l.id} style={{ color: "black" }}>{l.name}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium mb-2" style={{ color: theme.subText }}>Color</label>
+              <div className="flex flex-wrap gap-3">
+                {COLORS.map((c) => (
+                  <button
+                    key={c}
+                    onClick={() => setNewLabel({ ...newLabel, color: c })}
+                    className={`w-6 h-6 rounded-full transition-transform hover:scale-110 cursor-pointer flex items-center justify-center`}
+                    style={{ 
+                      backgroundColor: c, 
+                      border: newLabel.color === c ? '2px solid white' : '2px solid transparent', 
+                      boxShadow: newLabel.color === c ? `0 0 0 2px ${c}` : 'none' 
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+          
+          <div className="px-5 py-4 border-t dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end gap-3">
+            <button
+              onClick={() => setIsCreating(false)}
+              className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+              style={{ color: theme.text }}
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleAddLabel}
+              disabled={!newLabel.name.trim()}
+              className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ backgroundColor: theme.accent || "#135bec" }}
+            >
+              Create Label
+            </button>
+          </div>
+        </div>
+      </div>
+    )}
+    </>
   );
 };
 

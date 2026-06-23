@@ -278,20 +278,28 @@ const EmailDetails = ({
                 className="absolute left-0 mt-2 w-48 rounded-xl shadow-xl z-20 border overflow-hidden"
                 style={{ backgroundColor: theme.cardBg, borderColor: theme.border }}
               >
-                {labels.map((l) => (
-                  <button
-                    key={l.id}
-                    onClick={() => {
-                      onApplyLabel?.(email.uid, l.id);
-                      setShowLabels(false);
-                    }}
-                    className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-2 cursor-pointer"
-                    style={{ color: theme.text }}
-                  >
-                    <span className="w-3 h-3 rounded-full" style={{ backgroundColor: l.colorHex }} />
-                    <span className="text-sm">{l.name}</span>
-                  </button>
-                ))}
+                {(() => {
+                  const renderLabelDropdownTree = (parentId, depth = 0) => {
+                    const children = labels.filter(l => l.parentId === parentId || (!l.parentId && parentId === null));
+                    return children.map(l => (
+                      <div key={l.id}>
+                        <button
+                          onClick={() => {
+                            onApplyLabel?.(email.uid, l.id);
+                            setShowLabels(false);
+                          }}
+                          className="w-full text-left py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-2 cursor-pointer"
+                          style={{ color: theme.text, paddingLeft: `${16 + (depth * 16)}px`, paddingRight: '16px' }}
+                        >
+                          <span className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: l.colorHex }} />
+                          <span className="text-sm truncate">{l.name}</span>
+                        </button>
+                        {renderLabelDropdownTree(l.id, depth + 1)}
+                      </div>
+                    ));
+                  };
+                  return renderLabelDropdownTree(null);
+                })()}
               </div>
             )}
           </div>
