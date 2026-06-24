@@ -194,3 +194,11 @@ export const chatAPI = {
     getMessageHistory: (chatId) => api.get(API_ENDPOINTS.CHAT.MESSAGES.replace(':chatId', chatId)),
     sendMessage: (data) => api.post(API_ENDPOINTS.CHAT.SEND_MESSAGE, data),
 };
+
+// Template APIs
+export const templateAPI = {
+    getTemplates: (userEmail) => api.get(`/api/templates?userEmail=${encodeURIComponent(userEmail)}`),
+    createTemplate: (userEmail, data) => api.post(`/api/templates?userEmail=${encodeURIComponent(userEmail)}`, data),
+    updateTemplate: (userEmail, id, data) => api.put(`/api/templates/${id}?userEmail=${encodeURIComponent(userEmail)}`, data),
+    deleteTemplate: (userEmail, id) => api.delete(`/api/templates/${id}?userEmail=${encodeURIComponent(userEmail)}`),
+};

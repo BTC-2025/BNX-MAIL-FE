@@ -6,7 +6,7 @@ import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
-import bitToolLogo from "../assets/BIT-TOOL.png";
+import bitToolLogo from "../assets/BIT-TOOL-2.png";
 
 const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar }) => {
   const navigate = useNavigate();

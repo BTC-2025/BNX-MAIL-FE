@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
+import { useAuth } from "../context/AuthContext";
+import { templateAPI } from "../services/api";
 import {
   MdSearch,
   MdAdd,
@@ -60,6 +62,7 @@ const Templates = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { openCompose } = useMail();
+  const { user } = useAuth();
 
   const [customTemplates, setCustomTemplates] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -75,15 +78,26 @@ const Templates = () => {
 
   // Load Custom Templates
   useEffect(() => {
-    const saved = localStorage.getItem("bnx_mail_custom_templates");
-    if (saved) {
-      try {
-        setCustomTemplates(JSON.parse(saved));
-      } catch (e) {
-        console.error("Error loading templates", e);
+    if (user?.email) {
+      templateAPI.getTemplates(user.email)
+        .then((res) => {
+          setCustomTemplates(res.data);
+          localStorage.setItem("bnx_mail_custom_templates", JSON.stringify(res.data));
+        })
+        .catch((err) => {
+          console.error("Failed to fetch templates from backend, falling back to local storage", err);
+          const saved = localStorage.getItem("bnx_mail_custom_templates");
+          if (saved) {
+            try { setCustomTemplates(JSON.parse(saved)); } catch (e) {}
+          }
+        });
+    } else {
+      const saved = localStorage.getItem("bnx_mail_custom_templates");
+      if (saved) {
+        try { setCustomTemplates(JSON.parse(saved)); } catch (e) {}
       }
     }
-  }, []);
+  }, [user]);
 
   // Save Custom Templates helper
   const saveCustomTemplates = (templates) => {
@@ -138,31 +152,55 @@ const Templates = () => {
 
     if (editingTemplate) {
       // Edit Custom Template
-      const updated = customTemplates.map((t) =>
-        t.id === editingTemplate.id
-          ? {
-              ...t,
-              title: formTitle,
-              subject: formSubject,
-              body: formBody,
-              category: formCategory,
-            }
-          : t
-      );
-      saveCustomTemplates(updated);
-      toast.success("Template updated successfully");
+      if (user?.email && typeof editingTemplate.id === 'number') {
+        templateAPI.updateTemplate(user.email, editingTemplate.id, {
+          title: formTitle,
+          subject: formSubject,
+          body: formBody,
+          category: formCategory,
+        }).then((res) => {
+          const updated = customTemplates.map((t) => t.id === editingTemplate.id ? res.data : t);
+          saveCustomTemplates(updated);
+          toast.success("Template updated successfully");
+        }).catch((err) => {
+          toast.error("Failed to update template on server");
+        });
+      } else {
+        const updated = customTemplates.map((t) =>
+          t.id === editingTemplate.id
+            ? { ...t, title: formTitle, subject: formSubject, body: formBody, category: formCategory }
+            : t
+        );
+        saveCustomTemplates(updated);
+        toast.success("Template updated successfully");
+      }
     } else {
       // Create Custom Template
-      const newTemplate = {
-        id: "custom-" + Date.now(),
-        title: formTitle,
-        subject: formSubject,
-        body: formBody,
-        category: formCategory,
-        isDefault: false,
-      };
-      saveCustomTemplates([...customTemplates, newTemplate]);
-      toast.success("Template created successfully");
+      if (user?.email) {
+        templateAPI.createTemplate(user.email, {
+          title: formTitle,
+          subject: formSubject,
+          body: formBody,
+          category: formCategory,
+          isDefault: false,
+        }).then((res) => {
+          saveCustomTemplates([...customTemplates, res.data]);
+          toast.success("Template created successfully");
+        }).catch((err) => {
+          toast.error("Failed to create template on server");
+        });
+      } else {
+        const newTemplate = {
+          id: "custom-" + Date.now(),
+          title: formTitle,
+          subject: formSubject,
+          body: formBody,
+          category: formCategory,
+          isDefault: false,
+        };
+        saveCustomTemplates([...customTemplates, newTemplate]);
+        toast.success("Template created successfully");
+      }
     }
 
     setIsModalOpen(false);
@@ -172,9 +210,19 @@ const Templates = () => {
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this template?")) {
-      const updated = customTemplates.filter((t) => t.id !== id);
-      saveCustomTemplates(updated);
-      toast.success("Template deleted");
+      if (user?.email && typeof id === 'number') {
+        templateAPI.deleteTemplate(user.email, id)
+          .then(() => {
+            const updated = customTemplates.filter((t) => t.id !== id);
+            saveCustomTemplates(updated);
+            toast.success("Template deleted");
+          })
+          .catch(() => toast.error("Failed to delete template on server"));
+      } else {
+        const updated = customTemplates.filter((t) => t.id !== id);
+        saveCustomTemplates(updated);
+        toast.success("Template deleted");
+      }
     }
   };
 
