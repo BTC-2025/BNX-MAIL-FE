@@ -147,7 +147,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         )}
 
         {/* SEPARATOR AND GROUPS / CHAT */}
-        <hr className="mt-4 mb-4 border-gray-200 dark:border-gray-700/50 mx-4" />
+        <div className="pt-4 pb-3">
+          <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
+        </div>
 
         <div className="space-y-0">
           {SIDEBAR_ITEMS.filter(item => ["Groups", "Chat"].includes(item.name)).map((item) => {
@@ -190,8 +192,10 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* CUSTOM LABELS */}
-        <hr className="mt-5 mb-4 border-gray-200 dark:border-gray-700/50 mx-4" />
-        <div className="mt-4">
+        <div className="pt-4 pb-3">
+          <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
+        </div>
+        <div className="mt-1">
           <div className="pl-4 pr-3 flex items-center justify-between mb-2">
             <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
               Labels
@@ -242,7 +246,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* HELP & SUPPORT */}
-        <hr className="mt-6 mb-4 border-gray-200 dark:border-gray-700/50 mx-4" />
+        <div className="pt-5 pb-3">
+          <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
+        </div>
 
         <div className="space-y-0 mb-6">
           <button

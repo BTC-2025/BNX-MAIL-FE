@@ -65,9 +65,9 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <span
               onClick={() => navigate("/inbox")}
               className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: theme.text }}
+              style={{ color: "#135bec" }}
             >
-              BNX<span style={{ color: theme.accent || "#135bec" }}>mail</span>
+              BNX<span style={{ color: theme.text }}>mail</span>
             </span>
           </div>
 
