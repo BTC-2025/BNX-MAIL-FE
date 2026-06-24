@@ -95,7 +95,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         <button
           onClick={() => setIsMoreOpen(!isMoreOpen)}
           className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1.5 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
-          style={{ color: theme.sidebarText, fontWeight: 500 }}
+          style={{ color: "black", fontWeight: 500 }}
         >
           <span className="text-[20px]">
             {isMoreOpen ? <MdExpandLess size={22} /> : <MdExpandMore size={22} />}
@@ -147,7 +147,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         )}
 
         {/* SEPARATOR AND GROUPS / CHAT */}
-        <div className="pt-4 pb-3">
+        <div className="pt-3 pb-2">
           <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
         </div>
 
@@ -192,7 +192,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* CUSTOM LABELS */}
-        <div className="pt-4 pb-3">
+        <div className="pt-3 pb-2">
           <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
         </div>
         <div className="mt-1">
@@ -246,7 +246,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* HELP & SUPPORT */}
-        <div className="pt-5 pb-3">
+        <div className="pt-5 pb-2">
           <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
         </div>
 
