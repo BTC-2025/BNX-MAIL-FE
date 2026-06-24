@@ -1,5 +1,6 @@
 import React from "react";
 import { MdArchive, MdUnarchive, MdDelete, MdStar, MdStarBorder, MdAccessTime } from "react-icons/md";
+import { useAuth } from "../context/AuthContext";
 
 const EmailList = ({
   emails,
@@ -14,6 +15,8 @@ const EmailList = ({
   onToggleSelect,
   isArchiveFolder = false,
 }) => {
+  const { user } = useAuth();
+
   return (
     <div className="flex-1 overflow-y-auto bg-transparent">
       {emails.length === 0 ? (
@@ -24,7 +27,8 @@ const EmailList = ({
       ) : (
         <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60">
           {emails.map((email, i) => {
-            const sender = showTo ? (email.to || email.recipientEmail) : email.from;
+            const isSentByUser = showTo || (user?.email && email.from?.toLowerCase().includes(user.email.toLowerCase()));
+            const sender = isSentByUser ? (email.to || email.recipientEmail) : email.from;
             const isUnread = !email.isRead;
             const isSelected = selectedEmailId === email.uid;
 
@@ -77,7 +81,7 @@ const EmailList = ({
                         : "font-medium text-gray-600 dark:text-gray-300"
                     }`}
                   >
-                    {showTo ? (
+                    {isSentByUser ? (
                       <span className="flex items-center gap-1">
                         <span className="text-[9px] font-bold border border-current px-0.5 rounded-sm opacity-50">TO</span>
                         {(email.to || email.recipientEmail)?.split("@")[0]}
