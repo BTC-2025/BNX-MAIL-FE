@@ -54,17 +54,24 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
     >
       <div className="flex items-center justify-between">
         {/* LEFT */}
-        <div className="flex items-center gap-4 flex-1">
-          <div className="w-[200px] shrink-0 flex items-center">
+        <div className="flex items-center flex-1">
+          <div className="w-[200px] shrink-0 flex items-center gap-2.5">
             <img
               src={logo}
               alt="BNX Mail"
               className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
               onClick={() => navigate("/inbox")}
             />
+            <span
+              onClick={() => navigate("/inbox")}
+              className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ color: theme.text }}
+            >
+              BNX<span style={{ color: theme.accent || "#135bec" }}>mail</span>
+            </span>
           </div>
 
-          <form onSubmit={handleSearch} className="flex-1 max-w-3xl ml-4 hidden md:block">
+          <form onSubmit={handleSearch} className="flex-1 max-w-3xl hidden md:block">
             <div className="relative group">
               <input
                 type="text"
