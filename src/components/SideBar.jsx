@@ -196,7 +196,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
         </div>
         <div className="mt-1">
-          <div className="pl-4 pr-3 flex items-center justify-between mb-2">
+          <div className="pl-4 pr-3 flex items-center justify-between mb-1">
             <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
               Labels
             </h3>
