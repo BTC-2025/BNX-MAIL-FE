@@ -81,6 +81,7 @@ const EmailDetails = ({
   onDelete,
   onStar,
   onArchive,
+  onUnarchive,
   onSnooze,
   onApplyLabel,
   onClose,
@@ -88,6 +89,7 @@ const EmailDetails = ({
 }) => {
   const { theme } = useTheme();
   const { labels, handleRemoveLabel } = useMail();
+  const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
   const [showLabels, setShowLabels] = useState(false);
   const [imagePreviews, setImagePreviews] = useState({});
 
@@ -246,11 +248,18 @@ const EmailDetails = ({
           <div className="h-5 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1" />
 
           <button
-            onClick={() => onArchive?.(email.uid)}
+            onClick={() => {
+              if (isActuallyArchived) {
+                if (onUnarchive) onUnarchive(email.uid);
+                else onArchive?.(email.uid);
+              } else {
+                onArchive?.(email.uid);
+              }
+            }}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 cursor-pointer"
-            title={isArchiveFolder ? "Unarchive" : "Archive"}
+            title={isActuallyArchived ? "Unarchive" : "Archive"}
           >
-            {isArchiveFolder ? <MdUnarchive size={20} /> : <MdArchive size={20} />}
+            {isActuallyArchived ? <MdUnarchive size={20} /> : <MdArchive size={20} />}
           </button>
 
           <button

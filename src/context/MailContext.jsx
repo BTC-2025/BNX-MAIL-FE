@@ -307,7 +307,11 @@ export const MailProvider = ({ children }) => {
     const handleArchive = async (uid, folder) => {
         try {
             await mailAPI.archive(uid, folder);
-            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            if (currentFolder === 'inbox') {
+                setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            } else {
+                setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'Archive' } : m));
+            }
             toast.success('Email archived');
         } catch (error) {
             console.error('Failed to archive:', error);
@@ -318,7 +322,11 @@ export const MailProvider = ({ children }) => {
     const handleUnarchive = async (uid) => {
         try {
             await mailAPI.unarchive(uid);
-            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            if (currentFolder === 'archive') {
+                setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            } else {
+                setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'INBOX' } : m));
+            }
             toast.success('Email restored');
         } catch (error) {
             console.error('Failed to unarchive:', error);

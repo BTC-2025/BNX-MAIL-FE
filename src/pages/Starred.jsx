@@ -9,7 +9,7 @@ import { useTheme } from "../context/ThemeContext";
 const Starred = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive, openCompose } = useMail();
+  const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive, handleUnarchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -48,6 +48,10 @@ const Starred = () => {
           onStar={handleUnstar}
           onArchive={(uid) => {
             handleArchive(uid, "starred");
+            setSelectedEmailUid(null);
+          }}
+          onUnarchive={(uid) => {
+            handleUnarchive(uid);
             setSelectedEmailUid(null);
           }}
           onReply={handleReply}
@@ -96,6 +100,7 @@ const Starred = () => {
                 onSelectEmail={handleSelectEmail}
                 onStar={handleUnstar}
                 onArchive={(uid) => handleArchive(uid, "starred")}
+                onUnarchive={handleUnarchive}
                 onDelete={(uid) => handleMoveToTrash(uid, "starred")}
               />
             )}

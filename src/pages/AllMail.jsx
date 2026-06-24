@@ -10,7 +10,7 @@ const AllMail = () => {
   const navigate = useNavigate();
   const { labelId } = useParams();
   const { theme } = useTheme();
-  const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive, openCompose } = useMail();
+  const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive, handleUnarchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
@@ -59,6 +59,10 @@ const AllMail = () => {
           onStar={(uid) => handleToggleStar(uid, currentFolder || "inbox")}
           onArchive={(uid) => {
             handleArchive(uid, currentFolder || "inbox");
+            setSelectedEmailUid(null);
+          }}
+          onUnarchive={(uid) => {
+            handleUnarchive(uid);
             setSelectedEmailUid(null);
           }}
           onReply={handleReply}
@@ -116,6 +120,7 @@ const AllMail = () => {
                 onDelete={(uid) => handleMoveToTrash(uid, currentFolder || "inbox")}
                 onStar={(uid) => handleToggleStar(uid, currentFolder || "inbox")}
                 onArchive={(uid) => handleArchive(uid, currentFolder || "inbox")}
+                onUnarchive={handleUnarchive}
               />
             )}
           </div>
