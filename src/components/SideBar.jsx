@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
@@ -12,6 +12,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const { unreadCounts, labels, handleCreateLabel, handleDeleteLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
+  const [isMoreOpen, setIsMoreOpen] = useState(false);
   const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec", parentId: "" });
 
   const COLORS = ["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
@@ -51,7 +52,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
       {/* NAVIGATION */}
       <nav className="flex-1 pr-0 py-2 space-y-0.5 overflow-y-auto">
-        {SIDEBAR_ITEMS.map((item) => {
+        {/* TOP 4 ITEMS */}
+        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Sent", "Trash"].includes(item.name)).map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
           const count = unreadCounts[item.name.toLowerCase()] || 0;
 
@@ -88,6 +90,104 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             </button>
           );
         })}
+
+        {/* MORE / LESS BUTTON */}
+        <button
+          onClick={() => setIsMoreOpen(!isMoreOpen)}
+          className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-2 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
+          style={{ color: theme.sidebarText, fontWeight: 500 }}
+        >
+          <span className="text-[20px]">
+            {isMoreOpen ? <MdExpandLess size={22} /> : <MdExpandMore size={22} />}
+          </span>
+          <span>{isMoreOpen ? "Less" : "More"}</span>
+        </button>
+
+        {/* EXPANDABLE ITEMS */}
+        {isMoreOpen && (
+          <div className="space-y-0.5 animate-in slide-in-from-top-2 duration-200">
+            {SIDEBAR_ITEMS.filter(item => ["Draft", "Archive", "Spam", "All Mail", "Templates"].includes(item.name)).map((item) => {
+              const isActive = location.pathname === item.path;
+              const count = unreadCounts[item.name.toLowerCase()] || 0;
+
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => navigate(item.path)}
+                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-2 rounded-full transition-all duration-200 group cursor-pointer
+                    ${isActive
+                      ? "bg-primary/10 dark:bg-primary/20"
+                      : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                    }
+                  `}
+                  style={{
+                    color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                    fontWeight: isActive ? 600 : 500,
+                  }}
+                >
+                  <div className="flex items-center gap-3">
+                    <span className={`text-[20px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                      {item.icon}
+                    </span>
+                    <span className="text-sm tracking-wide">{item.name}</span>
+                  </div>
+
+                  {count > 0 && (
+                    <span
+                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                      style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                    >
+                      {count}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
+
+        {/* SEPARATOR AND GROUPS / CHAT */}
+        <hr className="my-3 border-gray-200 dark:border-gray-700/50 mx-4" />
+
+        <div className="space-y-0.5">
+          {SIDEBAR_ITEMS.filter(item => ["Groups", "Chat"].includes(item.name)).map((item) => {
+            const isActive = location.pathname === item.path;
+            const count = unreadCounts[item.name.toLowerCase()] || 0;
+
+            return (
+              <button
+                key={item.name}
+                onClick={() => navigate(item.path)}
+                className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-2 rounded-full transition-all duration-200 group cursor-pointer
+                  ${isActive
+                    ? "bg-primary/10 dark:bg-primary/20"
+                    : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                  }
+                `}
+                style={{
+                  color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                  fontWeight: isActive ? 600 : 500,
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={`text-[20px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                    {item.icon}
+                  </span>
+                  <span className="text-sm tracking-wide">{item.name}</span>
+                </div>
+
+                {count > 0 && (
+                  <span
+                    className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                    style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                  >
+                    {count}
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
 
         {/* CUSTOM LABELS */}
         <div className="mt-6">

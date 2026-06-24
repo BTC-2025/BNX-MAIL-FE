@@ -79,10 +79,11 @@ const Templates = () => {
   // Load Custom Templates
   useEffect(() => {
     if (user?.email) {
-      templateAPI.getTemplates(user.email)
+      templateAPI.getTemplates()
         .then((res) => {
-          setCustomTemplates(res.data);
-          localStorage.setItem("bnx_mail_custom_templates", JSON.stringify(res.data));
+          const loaded = (res.data?.data || []).map(t => ({ ...t, title: t.name, category: "Custom" }));
+          setCustomTemplates(loaded);
+          localStorage.setItem("bnx_mail_custom_templates", JSON.stringify(loaded));
         })
         .catch((err) => {
           console.error("Failed to fetch templates from backend, falling back to local storage", err);
@@ -153,13 +154,13 @@ const Templates = () => {
     if (editingTemplate) {
       // Edit Custom Template
       if (user?.email && typeof editingTemplate.id === 'number') {
-        templateAPI.updateTemplate(user.email, editingTemplate.id, {
-          title: formTitle,
+        templateAPI.updateTemplate(editingTemplate.id, {
+          name: formTitle,
           subject: formSubject,
           body: formBody,
-          category: formCategory,
         }).then((res) => {
-          const updated = customTemplates.map((t) => t.id === editingTemplate.id ? res.data : t);
+          const updatedItem = { ...res.data.data, title: res.data.data.name, category: formCategory };
+          const updated = customTemplates.map((t) => t.id === editingTemplate.id ? updatedItem : t);
           saveCustomTemplates(updated);
           toast.success("Template updated successfully");
         }).catch((err) => {
@@ -177,14 +178,13 @@ const Templates = () => {
     } else {
       // Create Custom Template
       if (user?.email) {
-        templateAPI.createTemplate(user.email, {
-          title: formTitle,
+        templateAPI.createTemplate({
+          name: formTitle,
           subject: formSubject,
           body: formBody,
-          category: formCategory,
-          isDefault: false,
         }).then((res) => {
-          saveCustomTemplates([...customTemplates, res.data]);
+          const newItem = { ...res.data.data, title: res.data.data.name, category: formCategory };
+          saveCustomTemplates([...customTemplates, newItem]);
           toast.success("Template created successfully");
         }).catch((err) => {
           toast.error("Failed to create template on server");
@@ -211,7 +211,7 @@ const Templates = () => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this template?")) {
       if (user?.email && typeof id === 'number') {
-        templateAPI.deleteTemplate(user.email, id)
+        templateAPI.deleteTemplate(id)
           .then(() => {
             const updated = customTemplates.filter((t) => t.id !== id);
             saveCustomTemplates(updated);

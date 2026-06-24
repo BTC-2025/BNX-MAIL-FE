@@ -197,8 +197,8 @@ export const chatAPI = {
 
 // Template APIs
 export const templateAPI = {
-    getTemplates: (userEmail) => api.get(`/api/templates?userEmail=${userEmail}`),
-    createTemplate: (userEmail, data) => api.post(`/api/templates?userEmail=${userEmail}`, data),
-    updateTemplate: (userEmail, id, data) => api.put(`/api/templates/${id}?userEmail=${userEmail}`, data),
-    deleteTemplate: (userEmail, id) => api.delete(`/api/templates/${id}?userEmail=${userEmail}`),
+    getTemplates: () => api.get(`/api/mail/templates`),
+    createTemplate: (data) => api.post(`/api/mail/templates`, data),
+    updateTemplate: (id, data) => api.put(`/api/mail/templates/${id}`, data),
+    deleteTemplate: (id) => api.delete(`/api/mail/templates/${id}`),
 };
