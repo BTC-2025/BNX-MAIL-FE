@@ -71,7 +71,7 @@ export const SIDEBAR_ITEMS = [
   {
     name: 'Colab',
     icon: <MdGroup size={22} />,
-    path: '/groups',
+    path: '/colab',
     count: 0
   },
   {

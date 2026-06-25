@@ -14,7 +14,7 @@ const Groups = () => {
 
     // Determine if we are in "Groups" mode or "Direct Messages" mode
     const isGroupsMode = location.pathname.includes('/colab');
-    const modeTitle = isGroupsMode ? "Groups" : "Direct Messages";
+    const modeTitle = isGroupsMode ? "Colab" : "Direct Messages";
     const modeIcon = isGroupsMode ? <MdGroup className="text-primary" /> : <MdChat className="text-primary" />;
 
     const [chats, setChats] = useState([]);
@@ -131,7 +131,7 @@ const Groups = () => {
                             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-white hover:opacity-90 transition-all font-medium shadow-md"
                         >
                             <MdGroupAdd size={20} />
-                            New Group
+                            New Colab
                         </button>
                     ) : (
                         <button 
@@ -151,7 +151,7 @@ const Groups = () => {
                     <MdSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
                     <input 
                         type="text"
-                        placeholder={`Search ${isGroupsMode ? 'groups' : 'messages'}...`}
+                        placeholder={`Search ${isGroupsMode ? 'colab groups' : 'messages'}...`}
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}
                         className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200/50 dark:border-gray-800/50 bg-white/50 dark:bg-gray-800/50 outline-none focus:ring-2 focus:ring-primary/30 transition-all"
@@ -169,9 +169,9 @@ const Groups = () => {
                 ) : filteredChats.length === 0 ? (
                     <div className="flex flex-col items-center justify-center p-20 opacity-50">
                         {isGroupsMode ? <MdGroup size={64} className="mb-4" /> : <MdChat size={64} className="mb-4" />}
-                        <p className="text-lg font-medium">No {isGroupsMode ? 'groups' : 'messages'} found</p>
+                        <p className="text-lg font-medium">No {isGroupsMode ? 'colab groups' : 'messages'} found</p>
                         <p className="text-sm">
-                            {isGroupsMode ? 'Create a group to start collaborating' : 'Start a new chat to begin messaging'}
+                            {isGroupsMode ? 'Create a colab group to start collaborating' : 'Start a new chat to begin messaging'}
                         </p>
                     </div>
                 ) : (
@@ -229,13 +229,13 @@ const Groups = () => {
                     <div className="w-full max-w-md bg-white dark:bg-gray-900 rounded-3xl shadow-2xl overflow-hidden border border-gray-200 dark:border-gray-800 animate-in zoom-in duration-200">
                         <div className="p-6">
                             <h3 className="text-xl font-bold mb-4" style={{ color: theme.text }}>
-                                {showCreateGroup ? 'Create Group Chat' : 'Start Direct Chat'}
+                                {showCreateGroup ? 'Create Colab Group' : 'Start Direct Chat'}
                             </h3>
                             <form onSubmit={showCreateGroup ? handleCreateGroup : handleStartDirect}>
                                 {showCreateGroup ? (
                                     <>
                                         <div className="mb-4">
-                                            <label className="block text-sm font-medium mb-1 opacity-70">Group Name</label>
+                                            <label className="block text-sm font-medium mb-1 opacity-70">Colab Group Name</label>
                                             <input 
                                                 autoFocus
                                                 value={groupData.name}
@@ -273,7 +273,7 @@ const Groups = () => {
                                         disabled={loading}
                                         className="flex-1 py-3 rounded-xl bg-primary text-white font-bold hover:opacity-90 transition-all"
                                     >
-                                        {loading ? 'Processing...' : (showCreateGroup ? 'Create Group' : 'Start Chat')}
+                                        {loading ? 'Processing...' : (showCreateGroup ? 'Create Colab' : 'Start Chat')}
                                     </button>
                                     <button 
                                         type="button" 

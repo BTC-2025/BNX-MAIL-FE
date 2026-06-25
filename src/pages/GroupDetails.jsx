@@ -97,16 +97,16 @@ const GroupDetails = () => {
     return (
         <div className="flex-1 p-6 h-full overflow-y-auto" style={{ background: theme.bg, color: theme.text }}>
             <button
-                onClick={() => navigate("/groups")}
+                onClick={() => navigate("/colab")}
                 className="flex items-center gap-1 text-sm mb-4 transition-colors hover:underline"
                 style={{ color: theme.subText }}
             >
-                <MdArrowBack /> Back to Groups
+                <MdArrowBack /> Back to Colab
             </button>
 
             <div className="flex flex-col md:flex-row md:items-center justify-between mb-6 gap-4">
                 <div>
-                    <h2 className="text-2xl font-bold">{group?.name || `Group #${id}`}</h2>
+                    <h2 className="text-2xl font-bold">{group?.name || `Colab #${id}`}</h2>
                     {group?.description && (
                         <p className="mt-1" style={{ color: theme.subText }}>{group.description}</p>
                     )}

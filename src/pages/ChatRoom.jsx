@@ -142,7 +142,7 @@ const ChatRoom = () => {
                             if (chat?.type === 'DIRECT') {
                                 navigate("/chat");
                             } else {
-                                navigate("/groups");
+                                navigate("/colab");
                             }
                         }}
                         className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
