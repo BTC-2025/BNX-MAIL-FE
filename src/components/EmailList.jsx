@@ -74,277 +74,279 @@ const EmailList = ({
   };
 
   return (
-    <div className="flex-1 overflow-y-auto bg-transparent">
-      {emails.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-400 p-8">
-          <span className="text-5xl mb-4 opacity-75">📭</span>
-          <p className="text-base font-medium text-gray-500 dark:text-gray-400">Your folder is empty</p>
-        </div>
-      ) : (
-        <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60">
-          {emails.map((email, i) => {
-            const isSentByUser = showTo || (user?.email && email.from?.toLowerCase().includes(user.email.toLowerCase()));
-            const sender = isSentByUser ? (email.to || email.recipientEmail) : email.from;
-            const isUnread = !email.isRead;
-            const isSelected = selectedEmailId === email.uid;
-            const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
-
-            return (
-              <div
-                key={email.uid}
-                onClick={() => onSelectEmail(email)}
-                className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}
-                  ${isSelected
-                    ? "bg-primary/5 dark:bg-primary/10 border-l-[3px] border-primary"
-                    : isUnread
-                      ? "bg-black/[0.01] dark:bg-white/[0.02] hover:bg-black/[0.03] dark:hover:bg-white/[0.04] border-l-[3px] border-transparent"
-                      : "bg-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02] border-l-[3px] border-transparent"
-                  }`}
+    <>
+      {snoozeOpenUid && (
+        <div
+          onClick={(e) => { e.stopPropagation(); setSnoozeOpenUid(null); setCustomPickerUid(null); }}
+          className="fixed inset-0 z-[99999] flex items-center justify-center bg-black/30 dark:bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm rounded-2xl shadow-2xl z-[100000] border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col transform transition-all scale-100"
+          >
+            <div className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between bg-gray-50/50 dark:bg-neutral-800/50">
+              <div className="flex items-center gap-2">
+                <MdAccessTime size={20} className="text-blue-500" />
+                <span className="text-base font-bold">Snooze until...</span>
+              </div>
+              <button 
+                onClick={() => { setSnoozeOpenUid(null); setCustomPickerUid(null); }}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
               >
-                {/* Checkbox */}
-                <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
-                  <input
-                    type="checkbox"
-                    checked={selectedIds.has(email.uid)}
-                    onChange={() => onToggleSelect?.(email.uid)}
-                    className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
-                  />
-                </div>
+                ✕
+              </button>
+            </div>
 
-                {/* Star Button */}
-                <div className="flex items-center shrink-0">
+            {customPickerUid === snoozeOpenUid ? (
+              <div className="p-6 flex flex-col gap-4">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  Select Date & Time
+                </label>
+                <input
+                  type="datetime-local"
+                  value={customDateTime}
+                  onChange={(e) => setCustomDateTime(e.target.value)}
+                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                />
+                <div className="flex gap-3 justify-end mt-4">
                   <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onStar?.(email.uid);
-                    }}
-                    className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-400 dark:text-gray-500 hover:text-yellow-500 cursor-pointer"
-                    title={email.starred ? "Unstar" : "Star"}
+                    onClick={() => setCustomPickerUid(null)}
+                    className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
                   >
-                    {email.starred ? (
-                      <MdStar size={20} className="text-yellow-500 fill-current" />
-                    ) : (
-                      <MdStarBorder size={20} className="text-gray-400 dark:text-gray-500" />
-                    )}
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (!customDateTime) {
+                        alert("Please select a valid date and time.");
+                        return;
+                      }
+                      const dateObj = new Date(customDateTime);
+                      if (dateObj <= new Date()) {
+                        alert("Please select a future date and time.");
+                        return;
+                      }
+                      onSnooze?.(snoozeOpenUid, dateObj.toISOString());
+                      setSnoozeOpenUid(null);
+                      setCustomPickerUid(null);
+                    }}
+                    className="px-5 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40"
+                  >
+                    Save
                   </button>
                 </div>
-
-                {/* Sender Name */}
-                <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
-                  <span
-                    className={`text-sm ${
-                      isUnread
-                        ? "font-bold text-gray-900 dark:text-gray-100"
-                        : "font-medium text-gray-600 dark:text-gray-300"
-                    }`}
+              </div>
+            ) : (
+              <div className="py-2">
+                {getSnoozeOptions().map((opt, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => {
+                      onSnooze?.(snoozeOpenUid, opt.time.toISOString());
+                      setSnoozeOpenUid(null);
+                    }}
+                    className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between gap-4 cursor-pointer transition-colors"
                   >
-                    {isSentByUser ? (
-                      <span className="flex items-center gap-1">
-                        <span className="text-[9px] font-bold border border-current px-0.5 rounded-sm opacity-50">TO</span>
-                        {(email.to || email.recipientEmail)?.split("@")[0]}
-                      </span>
-                    ) : (
-                      sender?.includes("<") 
-                      ? sender.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim() 
-                      : (sender?.split("@")[0] || sender)
-                    )}
-                  </span>
-                </div>
+                    <div className="flex items-center gap-3.5 truncate">
+                      {opt.icon}
+                      <span className="text-gray-800 dark:text-gray-200 font-semibold text-sm truncate">{opt.label}</span>
+                    </div>
+                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0">{opt.display}</span>
+                  </button>
+                ))}
 
-                {/* Subject & Snippet */}
-                <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
-                  <span
-                    className={`text-sm truncate ${
-                      isUnread
-                        ? "font-bold text-gray-900 dark:text-gray-100"
-                        : "font-medium text-gray-800 dark:text-gray-200"
+                <div className="border-t border-gray-100 dark:border-neutral-800 my-2"></div>
+
+                <button
+                  onClick={() => {
+                    setCustomPickerUid(snoozeOpenUid);
+                    const defaultCustom = new Date();
+                    defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
+                    setCustomDateTime(defaultCustom.toISOString().slice(0, 16));
+                  }}
+                  className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3.5 cursor-pointer transition-colors text-blue-500 dark:text-blue-400 font-semibold text-sm"
+                >
+                  <MdDateRange size={18} />
+                  <span>Select date & time</span>
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 overflow-y-auto bg-transparent">
+        {emails.length === 0 ? (
+          <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-400 p-8">
+            <span className="text-5xl mb-4 opacity-75">📭</span>
+            <p className="text-base font-medium text-gray-500 dark:text-gray-400">Your folder is empty</p>
+          </div>
+        ) : (
+          <div className="flex flex-col divide-y divide-gray-100 dark:divide-gray-800/60">
+            {emails.map((email, i) => {
+              const isSentByUser = showTo || (user?.email && email.from?.toLowerCase().includes(user.email.toLowerCase()));
+              const sender = isSentByUser ? (email.to || email.recipientEmail) : email.from;
+              const isUnread = !email.isRead;
+              const isSelected = selectedEmailId === email.uid;
+              const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
+
+              return (
+                <div
+                  key={email.uid}
+                  onClick={() => onSelectEmail(email)}
+                  className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}
+                    ${isSelected
+                      ? "bg-primary/5 dark:bg-primary/10 border-l-[3px] border-primary"
+                      : isUnread
+                        ? "bg-black/[0.01] dark:bg-white/[0.02] hover:bg-black/[0.03] dark:hover:bg-white/[0.04] border-l-[3px] border-transparent"
+                        : "bg-transparent hover:bg-black/[0.02] dark:hover:bg-white/[0.02] border-l-[3px] border-transparent"
                     }`}
-                  >
-                    {email.subject || "(No Subject)"}
-                  </span>
-                  <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
-                    — {email.body ? email.body.replace(/\s+/g, " ") : ""}
-                  </span>
-                </div>
-
-                {/* Labels */}
-                {email.labels && email.labels.length > 0 && (
-                  <div className="hidden sm:flex gap-1 shrink-0 mr-2 select-none">
-                    {email.labels.map((label) => (
-                      <span
-                        key={label.id}
-                        className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tight text-white border border-black/5 dark:border-white/5"
-                        style={{ backgroundColor: label.colorHex }}
-                      >
-                        {label.name}
-                      </span>
-                    ))}
+                >
+                  {/* Checkbox */}
+                  <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(email.uid)}
+                      onChange={() => onToggleSelect?.(email.uid)}
+                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+                    />
                   </div>
-                )}
 
-                {/* Date / Hover Actions */}
-                <div className={`w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}`}>
-                  <span
-                    className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${
-                      isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
-                    }`}
-                  >
-                    {email.receivedDate
-                      ? new Date(email.receivedDate).toLocaleDateString(undefined, {
-                          month: "short",
-                          day: "numeric",
-                        })
-                      : ""}
-                  </span>
-
-                  {/* Quick actions that fade-in on row hover */}
-                  <div
-                    className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100 z-50' : 'opacity-0 group-hover:opacity-100 z-10'}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
+                  {/* Star Button */}
+                  <div className="flex items-center shrink-0">
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        if (isActuallyArchived) {
-                          if (onUnarchive) onUnarchive(email.uid);
-                          else onArchive?.(email.uid);
-                        } else {
-                          onArchive?.(email.uid);
-                        }
+                        onStar?.(email.uid);
                       }}
-                      className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
-                      title={isActuallyArchived ? "Unarchive" : "Archive"}
+                      className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-400 dark:text-gray-500 hover:text-yellow-500 cursor-pointer"
+                      title={email.starred ? "Unstar" : "Star"}
                     >
-                      {isActuallyArchived ? <MdUnarchive size={18} /> : <MdArchive size={18} />}
+                      {email.starred ? (
+                        <MdStar size={20} className="text-yellow-500 fill-current" />
+                      ) : (
+                        <MdStarBorder size={20} className="text-gray-400 dark:text-gray-500" />
+                      )}
                     </button>
-                    <button
-                      onClick={() => onDelete?.(email.uid)}
-                      className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
-                      title="Delete"
+                  </div>
+
+                  {/* Sender Name */}
+                  <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
+                    <span
+                      className={`text-sm ${
+                        isUnread
+                          ? "font-bold text-gray-900 dark:text-gray-100"
+                          : "font-medium text-gray-600 dark:text-gray-300"
+                      }`}
                     >
-                      <MdDelete size={18} />
-                    </button>
-                    <div className="relative">
+                      {isSentByUser ? (
+                        <span className="flex items-center gap-1">
+                          <span className="text-[9px] font-bold border border-current px-0.5 rounded-sm opacity-50">TO</span>
+                          {(email.to || email.recipientEmail)?.split("@")[0]}
+                        </span>
+                      ) : (
+                        sender?.includes("<") 
+                        ? sender.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim() 
+                        : (sender?.split("@")[0] || sender)
+                      )}
+                    </span>
+                  </div>
+
+                  {/* Subject & Snippet */}
+                  <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
+                    <span
+                      className={`text-sm truncate ${
+                        isUnread
+                          ? "font-bold text-gray-900 dark:text-gray-100"
+                          : "font-medium text-gray-800 dark:text-gray-200"
+                      }`}
+                    >
+                      {email.subject || "(No Subject)"}
+                    </span>
+                    <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
+                      — {email.body ? email.body.replace(/\s+/g, " ") : ""}
+                    </span>
+                  </div>
+
+                  {/* Labels */}
+                  {email.labels && email.labels.length > 0 && (
+                    <div className="hidden sm:flex gap-1 shrink-0 mr-2 select-none">
+                      {email.labels.map((label) => (
+                        <span
+                          key={label.id}
+                          className="text-[9px] font-bold px-1.5 py-0.5 rounded-full uppercase tracking-tight text-white border border-black/5 dark:border-white/5"
+                          style={{ backgroundColor: label.colorHex }}
+                        >
+                          {label.name}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Date / Hover Actions */}
+                  <div className={`w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}`}>
+                    <span
+                      className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${
+                        isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
+                      }`}
+                    >
+                      {email.receivedDate
+                        ? new Date(email.receivedDate).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                          })
+                        : ""}
+                    </span>
+
+                    {/* Quick actions that fade-in on row hover */}
+                    <div
+                      className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100 z-50' : 'opacity-0 group-hover:opacity-100 z-10'}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          setSnoozeOpenUid(email.uid);
-                          setCustomPickerUid(null);
+                          if (isActuallyArchived) {
+                            if (onUnarchive) onUnarchive(email.uid);
+                            else onArchive?.(email.uid);
+                          } else {
+                            onArchive?.(email.uid);
+                          }
                         }}
-                        className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
-                        title="Snooze"
+                        className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+                        title={isActuallyArchived ? "Unarchive" : "Archive"}
                       >
-                        <MdAccessTime size={18} />
+                        {isActuallyArchived ? <MdUnarchive size={18} /> : <MdArchive size={18} />}
                       </button>
-
-                      {snoozeOpenUid === email.uid && (
-                        <div
-                          onClick={(e) => { e.stopPropagation(); setSnoozeOpenUid(null); setCustomPickerUid(null); }}
-                          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 dark:bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
+                      <button
+                        onClick={() => onDelete?.(email.uid)}
+                        className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
+                        title="Delete"
+                      >
+                        <MdDelete size={18} />
+                      </button>
+                      <div className="relative">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSnoozeOpenUid(email.uid);
+                            setCustomPickerUid(null);
+                          }}
+                          className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
+                          title="Snooze"
                         >
-                          <div
-                            onClick={(e) => e.stopPropagation()}
-                            className="w-full max-w-sm rounded-2xl shadow-2xl z-[10000] border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col transform transition-all scale-100"
-                          >
-                            <div className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between bg-gray-50/50 dark:bg-neutral-800/50">
-                              <div className="flex items-center gap-2">
-                                <MdAccessTime size={20} className="text-blue-500" />
-                                <span className="text-base font-bold">Snooze until...</span>
-                              </div>
-                              <button 
-                                onClick={() => { setSnoozeOpenUid(null); setCustomPickerUid(null); }}
-                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                              >
-                                ✕
-                              </button>
-                            </div>
-
-                            {customPickerUid === email.uid ? (
-                              <div className="p-6 flex flex-col gap-4">
-                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                                  Select Date & Time
-                                </label>
-                                <input
-                                  type="datetime-local"
-                                  value={customDateTime}
-                                  onChange={(e) => setCustomDateTime(e.target.value)}
-                                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium"
-                                />
-                                <div className="flex gap-3 justify-end mt-4">
-                                  <button
-                                    onClick={() => setCustomPickerUid(null)}
-                                    className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
-                                  >
-                                    Back
-                                  </button>
-                                  <button
-                                    onClick={() => {
-                                      if (!customDateTime) {
-                                        alert("Please select a valid date and time.");
-                                        return;
-                                      }
-                                      const dateObj = new Date(customDateTime);
-                                      if (dateObj <= new Date()) {
-                                        alert("Please select a future date and time.");
-                                        return;
-                                      }
-                                      onSnooze?.(email.uid, dateObj.toISOString());
-                                      setSnoozeOpenUid(null);
-                                      setCustomPickerUid(null);
-                                    }}
-                                    className="px-5 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40"
-                                  >
-                                    Save
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="py-2">
-                                {getSnoozeOptions().map((opt, idx) => (
-                                  <button
-                                    key={idx}
-                                    onClick={() => {
-                                      onSnooze?.(email.uid, opt.time.toISOString());
-                                      setSnoozeOpenUid(null);
-                                    }}
-                                    className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between gap-4 cursor-pointer transition-colors"
-                                  >
-                                    <div className="flex items-center gap-3.5 truncate">
-                                      {opt.icon}
-                                      <span className="text-gray-800 dark:text-gray-200 font-semibold text-sm truncate">{opt.label}</span>
-                                    </div>
-                                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0">{opt.display}</span>
-                                  </button>
-                                ))}
-
-                                <div className="border-t border-gray-100 dark:border-neutral-800 my-2"></div>
-
-                                <button
-                                  onClick={() => {
-                                    setCustomPickerUid(email.uid);
-                                    const defaultCustom = new Date();
-                                    defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
-                                    setCustomDateTime(defaultCustom.toISOString().slice(0, 16));
-                                  }}
-                                  className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3.5 cursor-pointer transition-colors text-blue-500 dark:text-blue-400 font-semibold text-sm"
-                                >
-                                  <MdDateRange size={18} />
-                                  <span>Select date & time</span>
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
+                          <MdAccessTime size={18} />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </>
   );
 };
 
