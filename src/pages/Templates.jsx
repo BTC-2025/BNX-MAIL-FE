@@ -79,9 +79,10 @@ const Templates = () => {
   // Load Custom Templates
   useEffect(() => {
     if (user?.email) {
-      templateAPI.getTemplates()
+      templateAPI.getTemplates(user.email)
         .then((res) => {
-          const loaded = (res.data?.data || []).map(t => ({ ...t, title: t.name, category: "Custom" }));
+          const dataList = res.data?.data || res.data || [];
+          const loaded = dataList.map(t => ({ ...t, title: t.title || t.name, category: t.category || "Custom" }));
           setCustomTemplates(loaded);
           localStorage.setItem("bnx_mail_custom_templates", JSON.stringify(loaded));
         })
@@ -155,11 +156,14 @@ const Templates = () => {
       // Edit Custom Template
       if (user?.email && typeof editingTemplate.id === 'number') {
         templateAPI.updateTemplate(editingTemplate.id, {
+          title: formTitle,
           name: formTitle,
           subject: formSubject,
           body: formBody,
-        }).then((res) => {
-          const updatedItem = { ...res.data.data, title: res.data.data.name, category: formCategory };
+          category: formCategory,
+        }, user.email).then((res) => {
+          const resObj = res.data?.data || res.data;
+          const updatedItem = { ...resObj, title: resObj.title || resObj.name || formTitle, category: resObj.category || formCategory };
           const updated = customTemplates.map((t) => t.id === editingTemplate.id ? updatedItem : t);
           saveCustomTemplates(updated);
           toast.success("Template updated successfully");
@@ -179,11 +183,14 @@ const Templates = () => {
       // Create Custom Template
       if (user?.email) {
         templateAPI.createTemplate({
+          title: formTitle,
           name: formTitle,
           subject: formSubject,
           body: formBody,
-        }).then((res) => {
-          const newItem = { ...res.data.data, title: res.data.data.name, category: formCategory };
+          category: formCategory,
+        }, user.email).then((res) => {
+          const resObj = res.data?.data || res.data;
+          const newItem = { ...resObj, title: resObj.title || resObj.name || formTitle, category: resObj.category || formCategory };
           saveCustomTemplates([...customTemplates, newItem]);
           toast.success("Template created successfully");
         }).catch((err) => {
@@ -211,7 +218,7 @@ const Templates = () => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this template?")) {
       if (user?.email && typeof id === 'number') {
-        templateAPI.deleteTemplate(id)
+        templateAPI.deleteTemplate(id, user.email)
           .then(() => {
             const updated = customTemplates.filter((t) => t.id !== id);
             saveCustomTemplates(updated);
