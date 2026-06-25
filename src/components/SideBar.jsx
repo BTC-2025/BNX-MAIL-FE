@@ -53,7 +53,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
       {/* NAVIGATION */}
       <nav className="flex-1 pr-0 py-2 space-y-0 overflow-y-auto">
         {/* TOP ITEMS */}
-        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Sent", "Scheduled", "Draft", "Trash"].includes(item.name)).map((item) => {
+        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Snoozed", "Sent", "Scheduled", "Draft", "Trash"].includes(item.name)).map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
           const count = unreadCounts[item.name.toLowerCase()] || 0;
 

@@ -35,6 +35,8 @@ import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import VerifyDomain from "./pages/VerifyDomain";
 import Templates from "./pages/Templates";
+import Snoozed from "./pages/Snoozed";
+
 
 /* ---------------- PROTECTED ROUTE ---------------- */
 const ProtectedRoute = ({ children }) => {
@@ -99,6 +101,7 @@ const AppContent = () => {
             <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
             <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
             <Route path="/starred" element={<Starred />} />
+            <Route path="/snoozed" element={<Snoozed />} />
             <Route path="/draft" element={<Draft />} />
             <Route path="/sent" element={<Send />} />
             <Route path="/outbox" element={<Outbox />} />

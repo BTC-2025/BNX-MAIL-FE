@@ -11,7 +11,8 @@ import {
   MdGroup,
   MdChat,
   MdAssignment,
-  MdSchedule
+  MdSchedule,
+  MdAccessTime
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -25,6 +26,12 @@ export const SIDEBAR_ITEMS = [
     name: 'Starred',
     icon: <MdStarBorder size={22} />,
     path: '/starred',
+    count: 0
+  },
+  {
+    name: 'Snoozed',
+    icon: <MdAccessTime size={22} />,
+    path: '/snoozed',
     count: 0
   },
   {
