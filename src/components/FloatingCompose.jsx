@@ -56,12 +56,42 @@ const FloatingCompose = () => {
   const [showCustomSchedule, setShowCustomSchedule] = useState(false);
   const [customScheduleDateTime, setCustomScheduleDateTime] = useState("");
 
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [size, setSize] = useState({ width: 540, height: 500 });
   const [position, setPosition] = useState({ x: window.innerWidth - 570, y: window.innerHeight - 520 });
 
-  // Reset/sync positioning and size on state toggle
+  // Listen for window resize to check mobile view and clamp desktop boundaries
   useEffect(() => {
-    if (!isComposeOpen) return;
+    const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      
+      if (!mobile) {
+        setSize((prevSize) => {
+          const w = Math.min(prevSize.width, window.innerWidth - 40);
+          const h = Math.min(prevSize.height, window.innerHeight - 60);
+          
+          setPosition((prevPos) => {
+            const maxTargetX = window.innerWidth - w - 20;
+            const maxTargetY = window.innerHeight - h - 20;
+            return {
+              x: Math.max(20, Math.min(prevPos.x, maxTargetX)),
+              y: Math.max(20, Math.min(prevPos.y, maxTargetY))
+            };
+          });
+          
+          return { width: w, height: h };
+        });
+      }
+    };
+    
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Reset/sync positioning and size on state toggle or mobile detection
+  useEffect(() => {
+    if (!isComposeOpen || isMobile) return;
 
     if (isComposeMaximized) {
       const w = Math.min(1000, window.innerWidth * 0.85);
@@ -69,13 +99,16 @@ const FloatingCompose = () => {
       setSize({ width: w, height: h });
       setPosition({ x: (window.innerWidth - w) / 2, y: (window.innerHeight - h) / 2 });
     } else if (isComposeMinimized) {
-      setSize({ width: 500, height: 45 });
-      setPosition({ x: window.innerWidth - 530, y: window.innerHeight - 45 });
+      const w = Math.min(500, window.innerWidth - 40);
+      setSize({ width: w, height: 45 });
+      setPosition({ x: window.innerWidth - w - 20, y: window.innerHeight - 45 });
     } else {
-      setSize({ width: 540, height: 500 });
-      setPosition({ x: window.innerWidth - 570, y: window.innerHeight - 520 });
+      const w = Math.min(540, window.innerWidth - 40);
+      const h = Math.min(500, window.innerHeight - 60);
+      setSize({ width: w, height: h });
+      setPosition({ x: window.innerWidth - w - 20, y: window.innerHeight - h - 20 });
     }
-  }, [isComposeMaximized, isComposeMinimized, isComposeOpen]);
+  }, [isComposeMaximized, isComposeMinimized, isComposeOpen, isMobile]);
 
   // Load Custom + Default templates for inline insertion
   useEffect(() => {
@@ -422,49 +455,20 @@ const FloatingCompose = () => {
     }
   };
 
-  return (
-    <Rnd
-      size={{ 
-        width: size.width, 
-        height: isComposeMinimized ? 45 : size.height 
-      }}
-      position={position}
-      onDragStop={(e, d) => {
-        setPosition({ x: d.x, y: d.y });
-      }}
-      onResizeStop={(e, direction, ref, delta, pos) => {
-        setSize({
-          width: parseInt(ref.style.width, 10),
-          height: parseInt(ref.style.height, 10)
-        });
-        setPosition(pos);
-      }}
-      minWidth={350}
-      minHeight={isComposeMinimized ? 45 : 300}
-      maxWidth={window.innerWidth}
-      maxHeight={window.innerHeight}
-      enableResizing={!isComposeMinimized}
-      disableDragging={isComposeMaximized}
-      dragHandleClassName="compose-drag-handle"
-      bounds="window"
-      style={{
-        zIndex: 100,
-        display: "flex",
-        flexDirection: "column",
-        borderRadius: "12px 12px 0 0",
-        boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
-        border: `1px solid ${theme.border}`,
-        backgroundColor: theme.cardBg,
-        overflow: "hidden"
-      }}
-    >
+  const renderContent = () => (
+    <>
       {/* HEADER / DRAG HANDLE */}
       <div
-        className="compose-drag-handle flex items-center justify-between px-4 py-2 cursor-move shrink-0 border-b select-none"
+        className={`${isMobile ? "" : "compose-drag-handle"} flex items-center justify-between px-4 py-2 cursor-move shrink-0 border-b select-none`}
         style={{ 
           backgroundColor: theme.accent || "#135bec",
           color: "#ffffff",
           borderColor: theme.border
+        }}
+        onClick={() => {
+          if (isMobile && isComposeMinimized) {
+            setIsComposeMinimized(false);
+          }
         }}
       >
         <span className="text-sm font-semibold truncate">
@@ -479,13 +483,15 @@ const FloatingCompose = () => {
           >
             <MdRemove size={16} />
           </button>
-          <button
-            onClick={() => setIsComposeMaximized(!isComposeMaximized)}
-            className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
-            title={isComposeMaximized ? "Restore Window" : "Maximize"}
-          >
-            {isComposeMaximized ? <MdCloseFullscreen size={14} /> : <MdOpenInFull size={14} />}
-          </button>
+          {!isMobile && (
+            <button
+              onClick={() => setIsComposeMaximized(!isComposeMaximized)}
+              className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
+              title={isComposeMaximized ? "Restore Window" : "Maximize"}
+            >
+              {isComposeMaximized ? <MdCloseFullscreen size={14} /> : <MdOpenInFull size={14} />}
+            </button>
+          )}
           <button
             onClick={handleClose}
             className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
@@ -768,12 +774,12 @@ const FloatingCompose = () => {
                   title="Insert Template"
                 >
                   <MdAssignment size={16} />
-                  <span>Templates</span>
+                  <span className="hidden sm:inline">Templates</span>
                 </button>
 
                 {showTemplates && (
                   <div
-                    className="absolute bottom-10 left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
+                    className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
                     style={{
                       backgroundColor: theme.cardBg,
                       borderColor: theme.border,
@@ -818,11 +824,76 @@ const FloatingCompose = () => {
               className="flex items-center gap-1 px-3 py-1.5 rounded-full text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 text-xs font-semibold transition-colors cursor-pointer"
             >
               <MdDeleteOutline size={18} />
-              <span>Discard</span>
+              <span className="hidden sm:inline">Discard</span>
             </button>
           </div>
         </form>
       )}
+    </>
+  );
+
+  if (isMobile) {
+    return (
+      <div
+        style={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+          top: isComposeMinimized ? "auto" : 0,
+          height: isComposeMinimized ? "45px" : "100%",
+          zIndex: 100,
+          display: "flex",
+          flexDirection: "column",
+          borderRadius: isComposeMinimized ? "12px 12px 0 0" : "0",
+          boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+          border: `1px solid ${theme.border}`,
+          backgroundColor: theme.cardBg,
+          overflow: "hidden"
+        }}
+      >
+        {renderContent()}
+      </div>
+    );
+  }
+
+  return (
+    <Rnd
+      size={{ 
+        width: size.width, 
+        height: isComposeMinimized ? 45 : size.height 
+      }}
+      position={position}
+      onDragStop={(e, d) => {
+        setPosition({ x: d.x, y: d.y });
+      }}
+      onResizeStop={(e, direction, ref, delta, pos) => {
+        setSize({
+          width: parseInt(ref.style.width, 10),
+          height: parseInt(ref.style.height, 10)
+        });
+        setPosition(pos);
+      }}
+      minWidth={350}
+      minHeight={isComposeMinimized ? 45 : 300}
+      maxWidth={window.innerWidth}
+      maxHeight={window.innerHeight}
+      enableResizing={!isComposeMinimized}
+      disableDragging={isComposeMaximized}
+      dragHandleClassName="compose-drag-handle"
+      bounds="window"
+      style={{
+        zIndex: 100,
+        display: "flex",
+        flexDirection: "column",
+        borderRadius: "12px 12px 0 0",
+        boxShadow: "0 12px 30px rgba(0,0,0,0.15)",
+        border: `1px solid ${theme.border}`,
+        backgroundColor: theme.cardBg,
+        overflow: "hidden"
+      }}
+    >
+      {renderContent()}
     </Rnd>
   );
 };
