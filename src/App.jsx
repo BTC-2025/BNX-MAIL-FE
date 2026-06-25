@@ -108,8 +108,8 @@ const AppContent = () => {
             <Route path="/allmail" element={<AllMail />} />
             <Route path="/templates" element={<Templates />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/groups" element={<Groups />} />
-            <Route path="/groups/:id" element={<GroupDetails />} />
+            <Route path="/colab" element={<Groups />} />
+            <Route path="/colab/:id" element={<GroupDetails />} />
             <Route path="/chat" element={<Groups />} />
             <Route path="/chat/:chatId" element={<ChatRoom />} />
             <Route path="/label/:labelId" element={<AllMail />} />

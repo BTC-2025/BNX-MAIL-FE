@@ -69,7 +69,7 @@ export const SIDEBAR_ITEMS = [
     count: 0
   },
   {
-    name: 'Groups',
+    name: 'Colab',
     icon: <MdGroup size={22} />,
     path: '/groups',
     count: 0

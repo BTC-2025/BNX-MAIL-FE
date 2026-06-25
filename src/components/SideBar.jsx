@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
@@ -53,7 +53,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
       {/* NAVIGATION */}
       <nav className="flex-1 pr-0 py-2 space-y-0 overflow-y-auto">
         {/* TOP 4 ITEMS */}
-        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Sent", "Trash"].includes(item.name)).map((item) => {
+        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Sent", "Draft", "Trash"].includes(item.name)).map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
           const count = unreadCounts[item.name.toLowerCase()] || 0;
 
@@ -106,7 +106,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         {/* EXPANDABLE ITEMS */}
         {isMoreOpen && (
           <div className="space-y-0 animate-in slide-in-from-top-2 duration-200">
-            {SIDEBAR_ITEMS.filter(item => ["Draft", "Archive", "Spam", "All Mail", "Templates"].includes(item.name)).map((item) => {
+            {SIDEBAR_ITEMS.filter(item => ["Archive", "Spam", "All Mail", "Templates"].includes(item.name)).map((item) => {
               const isActive = location.pathname === item.path;
               const count = unreadCounts[item.name.toLowerCase()] || 0;
 
@@ -152,7 +152,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         <div className="space-y-0">
-          {SIDEBAR_ITEMS.filter(item => ["Groups", "Chat"].includes(item.name)).map((item) => {
+          {SIDEBAR_ITEMS.filter(item => ["Colab"].includes(item.name)).map((item) => {
             const isActive = location.pathname === item.path;
             const count = unreadCounts[item.name.toLowerCase()] || 0;
 
@@ -250,14 +250,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
         </div>
 
-        <div className="space-y-0 mb-6">
+        <div className="space-y-0 mb-6" style={{position:'fixed' , bottom:'30px'}}>
           <button
             onClick={() => alert("Help center opening...")}
             className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1.5 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
-            <span className="text-[20px]"><MdHelpOutline size={22} /></span>
-            <span>Help</span>
+            <span className="text-[20px]"><MdSettings size={22} /></span>
+            <span>Settings</span>
           </button>
 
           <button
@@ -265,8 +265,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1.5 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
-            <span className="text-[20px]"><MdContactSupport size={22} /></span>
-            <span>Support</span>
+            <span className="text-[20px]"><MdHelpOutline size={22} /></span>
+            <span>Help & Support</span>
           </button>
         </div>
       </nav>
