@@ -228,13 +228,8 @@ const EmailList = ({
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (snoozeOpenUid === email.uid) {
-                            setSnoozeOpenUid(null);
-                            setCustomPickerUid(null);
-                          } else {
-                            setSnoozeOpenUid(email.uid);
-                            setCustomPickerUid(null);
-                          }
+                          setSnoozeOpenUid(email.uid);
+                          setCustomPickerUid(null);
                         }}
                         className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
                         title="Snooze"
@@ -244,93 +239,101 @@ const EmailList = ({
 
                       {snoozeOpenUid === email.uid && (
                         <div
-                          onClick={(e) => e.stopPropagation()}
-                          className={`absolute right-0 ${i >= 2 ? 'bottom-full mb-2' : 'top-full mt-2'} w-64 rounded-xl shadow-2xl z-30 border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col py-1.5 animate-fadeIn`}
+                          onClick={(e) => { e.stopPropagation(); setSnoozeOpenUid(null); setCustomPickerUid(null); }}
+                          className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 dark:bg-black/60 backdrop-blur-sm p-4 animate-fadeIn"
                         >
-                          <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between">
-                            <span>Snooze until...</span>
-                            <button 
-                              onClick={() => { setSnoozeOpenUid(null); setCustomPickerUid(null); }}
-                              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                            >
-                              ✕
-                            </button>
-                          </div>
+                          <div
+                            onClick={(e) => e.stopPropagation()}
+                            className="w-full max-w-sm rounded-2xl shadow-2xl z-[10000] border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col transform transition-all scale-100"
+                          >
+                            <div className="px-6 py-4 font-semibold text-gray-800 dark:text-gray-100 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between bg-gray-50/50 dark:bg-neutral-800/50">
+                              <div className="flex items-center gap-2">
+                                <MdAccessTime size={20} className="text-blue-500" />
+                                <span className="text-base font-bold">Snooze until...</span>
+                              </div>
+                              <button 
+                                onClick={() => { setSnoozeOpenUid(null); setCustomPickerUid(null); }}
+                                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                              >
+                                ✕
+                              </button>
+                            </div>
 
-                          {customPickerUid === email.uid ? (
-                            <div className="p-4 flex flex-col gap-3">
-                              <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
-                                Select Date & Time
-                              </label>
-                              <input
-                                type="datetime-local"
-                                value={customDateTime}
-                                onChange={(e) => setCustomDateTime(e.target.value)}
-                                className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-blue-500"
-                              />
-                              <div className="flex gap-2 justify-end mt-2">
-                                <button
-                                  onClick={() => setCustomPickerUid(null)}
-                                  className="px-3 py-1.5 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800"
-                                >
-                                  Back
-                                </button>
+                            {customPickerUid === email.uid ? (
+                              <div className="p-6 flex flex-col gap-4">
+                                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
+                                  Select Date & Time
+                                </label>
+                                <input
+                                  type="datetime-local"
+                                  value={customDateTime}
+                                  onChange={(e) => setCustomDateTime(e.target.value)}
+                                  className="w-full px-4 py-3 rounded-xl border border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white text-sm outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                                />
+                                <div className="flex gap-3 justify-end mt-4">
+                                  <button
+                                    onClick={() => setCustomPickerUid(null)}
+                                    className="px-4 py-2 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800 transition-colors"
+                                  >
+                                    Back
+                                  </button>
+                                  <button
+                                    onClick={() => {
+                                      if (!customDateTime) {
+                                        alert("Please select a valid date and time.");
+                                        return;
+                                      }
+                                      const dateObj = new Date(customDateTime);
+                                      if (dateObj <= new Date()) {
+                                        alert("Please select a future date and time.");
+                                        return;
+                                      }
+                                      onSnooze?.(email.uid, dateObj.toISOString());
+                                      setSnoozeOpenUid(null);
+                                      setCustomPickerUid(null);
+                                    }}
+                                    className="px-5 py-2 rounded-xl text-sm font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-lg shadow-blue-500/25 transition-all hover:shadow-blue-500/40"
+                                  >
+                                    Save
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="py-2">
+                                {getSnoozeOptions().map((opt, idx) => (
+                                  <button
+                                    key={idx}
+                                    onClick={() => {
+                                      onSnooze?.(email.uid, opt.time.toISOString());
+                                      setSnoozeOpenUid(null);
+                                    }}
+                                    className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between gap-4 cursor-pointer transition-colors"
+                                  >
+                                    <div className="flex items-center gap-3.5 truncate">
+                                      {opt.icon}
+                                      <span className="text-gray-800 dark:text-gray-200 font-semibold text-sm truncate">{opt.label}</span>
+                                    </div>
+                                    <span className="text-xs text-gray-400 dark:text-gray-500 font-medium shrink-0">{opt.display}</span>
+                                  </button>
+                                ))}
+
+                                <div className="border-t border-gray-100 dark:border-neutral-800 my-2"></div>
+
                                 <button
                                   onClick={() => {
-                                    if (!customDateTime) {
-                                      alert("Please select a valid date and time.");
-                                      return;
-                                    }
-                                    const dateObj = new Date(customDateTime);
-                                    if (dateObj <= new Date()) {
-                                      alert("Please select a future date and time.");
-                                      return;
-                                    }
-                                    onSnooze?.(email.uid, dateObj.toISOString());
-                                    setSnoozeOpenUid(null);
-                                    setCustomPickerUid(null);
+                                    setCustomPickerUid(email.uid);
+                                    const defaultCustom = new Date();
+                                    defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
+                                    setCustomDateTime(defaultCustom.toISOString().slice(0, 16));
                                   }}
-                                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
+                                  className="w-full text-left px-6 py-3 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3.5 cursor-pointer transition-colors text-blue-500 dark:text-blue-400 font-semibold text-sm"
                                 >
-                                  Save
+                                  <MdDateRange size={18} />
+                                  <span>Select date & time</span>
                                 </button>
                               </div>
-                            </div>
-                          ) : (
-                            <>
-                              {getSnoozeOptions().map((opt, idx) => (
-                                <button
-                                  key={idx}
-                                  onClick={() => {
-                                    onSnooze?.(email.uid, opt.time.toISOString());
-                                    setSnoozeOpenUid(null);
-                                  }}
-                                  className="w-full text-left px-4 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center justify-between gap-3 cursor-pointer transition-colors"
-                                >
-                                  <div className="flex items-center gap-3 truncate">
-                                    {opt.icon}
-                                    <span className="text-gray-800 dark:text-gray-200 font-medium truncate">{opt.label}</span>
-                                  </div>
-                                  <span className="text-xs text-gray-400 dark:text-gray-500 shrink-0">{opt.display}</span>
-                                </button>
-                              ))}
-
-                              <div className="border-t border-gray-100 dark:border-neutral-800 my-1"></div>
-
-                              <button
-                                onClick={() => {
-                                  setCustomPickerUid(email.uid);
-                                  const defaultCustom = new Date();
-                                  defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
-                                  setCustomDateTime(defaultCustom.toISOString().slice(0, 16));
-                                }}
-                                className="w-full text-left px-4 py-2.5 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer transition-colors text-blue-500 dark:text-blue-400 font-medium"
-                              >
-                                <MdDateRange size={18} />
-                                <span>Select date & time</span>
-                              </button>
-                            </>
-                          )}
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
