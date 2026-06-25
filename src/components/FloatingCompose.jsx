@@ -52,6 +52,9 @@ const FloatingCompose = () => {
   const [draftId, setDraftId] = useState(null);
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
+  const [showScheduleMenu, setShowScheduleMenu] = useState(false);
+  const [showCustomSchedule, setShowCustomSchedule] = useState(false);
+  const [customScheduleDateTime, setCustomScheduleDateTime] = useState("");
 
   const [size, setSize] = useState({ width: 540, height: 500 });
   const [position, setPosition] = useState({ x: window.innerWidth - 570, y: window.innerHeight - 520 });
@@ -302,6 +305,89 @@ const FloatingCompose = () => {
     }
   };
 
+  /* ---------------- SCHEDULE EMAIL ---------------- */
+  const handleScheduleSend = async (sendAtIso) => {
+    setError("");
+    setSuccess("");
+
+    if (!formData.to) {
+      setError("Recipient email is required");
+      return;
+    }
+
+    if (!formData.subject) {
+      setError("Subject is required");
+      return;
+    }
+
+    if (uploading) {
+      setError("Please wait for files to finish uploading");
+      return;
+    }
+
+    try {
+      setSending(true);
+
+      const payload = {
+        to: formData.to,
+        subject: formData.subject,
+        body: formData.body,
+        attachments: attachments
+      };
+
+      if (formData.cc) payload.cc = formData.cc;
+      if (formData.bcc) payload.bcc = formData.bcc;
+
+      const response = await mailAPI.scheduleEmail(payload, sendAtIso);
+
+      if (response.data?.success) {
+        setSuccess("Email scheduled successfully");
+        toast.success("Email scheduled successfully");
+        setTimeout(() => {
+          closeCompose();
+        }, 1000);
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || "Failed to schedule email");
+    } finally {
+      setSending(false);
+      setShowScheduleMenu(false);
+      setShowCustomSchedule(false);
+    }
+  };
+
+  const getScheduleOptions = () => {
+    const now = new Date();
+    
+    const laterToday = new Date(now);
+    if (now.getHours() >= 17) {
+      laterToday.setHours(now.getHours() + 3);
+    } else {
+      laterToday.setHours(18, 0, 0, 0);
+    }
+
+    const tomorrow = new Date(now);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    tomorrow.setHours(8, 0, 0, 0);
+
+    const nextWeek = new Date(now);
+    const daysToMonday = (8 - now.getDay()) % 7 || 7;
+    nextWeek.setDate(now.getDate() + daysToMonday);
+    nextWeek.setHours(8, 0, 0, 0);
+
+    const formatTime = (d) => {
+      const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+      const dateStr = d.toLocaleDateString([], { weekday: 'short' });
+      return `${dateStr}, ${timeStr}`;
+    };
+
+    return [
+      { label: "Later today", time: laterToday, display: formatTime(laterToday) },
+      { label: "Tomorrow morning", time: tomorrow, display: formatTime(tomorrow) },
+      { label: "Monday morning", time: nextWeek, display: formatTime(nextWeek) },
+    ];
+  };
+
   const handleClose = () => {
     const hasContent = formData.to.trim() || formData.subject.trim() || formData.body.trim() || formData.cc.trim() || formData.bcc.trim();
     if (hasContent) {
@@ -548,17 +634,121 @@ const FloatingCompose = () => {
           />
 
           {/* ACTIONS FOOTER */}
-          <div className="flex items-center justify-between border-t pt-3 mt-2 shrink-0" style={{ borderColor: theme.border }}>
+          <div className="flex items-center justify-between border-t pt-3 mt-2 shrink-0 relative" style={{ borderColor: theme.border }}>
             <div className="flex items-center gap-2">
-              <button
-                type="submit"
-                disabled={sending || uploading}
-                className="flex items-center gap-1.5 px-5 py-2 rounded-full text-white text-xs font-semibold shadow-md hover:shadow-lg transition-all disabled:opacity-60 cursor-pointer"
-                style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
-              >
-                {sending ? "Sending…" : "Send"}
-                {!sending && <MdSend size={14} />}
-              </button>
+              <div className="inline-flex rounded-full shadow-md hover:shadow-lg transition-all">
+                <button
+                  type="submit"
+                  disabled={sending || uploading}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-l-full text-white text-xs font-semibold disabled:opacity-60 cursor-pointer border-r border-white/20"
+                  style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+                >
+                  {sending ? "Sending…" : "Send"}
+                  {!sending && <MdSend size={14} />}
+                </button>
+                <button
+                  type="button"
+                  disabled={sending || uploading}
+                  onClick={() => {
+                    setShowScheduleMenu(!showScheduleMenu);
+                    setShowCustomSchedule(false);
+                  }}
+                  className="px-2 py-2 rounded-r-full text-white text-xs font-semibold disabled:opacity-60 cursor-pointer flex items-center justify-center hover:bg-white/10"
+                  style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+                  title="Schedule send"
+                >
+                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                  </svg>
+                </button>
+              </div>
+
+              {/* Schedule Send Dropdown Menu */}
+              {showScheduleMenu && (
+                <div
+                  className="absolute bottom-12 left-0 w-64 rounded-xl border shadow-2xl z-50 p-1.5 bg-white dark:bg-neutral-900 animate-in fade-in duration-200"
+                  style={{ borderColor: theme.border }}
+                >
+                  <div className="flex items-center justify-between p-2 mb-1 border-b" style={{ borderColor: theme.border }}>
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-200">Schedule send</span>
+                    <button
+                      type="button"
+                      onClick={() => { setShowScheduleMenu(false); setShowCustomSchedule(false); }}
+                      className="text-xs p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-400"
+                    >
+                      ✕
+                    </button>
+                  </div>
+
+                  {showCustomSchedule ? (
+                    <div className="p-2 flex flex-col gap-3">
+                      <label className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                        Select Date & Time
+                      </label>
+                      <input
+                        type="datetime-local"
+                        value={customScheduleDateTime}
+                        onChange={(e) => setCustomScheduleDateTime(e.target.value)}
+                        className="w-full px-2.5 py-1.5 rounded-lg border border-gray-300 dark:border-neutral-700 bg-gray-50 dark:bg-neutral-800 text-gray-900 dark:text-white text-xs outline-none focus:ring-2 focus:ring-blue-500"
+                      />
+                      <div className="flex gap-2 justify-end mt-1">
+                        <button
+                          type="button"
+                          onClick={() => setShowCustomSchedule(false)}
+                          className="px-2.5 py-1 rounded-lg text-xs font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-neutral-800"
+                        >
+                          Back
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!customScheduleDateTime) {
+                              alert("Please select a valid date and time.");
+                              return;
+                            }
+                            const dateObj = new Date(customScheduleDateTime);
+                            if (dateObj <= new Date()) {
+                              alert("Please select a future date and time.");
+                              return;
+                            }
+                            handleScheduleSend(dateObj.toISOString());
+                          }}
+                          className="px-3 py-1 rounded-lg text-xs font-medium bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20"
+                        >
+                          Schedule
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex flex-col gap-0.5 py-1">
+                      {getScheduleOptions().map((opt, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleScheduleSend(opt.time.toISOString())}
+                          className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors flex items-center justify-between gap-2 text-gray-800 dark:text-gray-200 cursor-pointer font-medium"
+                        >
+                          <span>{opt.label}</span>
+                          <span className="text-gray-400 dark:text-gray-500 text-[11px]">{opt.display}</span>
+                        </button>
+                      ))}
+                      <div className="border-t my-1" style={{ borderColor: theme.border }}></div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowCustomSchedule(true);
+                          const defaultCustom = new Date();
+                          defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
+                          setCustomScheduleDateTime(defaultCustom.toISOString().slice(0, 16));
+                        }}
+                        className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-blue-500 dark:text-blue-400 font-semibold cursor-pointer"
+                      >
+                        Select date & time
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
 
               <button
                 type="button"

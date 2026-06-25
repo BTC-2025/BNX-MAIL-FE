@@ -10,7 +10,8 @@ import {
   MdMail,
   MdGroup,
   MdChat,
-  MdAssignment
+  MdAssignment,
+  MdSchedule
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -30,6 +31,12 @@ export const SIDEBAR_ITEMS = [
     name: 'Sent',
     icon: <MdSend size={20} />,
     path: '/sent',
+    count: 0
+  },
+  {
+    name: 'Scheduled',
+    icon: <MdSchedule size={22} />,
+    path: '/scheduled',
     count: 0
   },
   {

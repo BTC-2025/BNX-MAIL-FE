@@ -22,6 +22,7 @@ import Starred from "./pages/Starred";
 import Draft from "./pages/Draft";
 import Send from "./pages/Send";
 import Outbox from "./pages/Outbox";
+import Scheduled from "./pages/Scheduled";
 import Spam from "./pages/Spam";
 import Trash from "./pages/Trash";
 import AllMail from "./pages/AllMail";
@@ -101,6 +102,7 @@ const AppContent = () => {
             <Route path="/draft" element={<Draft />} />
             <Route path="/sent" element={<Send />} />
             <Route path="/outbox" element={<Outbox />} />
+            <Route path="/scheduled" element={<Scheduled />} />
             <Route path="/spam" element={<Spam />} />
             <Route path="/trash" element={<Trash />} />
             <Route path="/archive" element={<Archive />} />
