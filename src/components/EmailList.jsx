@@ -245,7 +245,7 @@ const EmailList = ({
                       {snoozeOpenUid === email.uid && (
                         <div
                           onClick={(e) => e.stopPropagation()}
-                          className="absolute right-0 mt-2 w-64 rounded-xl shadow-2xl z-30 border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col py-1.5 animate-fadeIn"
+                          className={`absolute right-0 ${i >= 2 ? 'bottom-full mb-2' : 'top-full mt-2'} w-64 rounded-xl shadow-2xl z-30 border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden text-sm flex flex-col py-1.5 animate-fadeIn`}
                         >
                           <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between">
                             <span>Snooze until...</span>
