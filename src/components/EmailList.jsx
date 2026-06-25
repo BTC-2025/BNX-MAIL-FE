@@ -93,7 +93,7 @@ const EmailList = ({
               <div
                 key={email.uid}
                 onClick={() => onSelectEmail(email)}
-                className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none
+                className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}
                   ${isSelected
                     ? "bg-primary/5 dark:bg-primary/10 border-l-[3px] border-primary"
                     : isUnread
@@ -183,7 +183,7 @@ const EmailList = ({
                 )}
 
                 {/* Date / Hover Actions */}
-                <div className="w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full">
+                <div className={`w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}`}>
                   <span
                     className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${
                       isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
@@ -199,7 +199,7 @@ const EmailList = ({
 
                   {/* Quick actions that fade-in on row hover */}
                   <div
-                    className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'}`}
+                    className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100 z-50' : 'opacity-0 group-hover:opacity-100 z-10'}`}
                     onClick={(e) => e.stopPropagation()}
                   >
                     <button
