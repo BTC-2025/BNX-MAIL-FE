@@ -18,19 +18,19 @@ import {
 export const SIDEBAR_ITEMS = [
   {
     name: 'Inbox',
-    icon: <MdInbox size={22} />,
+    icon: <MdInbox size={20} />,
     path: '/inbox',
     count: 0
   },
   {
     name: 'Starred',
-    icon: <MdStarBorder size={22} />,
+    icon: <MdStarBorder size={20} />,
     path: '/starred',
     count: 0
   },
   {
     name: 'Snoozed',
-    icon: <MdAccessTime size={22} />,
+    icon: <MdAccessTime size={20} />,
     path: '/snoozed',
     count: 0
   },
@@ -42,55 +42,55 @@ export const SIDEBAR_ITEMS = [
   },
   {
     name: 'Scheduled',
-    icon: <MdSchedule size={22} />,
+    icon: <MdSchedule size={20} />,
     path: '/scheduled',
     count: 0
   },
   {
     name: 'Draft',
-    icon: <MdDrafts size={22} />,
+    icon: <MdDrafts size={20} />,
     path: '/draft',
     count: 0
   },
   {
     name: 'Archive',
-    icon: <MdArchive size={22} />,
+    icon: <MdArchive size={20} />,
     path: '/archive',
     count: 0
   },
   {
     name: 'Spam',
-    icon: <MdReport size={22} />,
+    icon: <MdReport size={20} />,
     path: '/spam',
     count: 0
   },
   {
     name: 'Trash',
-    icon: <MdDelete size={22} />,
+    icon: <MdDelete size={20} />,
     path: '/trash',
     count: 0
   },
   {
     name: 'All Mail',
-    icon: <MdMail size={22} />,
+    icon: <MdMail size={20} />,
     path: '/allmail',
     count: 0
   },
   {
     name: 'Templates',
-    icon: <MdAssignment size={22} />,
+    icon: <MdAssignment size={20} />,
     path: '/templates',
     count: 0
   },
   {
     name: 'Colab',
-    icon: <MdGroup size={22} />,
+    icon: <MdGroup size={20} />,
     path: '/colab',
     count: 0
   },
   {
     name: 'Chat',
-    icon: <MdChat size={22} />,
+    icon: <MdChat size={20} />,
     path: '/chat',
     count: 0
   }
