@@ -146,6 +146,10 @@ export const mailAPI = {
     archive: (uid, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.MOVE_ARCHIVE}/${uid}?folder=${folder}`),
     unarchive: (uid) => api.post(`${API_ENDPOINTS.MAIL.UNARCHIVE}/${uid}`),
 
+    unsubscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.UNSUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
+    subscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.SUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
+    getSubscriptions: () => api.get(API_ENDPOINTS.MAIL.SUBSCRIPTIONS),
+
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
     createLabel: (data) => api.post(API_ENDPOINTS.MAIL.LABELS, data),

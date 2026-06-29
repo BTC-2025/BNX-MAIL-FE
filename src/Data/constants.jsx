@@ -12,7 +12,8 @@ import {
   MdChat,
   MdAssignment,
   MdSchedule,
-  MdAccessTime
+  MdAccessTime,
+  MdNotifications
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -93,6 +94,12 @@ export const SIDEBAR_ITEMS = [
     icon: <MdChat size={20} />,
     path: '/chat',
     count: 0
+  },
+  {
+    name: 'Subscriptions',
+    icon: <MdNotifications size={20} />,
+    path: '/subscriptions',
+    count: 0
   }
 ];
 
@@ -139,7 +146,10 @@ export const API_ENDPOINTS = {
     LABELS: '/api/mail/labels',
     APPLY_LABEL: '/api/mail/labels/apply',
     REMOVE_LABEL: '/api/mail/labels/remove',
-    CATEGORY: '/api/mail/category'
+    CATEGORY: '/api/mail/category',
+    UNSUBSCRIBE: '/api/mail/unsubscribe',
+    SUBSCRIBE: '/api/mail/subscribe',
+    SUBSCRIPTIONS: '/api/mail/subscriptions'
   },
   EMAILS: {
     CREATE: '/api/emails/create',

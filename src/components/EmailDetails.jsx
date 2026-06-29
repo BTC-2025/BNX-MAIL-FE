@@ -94,7 +94,34 @@ const EmailDetails = ({
   isArchiveFolder = false,
 }) => {
   const { theme } = useTheme();
-  const { labels, handleRemoveLabel } = useMail();
+  const { labels, handleRemoveLabel, fetchEmails, currentFolder } = useMail();
+
+  const cleanSenderEmail = email?.from
+    ? (email.from.includes("<")
+        ? email.from.split("<")[1].split(">")[0].trim()
+        : email.from.trim())
+    : "";
+
+  const handleUnsubscribeClick = async () => {
+    if (!cleanSenderEmail) return;
+    const confirmUnsubscribe = window.confirm(`Are you sure you want to unsubscribe and block future emails from ${cleanSenderEmail}?`);
+    if (confirmUnsubscribe) {
+      try {
+        toast.loading("Unsubscribing...", { id: "unsubscribe" });
+        await mailAPI.unsubscribe(cleanSenderEmail);
+        toast.success(`Unsubscribed from ${cleanSenderEmail}`, { id: "unsubscribe" });
+        if (fetchEmails) {
+          fetchEmails(currentFolder || "inbox");
+        }
+        if (onBack) {
+          onBack();
+        }
+      } catch (error) {
+        console.error("Failed to unsubscribe:", error);
+        toast.error("Failed to unsubscribe", { id: "unsubscribe" });
+      }
+    }
+  };
   const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
   const [showLabels, setShowLabels] = useState(false);
   const [showSnooze, setShowSnooze] = useState(false);
@@ -545,14 +572,23 @@ const EmailDetails = ({
               {email.from?.split("@")[0]?.[0]?.toUpperCase() || "U"}
             </div>
             <div>
-              <p className="font-semibold text-sm sm:text-base" style={{ color: theme.text }}>
+              <p className="font-semibold text-sm sm:text-base flex flex-wrap items-center gap-x-2" style={{ color: theme.text }}>
                 {email.from?.includes("<") ? (
                   <>
-                    {email.from.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim()}{" "}
+                    <span>{email.from.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim()}</span>
                     <span className="text-xs font-normal text-gray-500 dark:text-gray-400">&lt;{email.from.split("<")[1].split(">")[0]}&gt;</span>
                   </>
                 ) : (
-                  email.from
+                  <span>{email.from}</span>
+                )}
+                {cleanSenderEmail && (
+                  <button
+                    onClick={handleUnsubscribeClick}
+                    className="text-xs font-semibold text-red-500 hover:text-red-600 hover:underline cursor-pointer bg-red-500/10 dark:bg-red-500/20 px-2 py-0.5 rounded transition-all select-none"
+                    title="Unsubscribe from this sender"
+                  >
+                    Unsubscribe
+                  </button>
                 )}
               </p>
               <p className="text-xs text-gray-500 dark:text-gray-400">
