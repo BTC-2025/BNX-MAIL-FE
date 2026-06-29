@@ -329,84 +329,11 @@ const ChatRoom = () => {
 
       {/* Main Split Container */}
       <div className="flex-1 flex flex-row overflow-hidden relative">
-        {/* Left Side: Chat Room (WebSocket messaging) */}
-        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ${chat?.type === 'GROUP' ? 'w-full md:w-1/2' : 'w-full'}`}>
-          {/* MESSAGES AREA */}
-          <div className="flex-1 overflow-y-auto p-6 space-y-4 hidden-scrollbar bg-white/10 dark:bg-black/10">
-            {loading && messages.length === 0 ? (
-              <div className="flex justify-center p-10">
-                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-              </div>
-            ) : messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full opacity-30 text-center">
-                <MdChat size={64} className="mb-4" />
-                <p className="text-lg font-medium">No messages yet</p>
-                <p className="text-sm">Be the first to say hello!</p>
-              </div>
-            ) : (
-              messages.map((msg, idx) => {
-                const isMe = msg.sender === user.email;
-                return (
-                  <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                    <div className={`max-w-[85%] sm:max-w-[75%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
-                      <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
-                        {isMe ? (user.username || user.email.split('@')[0]) : msg.sender.split('@')[0]}
-                      </span>
-                      <div 
-                        className={`px-4 py-2.5 rounded-2xl shadow-sm relative ${
-                          isMe 
-                            ? 'bg-primary text-white rounded-tr-none' 
-                            : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700'
-                        }`}
-                      >
-                        <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                        <div className={`text-[9px] mt-1 opacity-60 font-medium ${isMe ? 'text-white/80' : 'text-gray-500'}`}>
-                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                          {msg.isOptimistic && " • sending..."}
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })
-            )}
-            <div ref={messagesEndRef} />
-          </div>
-
-          {/* INPUT AREA */}
-          <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0">
-            <form onSubmit={handleSend} className="flex items-center gap-3 max-w-5xl mx-auto">
-              <button 
-                type="button" 
-                className="p-2.5 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
-              >
-                <MdAttachFile size={22} className="rotate-45" />
-              </button>
-              <div className="flex-1 relative">
-                <input 
-                  value={newMessage}
-                  onChange={(e) => setNewMessage(e.target.value)}
-                  placeholder="Type a message..."
-                  className="w-full pl-4 pr-12 py-3 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-800/80 outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-inner text-sm"
-                  style={{ color: theme.text }}
-                />
-                <button 
-                  type="submit"
-                  disabled={!newMessage.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-white shadow-md disabled:opacity-30 transition-all hover:scale-105 active:scale-95"
-                >
-                  <MdSend size={18} />
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-
-        {/* Right Side: Professional Broadcast composer */}
+        {/* Left Side: Professional Broadcast composer */}
         {chat?.type === 'GROUP' && (
           <div
             className={`
-              flex-col h-full border-l border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 transition-all duration-300
+              flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 transition-all duration-300
               md:flex md:w-1/2 w-full
               ${showRightPanelMobile ? "fixed inset-0 z-45 flex bg-white/95 dark:bg-gray-950/95" : "hidden"}
             `}
@@ -500,6 +427,79 @@ const ChatRoom = () => {
             </div>
           </div>
         )}
+
+        {/* Right Side: Chat Room (WebSocket messaging) */}
+        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ${chat?.type === 'GROUP' ? 'w-full md:w-1/2' : 'w-full'}`}>
+          {/* MESSAGES AREA */}
+          <div className="flex-1 overflow-y-auto p-6 space-y-4 hidden-scrollbar bg-white/10 dark:bg-black/10">
+            {loading && messages.length === 0 ? (
+              <div className="flex justify-center p-10">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+              </div>
+            ) : messages.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full opacity-30 text-center">
+                <MdChat size={64} className="mb-4" />
+                <p className="text-lg font-medium">No messages yet</p>
+                <p className="text-sm">Be the first to say hello!</p>
+              </div>
+            ) : (
+              messages.map((msg, idx) => {
+                const isMe = msg.sender === user.email;
+                return (
+                  <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
+                    <div className={`max-w-[85%] sm:max-w-[75%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                      <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
+                        {isMe ? (user.username || user.email.split('@')[0]) : msg.sender.split('@')[0]}
+                      </span>
+                      <div 
+                        className={`px-4 py-2.5 rounded-2xl shadow-sm relative ${
+                          isMe 
+                            ? 'bg-primary text-white rounded-tr-none' 
+                            : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700'
+                        }`}
+                      >
+                        <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        <div className={`text-[9px] mt-1 opacity-60 font-medium ${isMe ? 'text-white/80' : 'text-gray-500'}`}>
+                          {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          {msg.isOptimistic && " • sending..."}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          {/* INPUT AREA */}
+          <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0">
+            <form onSubmit={handleSend} className="flex items-center gap-3 max-w-5xl mx-auto">
+              <button 
+                type="button" 
+                className="p-2.5 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+              >
+                <MdAttachFile size={22} className="rotate-45" />
+              </button>
+              <div className="flex-1 relative">
+                <input 
+                  value={newMessage}
+                  onChange={(e) => setNewMessage(e.target.value)}
+                  placeholder="Type a message..."
+                  className="w-full pl-4 pr-12 py-3 rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/80 dark:bg-gray-800/80 outline-none focus:ring-2 focus:ring-primary/30 transition-all shadow-inner text-sm"
+                  style={{ color: theme.text }}
+                />
+                <button 
+                  type="submit"
+                  disabled={!newMessage.trim()}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-white shadow-md disabled:opacity-30 transition-all hover:scale-105 active:scale-95"
+                >
+                  <MdSend size={18} />
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       </div>
 
       {/* Colab Info Overlay Modal (Displays group metadata, members, and adding controls) */}
