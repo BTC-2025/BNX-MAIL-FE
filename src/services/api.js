@@ -200,6 +200,8 @@ export const chatAPI = {
     getUserChats: (email) => api.get(API_ENDPOINTS.CHAT.USER_CHATS.replace(':email', email)),
     getMessageHistory: (chatId) => api.get(API_ENDPOINTS.CHAT.MESSAGES.replace(':chatId', chatId)),
     sendMessage: (data) => api.post(API_ENDPOINTS.CHAT.SEND_MESSAGE, data),
+    addMembers: (chatId, data) => api.post(`/api/chat/${chatId}/members`, data),
+    getMembers: (chatId) => api.get(`/api/chat/${chatId}/members`),
 };
 
 // Template APIs
