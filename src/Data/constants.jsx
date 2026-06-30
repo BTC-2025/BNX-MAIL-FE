@@ -43,7 +43,7 @@ export const SIDEBAR_ITEMS = [
   },
   {
     name: 'Scheduled',
-    icon: <MdSchedule size={20} />,
+    icon: <MdAccessTime size={20} />,
     path: '/scheduled',
     count: 0
   },

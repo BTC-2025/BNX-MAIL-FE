@@ -106,7 +106,10 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         {/* EXPANDABLE ITEMS */}
         {isMoreOpen && (
           <div className="space-y-0 animate-in slide-in-from-top-2 duration-200">
-            {SIDEBAR_ITEMS.filter(item => ["Scheduled", "Archive", "Spam", "All Mail", "Snoozed","Templates", "Subscriptions"].includes(item.name)).map((item) => {
+            {["Snoozed", "Scheduled", "Archive", "Spam", "All Mail", "Templates", "Subscriptions"]
+              .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
+              .filter(Boolean)
+              .map((item) => {
               const isActive = location.pathname === item.path;
               const count = unreadCounts[item.name.toLowerCase()] || 0;
 
