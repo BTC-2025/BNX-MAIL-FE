@@ -8,7 +8,7 @@ import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications
 import logo from "../assets/bnx-remove.png";
 import bitToolLogo from "../assets/BIT-TOOL-2.png";
 
-const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar }) => {
+const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar }) => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const { theme, currentThemeName, changeTheme } = useTheme();
@@ -225,11 +225,17 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           
           <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
           
-          <img 
-            src={bitToolLogo} 
-            alt="BIT Tool" 
-            className="h-8 object-contain ml-2" 
-          />
+          <button
+            onClick={onToggleBitToolSidebar}
+            className="p-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0 ml-2"
+            title="Toggle BIT Tools"
+          >
+            <img 
+              src={bitToolLogo} 
+              alt="BIT Tool" 
+              className="h-8 object-contain" 
+            />
+          </button>
         </div>
       </div>
     </nav>

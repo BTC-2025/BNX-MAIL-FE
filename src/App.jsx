@@ -11,6 +11,7 @@ import { SocketProvider } from "./context/SocketContext";
 import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 import FloatingCompose from "./components/FloatingCompose";
+import BitToolSidebar from "./components/BitToolSidebar";
 
 /* Pages */
 import Login from "./pages/Login";
@@ -64,6 +65,7 @@ const AppContent = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
+  const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
   const { theme } = useTheme();
 
   return (
@@ -75,6 +77,7 @@ const AppContent = () => {
           setIsDesktopSidebarOpen((v) => !v)
         }
         onOpenMenu={() => setIsMobileSidebarOpen(true)}
+        onToggleBitToolSidebar={() => setIsBitToolSidebarOpen(v => !v)}
       />
 
       <div className="flex-1 flex overflow-hidden relative">
@@ -124,6 +127,7 @@ const AppContent = () => {
         </main>
       </div>
       <FloatingCompose />
+      <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
       <Toaster />
     </div>
   );
