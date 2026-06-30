@@ -11,7 +11,9 @@ import {
   MdPeople,
   MdPersonAdd,
   MdAssignment,
-  MdClose
+  MdClose,
+  MdKeyboardArrowRight,
+  MdKeyboardArrowLeft
 } from "react-icons/md";
 import { chatAPI, mailAPI, templateAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -33,9 +35,10 @@ const ChatRoom = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Layout States (Info Modal, Compose Modal)
+  // Layout States (Info Modal, Compose Modal, Collapsed Chat)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
+  const [isChatPaneOpen, setIsChatPaneOpen] = useState(true);
 
   // Group Members State
   const [membersList, setMembersList] = useState([]);
@@ -343,13 +346,23 @@ const ChatRoom = () => {
         
         {/* Left Side: Professional Broadcast list (60% width) */}
         {chat?.type === 'GROUP' && (
-          <div className="flex flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 w-full md:w-[60%]">
+          <div className={`flex flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 transition-all duration-300 ease-in-out ${isChatPaneOpen ? 'w-full md:w-[60%]' : 'w-full'}`}>
             
             {/* Header: Professional Broadcast Title */}
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
                 <MdEmail size={18} className="text-primary" style={{ color: theme.accent }} /> Professional Broadcasts ({broadcasts.length})
               </h3>
+              {!isChatPaneOpen && (
+                <button 
+                  onClick={() => setIsChatPaneOpen(true)}
+                  className="p-1 px-2.5 rounded-xl border border-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center gap-1 text-xs font-bold"
+                  title="Open Comments"
+                  style={{ color: theme.accent, borderColor: theme.accent + "33", backgroundColor: theme.accent + "0d" }}
+                >
+                  <MdKeyboardArrowLeft size={18} /> Open Comments
+                </button>
+              )}
             </div>
 
             {/* Broadcasts List View */}
@@ -409,13 +422,27 @@ const ChatRoom = () => {
         )}
 
         {/* Right Side: Chat Room (40% width for GROUP, full width for DIRECT) */}
-        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ${chat?.type === 'GROUP' ? 'w-full md:w-[40%]' : 'w-full'}`}>
+        <div 
+          className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 border-l border-gray-200/50 dark:border-gray-800/50"
+          style={{ 
+            width: chat?.type === 'GROUP' ? (isChatPaneOpen ? '40%' : '0%') : '100%',
+            opacity: chat?.type === 'GROUP' ? (isChatPaneOpen ? 1 : 0) : 1,
+            pointerEvents: chat?.type === 'GROUP' ? (isChatPaneOpen ? 'auto' : 'none') : 'auto'
+          }}
+        >
           {/* Header: Instant Chat Messages Title (Only when split) */}
           {chat?.type === 'GROUP' && (
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
-                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Comments
+                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Instant Chat Messages
               </h3>
+              <button 
+                onClick={() => setIsChatPaneOpen(false)}
+                className="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer flex items-center justify-center"
+                title="Hide Comments"
+              >
+                <MdKeyboardArrowRight size={22} />
+              </button>
             </div>
           )}
           {/* MESSAGES AREA */}
@@ -440,10 +467,10 @@ const ChatRoom = () => {
                         {isMe ? (user.username || user.email.split('@')[0]) : msg.sender.split('@')[0]}
                       </span>
                       <div 
-                        className={`px-4 py-2.5 rounded-2xl shadow-sm relative ${
+                        className={`px-4 py-2.5 rounded-full shadow-sm relative ${
                           isMe 
-                            ? 'bg-primary text-white rounded-tr-none' 
-                            : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 rounded-tl-none border border-gray-100 dark:border-gray-700'
+                            ? 'bg-primary text-white' 
+                            : 'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-200 border border-gray-100 dark:border-gray-700'
                         }`}
                       >
                         <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
