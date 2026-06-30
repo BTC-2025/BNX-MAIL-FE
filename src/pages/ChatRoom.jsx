@@ -414,7 +414,7 @@ const ChatRoom = () => {
           {chat?.type === 'GROUP' && (
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
-                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Instant Chat Messages
+                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Comments
               </h3>
             </div>
           )}
