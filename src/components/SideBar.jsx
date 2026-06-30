@@ -53,7 +53,10 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
       {/* NAVIGATION */}
       <nav className="flex-1 pr-0 py-2 space-y-0 overflow-y-auto">
         {/* TOP ITEMS */}
-        {SIDEBAR_ITEMS.filter(item => ["Inbox", "Starred", "Sent", "Draft", "Trash"].includes(item.name)).map((item) => {
+        {["Inbox", "Starred", "Snoozed", "Scheduled", "Sent", "Draft", "Trash"]
+          .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
+          .filter(Boolean)
+          .map((item) => {
           const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
           const count = unreadCounts[item.name.toLowerCase()] || 0;
 
@@ -106,7 +109,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         {/* EXPANDABLE ITEMS */}
         {isMoreOpen && (
           <div className="space-y-0 animate-in slide-in-from-top-2 duration-200">
-            {["Snoozed", "Scheduled", "Archive", "Spam", "All Mail", "Templates", "Subscriptions"]
+            {["Archive", "Spam", "All Mail", "Templates", "Subscriptions"]
               .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
               .filter(Boolean)
               .map((item) => {
