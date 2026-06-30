@@ -342,11 +342,11 @@ const ChatRoom = () => {
       </div>
 
       {/* Main Split Container */}
-      <div className="flex-1 flex flex-row overflow-hidden relative">
+      <div className={`flex-1 flex flex-row overflow-hidden relative p-4 transition-all duration-300 ${isChatPaneOpen ? 'gap-4' : 'gap-0'}`}>
         
         {/* Left Side: Professional Broadcast list (60% width) */}
         {chat?.type === 'GROUP' && (
-          <div className={`flex flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 transition-all duration-300 ease-in-out ${isChatPaneOpen ? 'w-full md:w-[60%]' : 'w-full'}`}>
+          <div className={`flex flex-col h-full rounded-2xl border border-gray-200/50 dark:border-gray-800/50 bg-white/60 dark:bg-gray-900/60 shadow-sm overflow-hidden shrink-0 transition-all duration-300 ease-in-out ${isChatPaneOpen ? 'w-full md:w-[60%]' : 'w-full'}`}>
             
             {/* Header: Professional Broadcast Title */}
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
@@ -423,11 +423,12 @@ const ChatRoom = () => {
 
         {/* Right Side: Chat Room (40% width for GROUP, full width for DIRECT) */}
         <div 
-          className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-white dark:bg-gray-900 border-l border-gray-200/50 dark:border-gray-800/50"
+          className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-800/50"
           style={{ 
             width: chat?.type === 'GROUP' ? (isChatPaneOpen ? '40%' : '0%') : '100%',
             opacity: chat?.type === 'GROUP' ? (isChatPaneOpen ? 1 : 0) : 1,
-            pointerEvents: chat?.type === 'GROUP' ? (isChatPaneOpen ? 'auto' : 'none') : 'auto'
+            pointerEvents: chat?.type === 'GROUP' ? (isChatPaneOpen ? 'auto' : 'none') : 'auto',
+            borderWidth: chat?.type === 'GROUP' && !isChatPaneOpen ? '0px' : '1px'
           }}
         >
           {/* Header: Instant Chat Messages Title (Only when split) */}
