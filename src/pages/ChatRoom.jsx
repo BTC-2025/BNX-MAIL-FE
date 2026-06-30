@@ -104,9 +104,9 @@ const ChatRoom = () => {
   const fetchBroadcasts = async () => {
     try {
       setLoadingBroadcasts(true);
-      const res = await mailAPI.getGroupBroadcasts(chatId);
-      if (res.data?.success) {
-        setBroadcasts(res.data.data || []);
+      const res = await chatAPI.getBroadcasts(chatId);
+      if (res.data) {
+        setBroadcasts(res.data || []);
       }
     } catch (err) {
       console.error("Failed to load broadcasts:", err);
@@ -239,33 +239,23 @@ const ChatRoom = () => {
       return;
     }
 
-    // Recipient list: BCC all members except the sender
-    const bccEmails = membersList.filter(email => email.toLowerCase() !== user.email.toLowerCase());
-    if (bccEmails.length === 0) {
-      toast.error("No other members in this group to send to.");
-      return;
-    }
-
     try {
       setSendingEmail(true);
-      toast.loading("Sending email broadcast...", { id: "send-broadcast" });
+      toast.loading("Sending broadcast...", { id: "send-broadcast" });
       
-      await mailAPI.send({
-        to: user.email, // To self
-        bcc: bccEmails.join(", "), // BCC all members
-        subject: `[Colab#${chatId}] ${emailSubject}`, // Tagged subject
-        body: emailBody,
-        isHtml: true
+      await chatAPI.sendBroadcast(chatId, {
+        subject: emailSubject,
+        body: emailBody
       });
       
-      toast.success(`Email broadcasted to ${bccEmails.length} recipients`, { id: "send-broadcast" });
+      toast.success("Broadcast sent successfully", { id: "send-broadcast" });
       setEmailSubject("");
       setEmailBody("");
       setSelectedTemplate("");
       setShowComposeModal(false);
       fetchBroadcasts();
     } catch (err) {
-      toast.error("Failed to send broadcast email", { id: "send-broadcast" });
+      toast.error("Failed to send broadcast", { id: "send-broadcast" });
     } finally {
       setSendingEmail(false);
     }

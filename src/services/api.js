@@ -149,7 +149,6 @@ export const mailAPI = {
     unsubscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.UNSUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
     subscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.SUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
     getSubscriptions: () => api.get(API_ENDPOINTS.MAIL.SUBSCRIPTIONS),
-    getGroupBroadcasts: (chatId) => api.get(`/api/mail/broadcasts/${chatId}`),
 
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
@@ -203,6 +202,8 @@ export const chatAPI = {
     sendMessage: (data) => api.post(API_ENDPOINTS.CHAT.SEND_MESSAGE, data),
     addMembers: (chatId, data) => api.post(`/api/chat/${chatId}/members`, data),
     getMembers: (chatId) => api.get(`/api/chat/${chatId}/members`),
+    getBroadcasts: (chatId) => api.get(`/api/chat/${chatId}/broadcasts`),
+    sendBroadcast: (chatId, data) => api.post(`/api/chat/${chatId}/broadcast`, data),
 };
 
 // Template APIs
