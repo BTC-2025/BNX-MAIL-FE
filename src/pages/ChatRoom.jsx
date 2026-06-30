@@ -33,16 +33,20 @@ const ChatRoom = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
-  // Layout States (Info Modal & Responsive Composer)
+  // Layout States (Info Modal, Compose Modal)
   const [showInfoModal, setShowInfoModal] = useState(false);
-  const [showRightPanelMobile, setShowRightPanelMobile] = useState(false);
+  const [showComposeModal, setShowComposeModal] = useState(false);
 
   // Group Members State
   const [membersList, setMembersList] = useState([]);
   const [emailsInput, setEmailsInput] = useState("");
   const [addingMembers, setAddingMembers] = useState(false);
 
-  // Broadcast Email State
+  // Broadcasts List State
+  const [broadcasts, setBroadcasts] = useState([]);
+  const [loadingBroadcasts, setLoadingBroadcasts] = useState(false);
+
+  // Broadcast Email Form State
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
@@ -97,6 +101,20 @@ const ChatRoom = () => {
     }
   };
 
+  const fetchBroadcasts = async () => {
+    try {
+      setLoadingBroadcasts(true);
+      const res = await mailAPI.getGroupBroadcasts(chatId);
+      if (res.data?.success) {
+        setBroadcasts(res.data.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to load broadcasts:", err);
+    } finally {
+      setLoadingBroadcasts(false);
+    }
+  };
+
   const fetchTemplates = async () => {
     if (!user?.email) return;
     try {
@@ -147,6 +165,7 @@ const ChatRoom = () => {
   useEffect(() => {
     if (chat?.type === 'GROUP') {
       fetchChatMembers();
+      fetchBroadcasts();
       fetchTemplates();
     } else {
       setMembersList(chat?.memberEmails || []);
@@ -234,7 +253,7 @@ const ChatRoom = () => {
       await mailAPI.send({
         to: user.email, // To self
         bcc: bccEmails.join(", "), // BCC all members
-        subject: emailSubject,
+        subject: `[Colab#${chatId}] ${emailSubject}`, // Tagged subject
         body: emailBody,
         isHtml: true
       });
@@ -243,6 +262,8 @@ const ChatRoom = () => {
       setEmailSubject("");
       setEmailBody("");
       setSelectedTemplate("");
+      setShowComposeModal(false);
+      fetchBroadcasts();
     } catch (err) {
       toast.error("Failed to send broadcast email", { id: "send-broadcast" });
     } finally {
@@ -313,10 +334,10 @@ const ChatRoom = () => {
         <div className="flex items-center gap-2">
           {chat?.type === 'GROUP' && (
             <button 
-              onClick={() => setShowRightPanelMobile(!showRightPanelMobile)}
+              onClick={() => setShowComposeModal(true)}
               className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors" 
               style={{ color: theme.subText }}
-              title="Compose broadcast email"
+              title="Compose Broadcast"
             >
               <MdEmail size={22} />
             </button>
@@ -329,107 +350,75 @@ const ChatRoom = () => {
 
       {/* Main Split Container */}
       <div className="flex-1 flex flex-row overflow-hidden relative">
-        {/* Left Side: Professional Broadcast composer */}
+        
+        {/* Left Side: Professional Broadcast list (60% width) */}
         {chat?.type === 'GROUP' && (
-          <div
-            className={`
-              flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 transition-all duration-300
-              md:flex md:w-1/2 w-full
-              ${showRightPanelMobile ? "fixed inset-0 z-45 flex bg-white/95 dark:bg-gray-950/95" : "hidden"}
-            `}
-          >
+          <div className="flex flex-col h-full border-r border-gray-200/50 dark:border-gray-800/50 bg-white/30 dark:bg-gray-900/30 backdrop-blur-lg overflow-hidden shrink-0 w-full md:w-[60%]">
+            
             {/* Header: Professional Broadcast Title */}
-            <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02]">
+            <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
-                <MdEmail size={18} className="text-primary" style={{ color: theme.accent }} /> Professional Broadcast
+                <MdEmail size={18} className="text-primary" style={{ color: theme.accent }} /> Professional Broadcasts ({broadcasts.length})
               </h3>
-              
-              {/* Close Button on Mobile Composer Overlay */}
-              <button
-                onClick={() => setShowRightPanelMobile(false)}
-                className="md:hidden p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                style={{ color: theme.text }}
-              >
-                <MdClose size={20} />
-              </button>
             </div>
 
-            {/* Composer form details */}
-            <div className="flex-1 overflow-y-auto p-5 hidden-scrollbar">
-              <form onSubmit={handleSendBroadcast} className="space-y-4 max-w-lg mx-auto">
-                <div className="mb-2">
-                  <p className="text-xs opacity-60 leading-relaxed" style={{ color: theme.subText }}>
-                    Send an official email broadcast to all {membersList.length} members. 
-                    BNX-MAIL sends this directly from your professional inbox.
+            {/* Broadcasts List View */}
+            <div className="flex-1 overflow-y-auto p-4 space-y-3 hidden-scrollbar bg-black/[0.01] dark:bg-white/[0.01]">
+              {loadingBroadcasts && broadcasts.length === 0 ? (
+                <div className="flex justify-center p-10">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+                </div>
+              ) : broadcasts.length === 0 ? (
+                <div className="flex flex-col items-center justify-center h-full opacity-40 text-center p-6 mt-10">
+                  <MdEmail size={48} className="mb-3 text-gray-400" />
+                  <p className="text-sm font-semibold">No Broadcasts Sent</p>
+                  <p className="text-xs max-w-xs mt-1">
+                    Send professional email updates to all group members. Click the button below to compose.
                   </p>
                 </div>
-
-                {/* Template Selection Dropdown */}
-                {templates.length > 0 && (
-                  <div className="p-3.5 bg-black/[0.02] dark:bg-white/[0.02] border border-gray-200/50 dark:border-gray-800/50 rounded-xl">
-                    <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5 opacity-65 flex items-center gap-1">
-                      <MdAssignment size={14} /> Quick Templates
-                    </label>
-                    <select
-                      value={selectedTemplate}
-                      onChange={(e) => handleSelectTemplate(e.target.value)}
-                      className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg text-xs bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none font-medium"
+              ) : (
+                broadcasts.map((b, idx) => {
+                  const cleanSub = b.subject ? b.subject.replace(/^\[Colab#\d+\]\s*/i, "") : "(No Subject)";
+                  return (
+                    <div 
+                      key={b.id || idx}
+                      className="p-4 rounded-2xl border border-gray-200/40 dark:border-gray-800/40 bg-white/50 dark:bg-gray-900/50 hover:bg-white/80 dark:hover:bg-gray-900/80 transition-all shadow-sm flex flex-col gap-1.5"
                     >
-                      <option value="">-- Choose a template to load --</option>
-                      {templates.map(t => (
-                        <option key={t.id} value={t.id}>{t.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                )}
+                      <div className="flex justify-between items-start">
+                        <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 leading-tight">
+                          {cleanSub}
+                        </h4>
+                        <span className="text-[10px] opacity-60 shrink-0 font-medium ml-2">
+                          {b.sentDate ? new Date(b.sentDate).toLocaleString() : ""}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-1.5 text-[10px] opacity-75 text-gray-500 font-semibold uppercase tracking-wider">
+                        <span>From: {b.from?.split("<")[0]?.trim() || b.from}</span>
+                      </div>
+                      <div className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300 break-words whitespace-pre-line border-t border-gray-100 dark:border-gray-800/60 pt-2">
+                        {b.body || b.textPlain || "(Empty Content)"}
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
 
-                {/* Subject Input */}
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65">
-                    Subject
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Email subject"
-                    value={emailSubject}
-                    onChange={(e) => setEmailSubject(e.target.value)}
-                    className="w-full p-3 border border-gray-200 dark:border-gray-800 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-primary/45 focus:border-transparent transition-all"
-                    required
-                  />
-                </div>
-
-                {/* Body Textarea */}
-                <div>
-                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65">
-                    Message Body (HTML support)
-                  </label>
-                  <textarea
-                    placeholder="Write email content here..."
-                    value={emailBody}
-                    onChange={(e) => setEmailBody(e.target.value)}
-                    className="w-full p-3 border border-gray-200 dark:border-gray-800 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-primary/45 focus:border-transparent transition-all"
-                    rows={8}
-                    required
-                  />
-                </div>
-
-                {/* Actions */}
-                <button
-                  disabled={sendingEmail || membersList.length === 0}
-                  type="submit"
-                  className="w-full py-2.5 rounded-xl font-semibold text-sm text-white shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer"
-                  style={{ background: theme.accent || "#135bec" }}
-                >
-                  {sendingEmail ? "Sending..." : "Send broadcast email"}
-                  <MdSend size={15} />
-                </button>
-              </form>
+            {/* Bottom Button Bar */}
+            <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0">
+              <button
+                onClick={() => setShowComposeModal(true)}
+                className="w-full py-3 rounded-2xl font-bold text-sm text-white shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all flex items-center justify-center gap-2 cursor-pointer"
+                style={{ background: theme.accent || "#135bec" }}
+              >
+                <MdEmail size={18} /> Compose New Broadcast
+              </button>
             </div>
           </div>
         )}
 
-        {/* Right Side: Chat Room (WebSocket messaging) */}
-        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ${chat?.type === 'GROUP' ? 'w-full md:w-1/2' : 'w-full'}`}>
+        {/* Right Side: Chat Room (40% width for GROUP, full width for DIRECT) */}
+        <div className={`flex flex-col h-full overflow-hidden transition-all duration-300 ${chat?.type === 'GROUP' ? 'w-full md:w-[40%]' : 'w-full'}`}>
           {/* MESSAGES AREA */}
           <div className="flex-1 overflow-y-auto p-6 space-y-4 hidden-scrollbar bg-white/10 dark:bg-black/10">
             {loading && messages.length === 0 ? (
@@ -501,6 +490,96 @@ const ChatRoom = () => {
           </div>
         </div>
       </div>
+
+      {/* Compose Broadcast Modal Overlay */}
+      {showComposeModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200 p-4">
+          <div 
+            className="w-full max-w-lg p-6 rounded-2xl border shadow-xl flex flex-col max-h-[85vh] overflow-hidden animate-in zoom-in-95 duration-200"
+            style={{ backgroundColor: theme.cardBg, borderColor: theme.border, color: theme.text }}
+          >
+            {/* Modal Header */}
+            <div className="flex justify-between items-center pb-3 border-b mb-4" style={{ borderColor: theme.border }}>
+              <h3 className="text-lg font-bold flex items-center gap-1.5">
+                <MdEmail size={20} className="text-primary" style={{ color: theme.accent }} /> New Colab Broadcast
+              </h3>
+              <button 
+                onClick={() => setShowComposeModal(false)}
+                className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer"
+              >
+                <MdClose size={22} style={{ color: theme.text }} />
+              </button>
+            </div>
+
+            {/* Modal Scrollable Body Form */}
+            <form onSubmit={handleSendBroadcast} className="flex-1 overflow-y-auto space-y-4 pr-1 hidden-scrollbar">
+              <p className="text-xs opacity-75 leading-relaxed" style={{ color: theme.subText }}>
+                This broadcast will be sent directly to all {membersList.length} members of the group, and will show up in their broadcasts list.
+              </p>
+
+              {/* Template Selection Dropdown */}
+              {templates.length > 0 && (
+                <div className="p-3.5 bg-black/[0.02] dark:bg-white/[0.02] border border-gray-200/50 dark:border-gray-800/50 rounded-xl">
+                  <label className="block text-[11px] font-bold uppercase tracking-wider mb-1.5 opacity-65 flex items-center gap-1">
+                    <MdAssignment size={14} /> Quick Templates
+                  </label>
+                  <select
+                    value={selectedTemplate}
+                    onChange={(e) => handleSelectTemplate(e.target.value)}
+                    className="w-full p-2 border border-gray-200 dark:border-gray-800 rounded-lg text-xs bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none font-medium"
+                  >
+                    <option value="">-- Choose a template to load --</option>
+                    {templates.map(t => (
+                      <option key={t.id} value={t.id}>{t.name}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Subject Input */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65">
+                  Subject
+                </label>
+                <input
+                  type="text"
+                  placeholder="Email subject"
+                  value={emailSubject}
+                  onChange={(e) => setEmailSubject(e.target.value)}
+                  className="w-full p-3 border border-gray-200 dark:border-gray-800 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-primary/45 focus:border-transparent transition-all"
+                  required
+                />
+              </div>
+
+              {/* Body Textarea */}
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65">
+                  Message Body (HTML support)
+                </label>
+                <textarea
+                  placeholder="Write email content here..."
+                  value={emailBody}
+                  onChange={(e) => setEmailBody(e.target.value)}
+                  className="w-full p-3 border border-gray-200 dark:border-gray-800 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-primary/45 focus:border-transparent transition-all"
+                  rows={8}
+                  required
+                />
+              </div>
+
+              {/* Actions */}
+              <button
+                disabled={sendingEmail || membersList.length === 0}
+                type="submit"
+                className="w-full py-3 rounded-xl font-bold text-sm text-white shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] disabled:opacity-50 flex items-center justify-center gap-1.5 cursor-pointer mt-4"
+                style={{ background: theme.accent || "#135bec" }}
+              >
+                {sendingEmail ? "Sending Broadcast..." : "Send Broadcast"}
+                <MdSend size={15} />
+              </button>
+            </form>
+          </div>
+        </div>
+      )}
 
       {/* Colab Info Overlay Modal (Displays group metadata, members, and adding controls) */}
       {showInfoModal && (

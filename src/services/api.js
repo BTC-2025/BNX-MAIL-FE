@@ -149,6 +149,7 @@ export const mailAPI = {
     unsubscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.UNSUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
     subscribe: (senderEmail) => api.post(`${API_ENDPOINTS.MAIL.SUBSCRIBE}?senderEmail=${encodeURIComponent(senderEmail)}`),
     getSubscriptions: () => api.get(API_ENDPOINTS.MAIL.SUBSCRIPTIONS),
+    getGroupBroadcasts: (chatId) => api.get(`/api/mail/broadcasts/${chatId}`),
 
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
