@@ -125,9 +125,10 @@ const AppContent = () => {
             <Route path="/subscriptions" element={<Subscriptions />} />
           </Routes>
         </main>
+
+        <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
       </div>
       <FloatingCompose />
-      <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
       <Toaster />
     </div>
   );

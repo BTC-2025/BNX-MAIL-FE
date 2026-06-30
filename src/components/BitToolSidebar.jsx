@@ -48,7 +48,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
   // Weather State
   const [weatherCity, setWeatherCity] = useState("New York");
 
-  if (!isOpen) return null;
+  // Width-based toggle handled dynamically via inline styles
 
   // Toggle Pinned status
   const handleTogglePin = (toolId) => {
@@ -348,40 +348,48 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 flex pointer-events-none select-none">
-      {/* Background Overlay (Click outside to close) */}
-      <div 
-        className="fixed inset-0 bg-transparent pointer-events-auto"
-        onClick={() => {
-          setSelectedTool(null);
-          onClose();
-        }}
-      />
-
+    <div 
+      className="h-full flex shrink-0 select-none transition-all duration-300 ease-in-out bg-white dark:bg-gray-900"
+      style={{ 
+        width: !isOpen ? "0px" : (selectedTool ? "372px" : "72px"),
+        borderLeftWidth: isOpen ? "1px" : "0px",
+        borderLeftColor: theme.border,
+        overflow: "hidden"
+      }}
+    >
       {/* Mini-App Slide Panel (Shown to the left of the sidebar) */}
-      {selectedTool && (
-        <div className="w-[300px] border-r dark:border-gray-800 bg-white dark:bg-gray-900 shadow-xl flex flex-col h-screen overflow-hidden pointer-events-auto animate-slide-in relative select-text">
-          <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01]">
-            <h4 className="font-bold text-sm" style={{ color: theme.text }}>
-              {ALL_TOOLS.find(t => t.id === selectedTool)?.name}
-            </h4>
-            <button 
-              onClick={() => setSelectedTool(null)} 
-              className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer"
-            >
-              <MdClose size={18} />
-            </button>
-          </div>
-          <div className="flex-1 overflow-y-auto p-4">
-            {renderMiniApp()}
-          </div>
-        </div>
-      )}
+      <div 
+        className="flex flex-col h-full bg-white dark:bg-gray-900 select-text transition-all duration-300 ease-in-out"
+        style={{ 
+          width: selectedTool ? "300px" : "0px",
+          borderRightWidth: selectedTool ? "1px" : "0px",
+          borderRightColor: theme.border,
+          overflow: "hidden"
+        }}
+      >
+        {selectedTool && (
+          <>
+            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+              <h4 className="font-bold text-sm" style={{ color: theme.text }}>
+                {ALL_TOOLS.find(t => t.id === selectedTool)?.name}
+              </h4>
+              <button 
+                onClick={() => setSelectedTool(null)} 
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer flex items-center justify-center"
+              >
+                <MdClose size={18} />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto p-4">
+              {renderMiniApp()}
+            </div>
+          </>
+        )}
+      </div>
 
       {/* Right Sidebar Strip */}
       <div 
-        className="w-[72px] border-l dark:border-gray-800 bg-white dark:bg-gray-900 shadow-2xl flex flex-col items-center py-4 h-screen justify-between pointer-events-auto relative select-none"
-        style={{ borderColor: theme.border }}
+        className="w-[72px] flex flex-col items-center py-4 h-full justify-between select-none shrink-0"
       >
         <div className="flex flex-col items-center w-full">
           {/* HEADER / EDIT MODE LABEL */}
