@@ -53,6 +53,55 @@ const ChatRoom = () => {
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [broadcastAttachments, setBroadcastAttachments] = useState([]);
+
+  const handleAttachmentChange = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`${file.name} exceeds 5MB limit`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setBroadcastAttachments(prev => [
+          ...prev,
+          {
+            name: file.name,
+            type: file.type,
+            size: file.size,
+            content: event.target.result
+          }
+        ]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleDownloadAttachment = (att) => {
+    try {
+      const base64Data = att.content.split(',')[1] || att.content;
+      const byteCharacters = atob(base64Data);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: att.type });
+      
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = att.name;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (e) {
+      console.error(e);
+      toast.error("Failed to download attachment");
+    }
+  };
 
   // Email Templates State
   const [templates, setTemplates] = useState([]);
@@ -248,13 +297,15 @@ const ChatRoom = () => {
       
       await chatAPI.sendBroadcast(chatId, {
         subject: emailSubject,
-        body: emailBody
+        body: emailBody,
+        attachmentsJson: broadcastAttachments.length > 0 ? JSON.stringify(broadcastAttachments) : null
       });
       
       toast.success("Broadcast sent successfully", { id: "send-broadcast" });
       setEmailSubject("");
       setEmailBody("");
       setSelectedTemplate("");
+      setBroadcastAttachments([]);
       setShowComposeModal(false);
       fetchBroadcasts();
     } catch (err) {
@@ -402,6 +453,35 @@ const ChatRoom = () => {
                       <div className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300 break-words whitespace-pre-line border-t border-gray-100 dark:border-gray-800/60 pt-2">
                         {b.body || b.textPlain || "(Empty Content)"}
                       </div>
+                      
+                      {/* Attachments Section */}
+                      {(() => {
+                        let atts = [];
+                        try {
+                          if (b.attachmentsJson) {
+                            atts = JSON.parse(b.attachmentsJson);
+                          }
+                        } catch (e) {
+                          console.error(e);
+                        }
+                        if (!atts || atts.length === 0) return null;
+                        return (
+                          <div className="mt-2 pt-2 border-t border-gray-100 dark:border-gray-800/60 flex flex-wrap gap-2">
+                            {atts.map((att, index) => (
+                              <button
+                                key={index}
+                                onClick={() => handleDownloadAttachment(att)}
+                                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.06] dark:hover:bg-white/[0.06] border border-gray-200/50 dark:border-gray-800/50 rounded-xl text-[10px] font-medium text-gray-600 dark:text-gray-300 transition-all cursor-pointer truncate max-w-[200px]"
+                                title={`Click to download ${att.name}`}
+                              >
+                                <MdAttachFile size={13} className="shrink-0 text-gray-400" />
+                                <span className="truncate">{att.name}</span>
+                                <span className="text-[8px] opacity-60 font-normal shrink-0">({(att.size / 1024).toFixed(1)} KB)</span>
+                              </button>
+                            ))}
+                          </div>
+                        );
+                      })()}
                     </div>
                   );
                 })
@@ -591,6 +671,46 @@ const ChatRoom = () => {
                   rows={8}
                   required
                 />
+              </div>
+
+              {/* Attachments Upload */}
+              <div className="p-3.5 bg-black/[0.02] dark:bg-white/[0.02] border border-gray-200/50 dark:border-gray-800/50 rounded-xl space-y-3">
+                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65 flex items-center justify-between">
+                  <span>Attachments</span>
+                  <span className="text-[10px] text-gray-400 font-normal">Max 5MB each</span>
+                </label>
+                
+                <div className="flex items-center gap-2">
+                  <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 text-xs cursor-pointer transition-all">
+                    <MdAttachFile size={16} /> Choose Files
+                    <input 
+                      type="file" 
+                      multiple 
+                      onChange={handleAttachmentChange} 
+                      className="hidden" 
+                    />
+                  </label>
+                </div>
+
+                {broadcastAttachments.length > 0 && (
+                  <div className="space-y-1.5 pt-1">
+                    {broadcastAttachments.map((att, idx) => (
+                      <div key={idx} className="flex justify-between items-center text-xs p-2 bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg">
+                        <span className="truncate max-w-[80%] font-medium">{att.name}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="text-[10px] opacity-60">{(att.size / 1024).toFixed(1)} KB</span>
+                          <button
+                            type="button"
+                            onClick={() => setBroadcastAttachments(prev => prev.filter((_, i) => i !== idx))}
+                            className="p-1 text-red-500 hover:bg-red-500/10 rounded cursor-pointer flex items-center justify-center"
+                          >
+                            <MdClose size={14} />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
 
               {/* Actions */}
