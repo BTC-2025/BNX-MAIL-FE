@@ -414,18 +414,18 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
                       onClick={() => handleTogglePin(tool.id)}
                       onMouseEnter={() => setHoveredTool(tool.id)}
                       onMouseLeave={() => setHoveredTool(null)}
-                      className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer border-2 ${
+                      className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border-2 ${
                         isPinned 
                           ? `${tool.ringClass} ${tool.bgClass} ${tool.textClass}` 
                           : "border-dashed border-gray-300 dark:border-gray-700 bg-transparent text-gray-400 hover:border-gray-400"
                       }`}
                     >
-                      <Icon size={20} />
+                      <Icon size={18} />
                     </button>
                     
                     {/* CUSTOM POPOVER TOOLTIP */}
                     {hoveredTool === tool.id && (
-                      <div className="absolute right-[56px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-[11px] font-medium px-2 py-1 rounded shadow-md whitespace-nowrap z-50">
+                      <div className="absolute right-[52px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-[11px] font-medium px-2 py-1 rounded shadow-md whitespace-nowrap z-50">
                         {isPinned ? `Unpin ${tool.name}` : `Pin ${tool.name}`}
                       </div>
                     )}
@@ -445,18 +445,18 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
                         onClick={() => setSelectedTool(isSelected ? null : tool.id)}
                         onMouseEnter={() => setHoveredTool(tool.id)}
                         onMouseLeave={() => setHoveredTool(null)}
-                        className={`w-11 h-11 rounded-2xl flex items-center justify-center transition-all cursor-pointer border-2 ${
+                        className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border-2 ${
                           isSelected 
                             ? `${tool.ringClass} ${tool.bgClass} ${tool.textClass} scale-95 shadow-inner` 
                             : `border-transparent hover:scale-105 ${tool.bgClass} ${tool.textClass} shadow-sm`
                         }`}
                       >
-                        <Icon size={20} />
+                        <Icon size={18} />
                       </button>
 
                       {/* TOOLTIP */}
                       {hoveredTool === tool.id && (
-                        <div className="absolute right-[56px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-[11px] font-medium px-2 py-1 rounded shadow-md whitespace-nowrap z-50">
+                        <div className="absolute right-[52px] top-1/2 -translate-y-1/2 bg-gray-800 text-white text-[11px] font-medium px-2 py-1 rounded shadow-md whitespace-nowrap z-50">
                           {tool.name}
                         </div>
                       )}
@@ -470,19 +470,19 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
               // Green Checkmark Button
               <button
                 onClick={() => setIsEditing(false)}
-                className="w-11 h-11 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer mt-2"
+                className="w-10 h-10 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow-md hover:scale-105 active:scale-95 transition-all cursor-pointer mt-2"
                 title="Save Pins"
               >
-                <MdCheck size={22} />
+                <MdCheck size={18} />
               </button>
             ) : (
               // Plus Button (Dashed ring)
               <button
                 onClick={() => setIsEditing(true)}
-                className="w-11 h-11 rounded-2xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-600 flex items-center justify-center transition-all cursor-pointer"
+                className="w-10 h-10 rounded-xl border-2 border-dashed border-gray-300 dark:border-gray-700 text-gray-400 hover:border-gray-500 hover:text-gray-600 flex items-center justify-center transition-all cursor-pointer"
                 title="Edit Pins"
               >
-                <MdAdd size={22} />
+                <MdAdd size={18} />
               </button>
             )}
           </div>
@@ -493,19 +493,19 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
           <div className="w-8 h-[1px] bg-gray-200 dark:bg-gray-800" />
           
           <button 
-            className="w-11 h-11 rounded-2xl border border-gray-200/60 dark:border-gray-850 hover:bg-gray-50 dark:hover:bg-gray-850 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-all cursor-pointer bg-white/50 dark:bg-gray-900/50 shadow-sm"
+            className="w-10 h-10 rounded-xl border border-gray-200/60 dark:border-gray-850 hover:bg-gray-50 dark:hover:bg-gray-850 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-all cursor-pointer bg-white/50 dark:bg-gray-900/50 shadow-sm"
             title="Shortcuts"
             onClick={() => setSelectedTool("keyboard")}
           >
-            <MdOutlineEdit size={20} />
+            <MdOutlineEdit size={18} />
           </button>
 
           <button 
-            className="w-11 h-11 rounded-2xl border border-gray-200/60 dark:border-gray-850 hover:bg-gray-50 dark:hover:bg-gray-850 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-all cursor-pointer bg-white/50 dark:bg-gray-900/50 shadow-sm"
+            className="w-10 h-10 rounded-xl border border-gray-200/60 dark:border-gray-850 hover:bg-gray-50 dark:hover:bg-gray-850 text-gray-500 dark:text-gray-400 flex items-center justify-center transition-all cursor-pointer bg-white/50 dark:bg-gray-900/50 shadow-sm"
             title="Customize Sidebar"
             onClick={() => setIsEditing(true)}
           >
-            <MdTune size={20} />
+            <MdTune size={18} />
           </button>
         </div>
       </div>
