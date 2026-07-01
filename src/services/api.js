@@ -155,6 +155,7 @@ export const mailAPI = {
     // Labels
     getLabels: () => api.get(API_ENDPOINTS.MAIL.LABELS),
     createLabel: (data) => api.post(API_ENDPOINTS.MAIL.LABELS, data),
+    updateLabel: (id, data) => api.put(`${API_ENDPOINTS.MAIL.LABELS}/${id}`, data),
     deleteLabel: (id) => api.delete(`${API_ENDPOINTS.MAIL.LABELS}/${id}`),
     applyLabel: (uid, labelId, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.APPLY_LABEL}/${uid}?labelId=${labelId}&folder=${folder}`),
     removeLabel: (uid, labelId, folder = 'INBOX') => api.delete(`${API_ENDPOINTS.MAIL.REMOVE_LABEL}/${uid}?labelId=${labelId}&folder=${folder}`),

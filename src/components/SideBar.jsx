@@ -3,17 +3,19 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, backgroundImage } = useTheme();
-  const { unreadCounts, labels, handleCreateLabel, handleDeleteLabel, openCompose } = useMail();
+  const { unreadCounts, labels, handleCreateLabel, handleUpdateLabel, handleDeleteLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
+  const [activeLabelMenu, setActiveLabelMenu] = useState(null);
   const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec", parentId: "" });
+  const [editingLabel, setEditingLabel] = useState(null);
 
   const COLORS = ["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
 
@@ -24,6 +26,15 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
     if (success) {
       setIsCreating(false);
       setNewLabel({ name: "", color: "#135bec", parentId: "" });
+    }
+  };
+
+  const handleEditLabelSubmit = async () => {
+    if (!editingLabel.name.trim()) return;
+    const parentId = editingLabel.parentId ? parseInt(editingLabel.parentId) : null;
+    const success = await handleUpdateLabel(editingLabel.id, editingLabel.name, editingLabel.color, parentId);
+    if (success) {
+      setEditingLabel(null);
     }
   };
 
@@ -157,6 +168,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
           </div>
 
+          <div className="mt-1">
+            <div className="pl-4 pr-3 flex items-center justify-between mb-1">
+              <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
+                Chat
+              </h3>
+            </div>
+          </div>
+
           <div className="space-y-0">
             {SIDEBAR_ITEMS.filter(item => ["Colab"].includes(item.name)).map((item) => {
               const isActive = location.pathname === item.path;
@@ -230,18 +249,54 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                         <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
                         <span className="text-sm truncate">{label.name}</span>
                       </div>
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (window.confirm('Are you sure you want to delete this label? Sub-labels will also be deleted.')) {
-                            handleDeleteLabel(label.id);
-                          }
-                        }}
-                        className="p-1 rounded opacity-0 group-hover:opacity-100 transition-opacity hover:bg-black/10 dark:hover:bg-white/10 shrink-0"
-                        style={{ color: theme.sidebarText }}
-                      >
-                        <MdDelete size={14} />
-                      </button>
+                      <div className="relative flex items-center h-full">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveLabelMenu(activeLabelMenu === label.id ? null : label.id);
+                          }}
+                          className={`p-1 rounded transition-opacity hover:bg-black/10 dark:hover:bg-white/10 shrink-0 ${activeLabelMenu === label.id ? "opacity-100" : "opacity-0 group-hover:opacity-100"}`}
+                          style={{ color: theme.sidebarText }}
+                        >
+                          <MdMoreVert size={16} />
+                        </button>
+
+                        {activeLabelMenu === label.id && (
+                          <>
+                            <div 
+                              className="fixed inset-0 z-40" 
+                              onClick={(e) => { e.stopPropagation(); setActiveLabelMenu(null); }} 
+                            />
+                            <div 
+                              className="absolute right-0 top-full mt-1 w-32 py-1 rounded-xl shadow-lg border z-50 text-xs overflow-hidden"
+                              style={{ backgroundColor: theme.cardBg, borderColor: theme.border, color: theme.text }}
+                            >
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveLabelMenu(null);
+                                  setEditingLabel({ id: label.id, name: label.name, color: label.colorHex || "#135bec", parentId: label.parentId || "" });
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer text-left"
+                              >
+                                <MdEdit size={14} /> Edit
+                              </button>
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setActiveLabelMenu(null);
+                                  if (window.confirm('Are you sure you want to delete this label? Sub-labels will also be deleted.')) {
+                                    handleDeleteLabel(label.id);
+                                  }
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer text-left text-red-500"
+                              >
+                                <MdDelete size={14} /> Delete
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </div>
                     </div>
                     {renderLabelTree(label.id, depth + 1)}
                   </div>
@@ -251,9 +306,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             })()}
           </div>
 
-          {/* HELP & SUPPORT */}
-          <div className="pt-5 pb-2">
-            <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
+          {/* HELP & SUPPORT (Removed HR above it) */}
+          <div className="pt-2">
           </div>
 
           <div className="space-y-0 mb-6" style={{ position: 'fixed', bottom: '30px' }}>
@@ -351,6 +405,85 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 style={{ backgroundColor: theme.accent || "#135bec" }}
               >
                 Create Label
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* EDIT LABEL MODAL */}
+      {editingLabel && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
+          <div className="w-full max-w-md bg-white dark:bg-gray-800 rounded-xl shadow-2xl border dark:border-gray-700 overflow-hidden animate-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between px-5 py-4 border-b dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50">
+              <h2 className="text-lg font-semibold" style={{ color: theme.text }}>Edit Label</h2>
+              <button onClick={() => setEditingLabel(null)} className="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer" style={{ color: theme.subText }}>
+                <MdClose size={20} />
+              </button>
+            </div>
+
+            <div className="p-5 space-y-5">
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: theme.subText }}>Label Name</label>
+                <input
+                  autoFocus
+                  placeholder="e.g. Work, Personal, Receipts"
+                  value={editingLabel.name}
+                  onChange={(e) => setEditingLabel({ ...editingLabel, name: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg bg-transparent outline-none transition-all"
+                  style={{ color: theme.text, borderColor: theme.border }}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-1.5" style={{ color: theme.subText }}>Nest label under</label>
+                <select
+                  value={editingLabel.parentId}
+                  onChange={(e) => setEditingLabel({ ...editingLabel, parentId: e.target.value })}
+                  className="w-full px-3 py-2 border rounded-lg bg-transparent outline-none transition-all cursor-pointer"
+                  style={{ color: theme.text, borderColor: theme.border }}
+                >
+                  <option value="" style={{ color: "black" }}>Top Level (No Parent)</option>
+                  {labels.filter(l => l.id !== editingLabel.id).map(l => (
+                    <option key={l.id} value={l.id} style={{ color: "black" }}>{l.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2" style={{ color: theme.subText }}>Color</label>
+                <div className="flex flex-wrap gap-3">
+                  {COLORS.map((c) => (
+                    <button
+                      key={c}
+                      onClick={() => setEditingLabel({ ...editingLabel, color: c })}
+                      className={`w-6 h-6 rounded-full transition-transform hover:scale-110 cursor-pointer flex items-center justify-center`}
+                      style={{
+                        backgroundColor: c,
+                        border: editingLabel.color === c ? '2px solid white' : '2px solid transparent',
+                        boxShadow: editingLabel.color === c ? `0 0 0 2px ${c}` : 'none'
+                      }}
+                    />
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="px-5 py-4 border-t dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 flex justify-end gap-3">
+              <button
+                onClick={() => setEditingLabel(null)}
+                className="px-4 py-2 text-sm font-medium rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors cursor-pointer"
+                style={{ color: theme.text }}
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleEditLabelSubmit}
+                disabled={!editingLabel.name.trim()}
+                className="px-4 py-2 text-sm font-medium text-white rounded-lg transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                style={{ backgroundColor: theme.accent || "#135bec" }}
+              >
+                Save Changes
               </button>
             </div>
           </div>

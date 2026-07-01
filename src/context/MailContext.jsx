@@ -263,6 +263,21 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleUpdateLabel = async (id, name, colorHex, parentId = null) => {
+        try {
+            const res = await mailAPI.updateLabel(id, { name, colorHex, parentId });
+            if (res.data.success) {
+                toast.success('Label updated');
+                fetchLabels();
+                return true;
+            }
+        } catch (error) {
+            console.error('Update label error:', error);
+            // Error handling via interceptor
+        }
+        return false;
+    };
+
     const handleDeleteLabel = async (labelId) => {
         try {
             const res = await mailAPI.deleteLabel(labelId);
@@ -397,6 +412,7 @@ export const MailProvider = ({ children }) => {
             handleMoveToTrash,
             handleSnooze,
             handleCreateLabel,
+            handleUpdateLabel,
             handleApplyLabel,
             handleRemoveLabel,
             handleArchive,
