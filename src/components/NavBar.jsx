@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd } from "react-icons/md";
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
@@ -10,9 +10,12 @@ import bitToolLogo from "../assets/BIT-TOOL-2.png";
 
 const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar }) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
   const { theme, currentThemeName, changeTheme } = useTheme();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
+  
+  const allSessions = getSessions();
+  const otherSessions = allSessions.filter(sess => sess.email !== user?.email);
 
 
   const [showDropdown, setShowDropdown] = useState(false);
@@ -164,59 +167,120 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
             {showDropdown && (
               <div
-                className="absolute right-0 mt-3 w-64 rounded-2xl shadow-xl dark:shadow-soft-dark border z-50 overflow-hidden animate-fade-in bg-white dark:bg-gray-900"
+                className="absolute right-0 mt-3 w-[310px] rounded-2xl shadow-xl dark:shadow-soft-dark border z-50 overflow-hidden animate-fade-in bg-white dark:bg-gray-900"
                 style={{ borderColor: theme.border }}
               >
-                <div className="px-5 py-4 border-b bg-white/50 dark:bg-gray-900/50" style={{ borderColor: theme.border }}>
-                  <p className="text-sm font-semibold mb-0.5" style={{ color: theme.text }}>
+                {/* Active User Large Header */}
+                <div className="flex flex-col items-center px-5 py-5 border-b text-center" style={{ borderColor: theme.border }}>
+                  {user?.profilePictureUrl ? (
+                    <img
+                      src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${user.profilePictureUrl}`}
+                      alt={user?.username}
+                      className="w-14 h-14 rounded-full object-cover mb-2.5 border-2 border-primary/20"
+                    />
+                  ) : (
+                    <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold mb-2.5 shadow-sm" style={{ backgroundColor: theme.accent || "#135bec" }}>
+                      {(user?.username || user?.email || "U").charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-tight">
                     {user?.username || "User"}
                   </p>
-                  <div className="flex items-center gap-1.5 max-w-full">
-                    <p className="text-xs truncate" style={{ color: theme.subText }}>
-                      {user?.email}
-                    </p>
-                    {isPrimary && (
-                      <MdCheckCircle className="text-green-500 shrink-0" size={12} title="Primary Account" />
-                    )}
-                  </div>
-                </div>
-
-                <div className="p-2">
+                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-full">
+                    {user?.email}
+                  </p>
+                  
                   <button
                     onClick={() => {
                       setShowDropdown(false);
                       const token = localStorage.getItem("accessToken") || "";
                       window.open(`https://account.beta-softnet.com/security?token=${encodeURIComponent(token)}`, "_blank");
                     }}
-                    className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors flex items-center gap-3 font-semibold"
-                    style={{ color: theme.accent || "#135bec" }}
+                    className="mt-3 px-3.5 py-1.5 border rounded-full text-[11px] font-bold hover:bg-black/[0.03] dark:hover:bg-white/[0.03] transition-all cursor-pointer flex items-center gap-1.5"
+                    style={{ borderColor: theme.border, color: theme.text }}
                   >
-                    <MdManageAccounts size={20} /> Manage your account
+                    <MdManageAccounts size={15} /> Manage your account
+                  </button>
+                </div>
+
+                {/* Other Accounts List */}
+                {otherSessions.length > 0 && (
+                  <div className="max-h-[150px] overflow-y-auto border-b" style={{ borderColor: theme.border }}>
+                    {otherSessions.map((sess) => (
+                      <div
+                        key={sess.email}
+                        onClick={() => {
+                          setShowDropdown(false);
+                          switchAccount(sess.email);
+                        }}
+                        className="flex items-center justify-between px-4 py-2.5 hover:bg-gray-50 dark:hover:bg-gray-800/50 cursor-pointer transition-all border-b last:border-b-0 dark:border-gray-800/30"
+                      >
+                        <div className="flex items-center gap-2.5 truncate">
+                          {sess.profilePictureUrl ? (
+                            <img
+                              src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${sess.profilePictureUrl}`}
+                              alt={sess.username}
+                              className="w-7 h-7 rounded-full object-cover shrink-0"
+                            />
+                          ) : (
+                            <div className="w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-semibold shrink-0" style={{ backgroundColor: theme.accent || "#135bec" }}>
+                              {(sess.username || sess.email || "U").charAt(0).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="truncate text-left">
+                            <p className="text-xs font-bold text-gray-800 dark:text-gray-200 leading-tight truncate">
+                              {sess.username}
+                            </p>
+                            <p className="text-[10px] text-gray-500 dark:text-gray-400 truncate">
+                              {sess.email}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Actions */}
+                <div className="p-1">
+                  <button
+                    onClick={() => {
+                      setShowDropdown(false);
+                      localStorage.removeItem("tempToken");
+                      navigate("/login");
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors flex items-center gap-3 font-semibold text-gray-600 dark:text-gray-300"
+                  >
+                    <MdPersonAdd size={18} className="text-gray-400" /> Add another account
                   </button>
 
                   <button
                     onClick={() => { setShowDropdown(false); navigate("/settings"); }}
-                    className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors flex items-center gap-3"
-                    style={{ color: theme.text }}
+                    className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors flex items-center gap-3 font-semibold text-gray-600 dark:text-gray-300"
                   >
-                    <MdSettings size={20} className="text-gray-500" /> Settings
+                    <MdSettings size={18} className="text-gray-400" /> Settings
                   </button>
 
                   <button
-                    onClick={() => { setShowDropdown(false); navigate("/settings/emails"); }}
-                    className="w-full text-left px-3 py-2.5 text-sm rounded-lg hover:bg-gray-100/80 dark:hover:bg-gray-800/80 transition-colors flex items-center gap-3"
-                    style={{ color: theme.text }}
+                    onClick={() => {
+                      setShowDropdown(false);
+                      logout();
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors flex items-center gap-3 font-semibold text-gray-600 dark:text-gray-300"
                   >
-                    <MdEmail size={20} className="text-gray-500" /> Manage Emails
+                    <MdLogout size={18} className="text-gray-400" /> Sign out of this account
                   </button>
                 </div>
 
-                <div className="border-t p-2" style={{ borderColor: theme.border }}>
+                <div className="border-t p-1" style={{ borderColor: theme.border }}>
                   <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-3 py-2.5 text-sm rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors flex items-center gap-3 font-medium"
+                    onClick={() => {
+                      setShowDropdown(false);
+                      logoutAll();
+                    }}
+                    className="w-full text-left px-3 py-2 text-xs rounded-lg text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 transition-colors flex items-center gap-3 font-bold"
                   >
-                    <MdLogout size={20} /> Logout
+                    <MdLogout size={18} className="text-red-400" /> Sign out of all accounts
                   </button>
                 </div>
               </div>
