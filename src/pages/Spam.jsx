@@ -6,7 +6,7 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
-const Spam = () => {
+const Spam = ({ searchQuery }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, openCompose } = useMail();
@@ -16,6 +16,16 @@ const Spam = () => {
   useEffect(() => {
     fetchEmails('spam');
   }, [fetchEmails]);
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelectEmail = (email) => {
     setSelectedEmailUid(email.uid);
@@ -85,7 +95,7 @@ const Spam = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onDelete={(uid) => handleMoveToTrash(uid, "spam")}

@@ -7,7 +7,7 @@ import { useTheme } from "../context/ThemeContext";
 import { mailAPI } from "../services/api";
 import toast from "react-hot-toast";
 
-const Trash = () => {
+const Trash = ({ searchQuery }) => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
@@ -15,6 +15,16 @@ const Trash = () => {
   useEffect(() => {
     fetchEmails('trash');
   }, [fetchEmails]);
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelectEmail = (email) => {
     setSelectedEmail(email);
@@ -114,7 +124,7 @@ const Trash = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onDelete={handlePermanentDelete}

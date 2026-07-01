@@ -6,7 +6,7 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
-const AllMail = () => {
+const AllMail = ({ searchQuery }) => {
   const navigate = useNavigate();
   const { labelId } = useParams();
   const { theme } = useTheme();
@@ -15,6 +15,16 @@ const AllMail = () => {
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   const activeLabel = labels.find(l => l.id.toString() === labelId);
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // UI-only filter dropdown states
   const [showTime, setShowTime] = useState(false);
@@ -114,7 +124,7 @@ const AllMail = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onDelete={(uid) => handleMoveToTrash(uid, currentFolder || "inbox")}

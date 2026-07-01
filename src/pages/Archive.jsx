@@ -4,12 +4,22 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
-const Archive = () => {
+const Archive = ({ searchQuery }) => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleUnarchive } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   // UI-only filter states
   const [showTime, setShowTime] = useState(false);
@@ -90,7 +100,7 @@ const Archive = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onDelete={(uid) => handleMoveToTrash(uid, "archive")}

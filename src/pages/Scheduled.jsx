@@ -5,13 +5,23 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 import toast from "react-hot-toast";
 
-const Scheduled = () => {
+const Scheduled = ({ searchQuery }) => {
   const { theme } = useTheme();
 
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   useEffect(() => {
     fetchScheduled();
@@ -148,7 +158,7 @@ const Scheduled = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={setSelectedEmail}
                 onDelete={handleDelete}

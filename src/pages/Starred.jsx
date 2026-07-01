@@ -6,7 +6,7 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
-const Starred = () => {
+const Starred = ({ searchQuery }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive, handleUnarchive, openCompose } = useMail();
@@ -16,6 +16,16 @@ const Starred = () => {
   useEffect(() => {
     fetchEmails('starred');
   }, [fetchEmails]);
+
+  const visibleEmails = emails.filter(
+    (e) =>
+      !searchQuery ||
+      e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   const handleSelectEmail = (email) => {
     setSelectedEmailUid(email.uid);
@@ -95,7 +105,7 @@ const Starred = () => {
               </div>
             ) : (
               <EmailList
-                emails={emails}
+                emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onStar={handleUnstar}
