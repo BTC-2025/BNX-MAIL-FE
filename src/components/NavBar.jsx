@@ -11,7 +11,7 @@ import bitToolLogo from "../assets/BIT-TOOL-2.png";
 const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar }) => {
   const navigate = useNavigate();
   const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
-  const { theme, currentThemeName, changeTheme } = useTheme();
+  const { theme, currentThemeName, changeTheme, backgroundImage } = useTheme();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
   
   const allSessions = getSessions();
@@ -53,7 +53,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300"
-      style={{ backgroundColor: theme.bg }}
+      style={{ backgroundColor: backgroundImage ? "transparent" : theme.bg }}
     >
       <div className="flex items-center justify-between">
         {/* LEFT */}

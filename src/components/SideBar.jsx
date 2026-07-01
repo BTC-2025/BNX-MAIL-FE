@@ -8,7 +8,7 @@ import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess,
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme } = useTheme();
+  const { theme, backgroundImage } = useTheme();
   const { unreadCounts, labels, handleCreateLabel, handleDeleteLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -35,7 +35,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden -translate-x-full"}
         ${isDesktopOpen ? "md:flex md:relative md:translate-x-0" : "md:hidden"}
       `}
-        style={{ backgroundColor: isMobileOpen ? undefined : theme.bg }}
+        style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
       >
         {/* COMPOSE */}
         <div className="p-3 pl-3.5 pb-2">

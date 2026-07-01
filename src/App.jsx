@@ -150,8 +150,14 @@ const AppContent = () => {
         <main
           className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
           style={{
-            backgroundColor: theme.cardBg,
-            borderColor: theme.border,
+            backgroundColor: backgroundImage 
+              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.75)" : "rgba(255, 255, 255, 0.75)") 
+              : theme.cardBg,
+            backdropFilter: backgroundImage ? "blur(12px)" : "none",
+            WebkitBackdropFilter: backgroundImage ? "blur(12px)" : "none",
+            borderColor: backgroundImage 
+              ? (theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.4)") 
+              : theme.border,
           }}
         >
           <Routes>
