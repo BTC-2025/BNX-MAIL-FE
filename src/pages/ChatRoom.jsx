@@ -471,12 +471,10 @@ const ChatRoom = () => {
                               <button
                                 key={index}
                                 onClick={() => handleDownloadAttachment(att)}
-                                className="flex items-center gap-1.5 px-2.5 py-1.5 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.06] dark:hover:bg-white/[0.06] border border-gray-200/50 dark:border-gray-800/50 rounded-xl text-[10px] font-medium text-gray-600 dark:text-gray-300 transition-all cursor-pointer truncate max-w-[200px]"
-                                title={`Click to download ${att.name}`}
+                                className="flex items-center justify-center w-7 h-7 bg-black/[0.03] dark:bg-white/[0.03] hover:bg-black/[0.06] dark:hover:bg-white/[0.06] border border-gray-200/50 dark:border-gray-800/50 rounded-lg text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 transition-all cursor-pointer shrink-0"
+                                title={`${att.name} (${(att.size / 1024).toFixed(1)} KB)`}
                               >
-                                <MdAttachFile size={13} className="shrink-0 text-gray-400" />
-                                <span className="truncate">{att.name}</span>
-                                <span className="text-[8px] opacity-60 font-normal shrink-0">({(att.size / 1024).toFixed(1)} KB)</span>
+                                <MdAttachFile size={14} className="text-gray-400 dark:text-gray-500" />
                               </button>
                             ))}
                           </div>
@@ -515,7 +513,7 @@ const ChatRoom = () => {
           {chat?.type === 'GROUP' && (
             <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
-                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Instant Chat Messages
+                <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Comments
               </h3>
               <button 
                 onClick={() => setIsChatPaneOpen(false)}
