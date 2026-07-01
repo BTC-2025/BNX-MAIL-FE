@@ -21,6 +21,8 @@ import { emailAPI, authAPI, userAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useTheme, PRESET_BACKGROUNDS } from "../context/ThemeContext";
 import toast from "react-hot-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -64,7 +66,7 @@ const Settings = () => {
   const [language, setLanguage] = useState("en_US");
 
   // Client-only preference states
-  const [signature, setSignature] = useState("");
+  const [signatures, setSignatures] = useState([]);
   const [undoSendDelay, setUndoSendDelay] = useState(0);
 
   // Fetch initial data based on active tab
@@ -89,9 +91,23 @@ const Settings = () => {
   // Load client preferences on mount or user change
   useEffect(() => {
     if (user?.email) {
-      const savedSig = localStorage.getItem(`bnx_signature_${user.email}`) || "";
+      const savedSigsStr = localStorage.getItem(`bnx_signatures_${user.email}`);
+      if (savedSigsStr) {
+        try {
+          setSignatures(JSON.parse(savedSigsStr));
+        } catch(e) {
+          setSignatures([]);
+        }
+      } else {
+        const oldSig = localStorage.getItem(`bnx_signature_${user.email}`);
+        if (oldSig) {
+          const migrated = [{ id: Date.now().toString(), name: "Default Signature", content: oldSig, isDefault: true }];
+          setSignatures(migrated);
+        } else {
+          setSignatures([]);
+        }
+      }
       const savedUndo = localStorage.getItem(`bnx_undo_send_${user.email}`) || "0";
-      setSignature(savedSig);
       setUndoSendDelay(Number(savedUndo));
     }
   }, [user]);
@@ -261,10 +277,35 @@ const Settings = () => {
     }
   };
 
+  const addSignature = () => {
+    setSignatures(prev => [
+      ...prev,
+      { id: Date.now().toString(), name: "New Signature", content: "", isDefault: prev.length === 0 }
+    ]);
+  };
+
+  const updateSignature = (id, field, value) => {
+    setSignatures(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  };
+
+  const deleteSignature = (id) => {
+    setSignatures(prev => {
+      const filtered = prev.filter(s => s.id !== id);
+      if (filtered.length > 0 && !filtered.some(s => s.isDefault)) {
+        filtered[0].isDefault = true;
+      }
+      return filtered;
+    });
+  };
+
+  const setDefaultSignature = (id) => {
+    setSignatures(prev => prev.map(s => ({ ...s, isDefault: s.id === id })));
+  };
+
   const handleSaveComposingSettings = (e) => {
     e.preventDefault();
     if (user?.email) {
-      localStorage.setItem(`bnx_signature_${user.email}`, signature);
+      localStorage.setItem(`bnx_signatures_${user.email}`, JSON.stringify(signatures));
       localStorage.setItem(`bnx_undo_send_${user.email}`, undoSendDelay.toString());
       toast.success("Composing preferences saved locally");
     }
@@ -404,18 +445,64 @@ const Settings = () => {
         {activeTab === "composing" && (
           <Section title="General & Composing Settings" theme={theme}>
             <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-6 max-w-2xl">
-              {/* Signature */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signature</label>
-                <textarea 
-                  placeholder="Write signature here..." 
-                  value={signature} 
-                  onChange={e => setSignature(e.target.value)} 
-                  rows={4}
-                  className="w-full p-4 text-sm rounded-xl border outline-none resize-none focus:ring-2 focus:border-transparent transition-all"
-                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                />
-                <span className="text-xs text-gray-500">Signature will automatically append to the bottom of new compose frames.</span>
+              {/* Signatures */}
+              <div className="flex flex-col gap-4">
+                <div className="flex items-center justify-between">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signatures</label>
+                  <button 
+                    type="button" 
+                    onClick={addSignature} 
+                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 transition cursor-pointer"
+                  >
+                    + Add Signature
+                  </button>
+                </div>
+                
+                {signatures.length === 0 ? (
+                  <p className="text-sm text-gray-500 italic">No signatures created. Click 'Add Signature' to create one.</p>
+                ) : (
+                  <div className="flex flex-col gap-4">
+                    {signatures.map((sig) => (
+                      <div key={sig.id} className="border rounded-xl p-4 flex flex-col gap-3 shadow-sm bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
+                        <div className="flex items-center gap-3">
+                          <input 
+                            type="text" 
+                            value={sig.name} 
+                            onChange={(e) => updateSignature(sig.id, "name", e.target.value)} 
+                            className="flex-1 bg-transparent border-b outline-none text-sm font-semibold focus:border-blue-500 pb-1"
+                            style={{ color: theme.text, borderColor: theme.border }}
+                            placeholder="Signature Name"
+                          />
+                          <button 
+                            type="button"
+                            onClick={() => setDefaultSignature(sig.id)}
+                            className={`text-xs px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${sig.isDefault ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10"}`}
+                          >
+                            {sig.isDefault ? "Default ✓" : "Set Default"}
+                          </button>
+                          <button 
+                            type="button"
+                            onClick={() => deleteSignature(sig.id)}
+                            className="text-red-500 hover:text-red-700 px-2 py-1 cursor-pointer font-bold"
+                            title="Delete Signature"
+                          >
+                            ×
+                          </button>
+                        </div>
+                        <div className="bg-white text-black rounded-md overflow-hidden border">
+                          <ReactQuill 
+                            theme="snow" 
+                            value={sig.content} 
+                            onChange={(content) => updateSignature(sig.id, "content", content)} 
+                            className="h-32 mb-10"
+                            placeholder="Design your signature..."
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <span className="text-xs text-gray-500 mt-2">The default signature will be automatically inserted into new compose frames.</span>
               </div>
 
               {/* Undo Send */}

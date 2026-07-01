@@ -8,7 +8,8 @@ import {
   MdAssignment, 
   MdRemove, 
   MdOpenInFull, 
-  MdCloseFullscreen 
+  MdCloseFullscreen,
+  MdEditDocument
 } from "react-icons/md";
 import { mailAPI, api } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
@@ -16,6 +17,8 @@ import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
 import { DEFAULT_TEMPLATES } from "../pages/Templates";
 import toast from "react-hot-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 const FloatingCompose = () => {
   const { theme } = useTheme();
@@ -50,6 +53,9 @@ const FloatingCompose = () => {
     subject: "",
     body: "",
   });
+
+  const [signatures, setSignatures] = useState([]);
+  const [showSignaturesMenu, setShowSignaturesMenu] = useState(false);
 
   const [draftId, setDraftId] = useState(null);
   const [attachments, setAttachments] = useState([]);
@@ -123,7 +129,16 @@ const FloatingCompose = () => {
       } catch (e) {}
     }
     setAllTemplates([...DEFAULT_TEMPLATES, ...custom]);
-  }, [showTemplates, isComposeOpen]);
+
+    if (user?.email) {
+      const savedSigsStr = localStorage.getItem(`bnx_signatures_${user.email}`);
+      if (savedSigsStr) {
+        try {
+          setSignatures(JSON.parse(savedSigsStr));
+        } catch(e) {}
+      }
+    }
+  }, [showTemplates, isComposeOpen, user]);
 
   /* ---------------- PREFILL ON COMPOSE DATA CHANGE ---------------- */
   useEffect(() => {
@@ -140,7 +155,7 @@ const FloatingCompose = () => {
             bcc: "",
             subject: composeData.subject || "",
             body: composeData.originalBody
-              ? `\n\n--- Original Message ---\n${composeData.originalBody}`
+              ? `<br/><br/><div>--- Original Message ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
               : "",
           });
         } else if (composeData.draft) {
@@ -166,13 +181,21 @@ const FloatingCompose = () => {
           if (composeData.bcc) setShowBcc(true);
         }
       } else {
-        const savedSig = localStorage.getItem(`bnx_signature_${user?.email}`) || "";
+        let defaultSig = "";
+        const savedSigsStr = localStorage.getItem(`bnx_signatures_${user?.email}`);
+        if (savedSigsStr) {
+          try {
+            const sigs = JSON.parse(savedSigsStr);
+            const def = sigs.find(s => s.isDefault);
+            if (def) defaultSig = def.content;
+          } catch(e) {}
+        }
         setFormData({
           to: "",
           cc: "",
           bcc: "",
           subject: "",
-          body: savedSig ? `\n\n---\n${savedSig}` : "",
+          body: defaultSig ? `<br/><br/>${defaultSig}` : "",
         });
         setShowCc(false);
         setShowBcc(false);
@@ -227,7 +250,7 @@ const FloatingCompose = () => {
           bcc: formData.bcc,
           subject: formData.subject || "(No Subject)",
           body: formData.body,
-          isHtml: false
+          isHtml: true
         };
         const draftRes = await mailAPI.createDbDraft(payload);
         if (draftRes.data?.success) {
@@ -307,6 +330,7 @@ const FloatingCompose = () => {
       to: formData.to,
       subject: formData.subject,
       body: formData.body,
+      isHtml: true
     };
     if (formData.cc) payload.cc = formData.cc;
     if (formData.bcc) payload.bcc = formData.bcc;
@@ -318,7 +342,7 @@ const FloatingCompose = () => {
           await mailAPI.createDbDraft({
             id: draftId,
             ...payload,
-            isHtml: false
+            isHtml: true
           });
           response = await mailAPI.sendDbDraft(draftId);
         } else {
@@ -631,14 +655,15 @@ const FloatingCompose = () => {
             </div>
 
             {/* BODY */}
-            <textarea
-              name="body"
-              value={formData.body}
-              onChange={handleChange}
-              placeholder="Type your message here..."
-              className="w-full flex-1 resize-none outline-none py-2 text-sm bg-transparent border-none mt-2 placeholder:text-gray-400 min-h-[120px]"
-              style={{ color: theme.text }}
-            />
+            <div className="flex-1 mt-2 overflow-y-auto w-full compose-quill rounded-md" style={{ minHeight: "150px" }}>
+              <ReactQuill
+                theme="snow"
+                value={formData.body}
+                onChange={(content) => setFormData((prev) => ({ ...prev, body: content }))}
+                placeholder="Type your message here..."
+                className="h-full bg-white text-black"
+              />
+            </div>
 
             {/* ATTACHMENT CHIPS RENDERING */}
             {attachments.length > 0 && (
@@ -799,6 +824,61 @@ const FloatingCompose = () => {
               >
                 <MdAttachFile size={18} className="transform rotate-45" />
               </button>
+
+              {/* Signatures quick selector */}
+              <div className="relative">
+                <button
+                  type="button"
+                  onClick={() => setShowSignaturesMenu(!showSignaturesMenu)}
+                  className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
+                  title="Insert Signature"
+                >
+                  <MdEditDocument size={16} />
+                  <span className="hidden sm:inline">Signature</span>
+                </button>
+
+                {showSignaturesMenu && (
+                  <div
+                    className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
+                    style={{
+                      backgroundColor: theme.cardBg,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    }}
+                  >
+                    <div className="flex items-center justify-between p-1.5 mb-1 border-b" style={{ borderColor: theme.border }}>
+                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Signatures</span>
+                      <button
+                        type="button"
+                        onClick={() => setShowSignaturesMenu(false)}
+                        className="text-xs p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
+                      >
+                        <MdClose size={12} />
+                      </button>
+                    </div>
+                    {signatures.length === 0 ? (
+                      <p className="text-[10px] text-center p-2 opacity-60">No signatures configured</p>
+                    ) : (
+                      <div className="flex flex-col gap-0.5">
+                        {signatures.map((s) => (
+                          <button
+                            key={s.id}
+                            type="button"
+                            onClick={() => {
+                              setFormData(prev => ({ ...prev, body: prev.body + `<br/><br/>${s.content}` }));
+                              setShowSignaturesMenu(false);
+                            }}
+                            className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer flex justify-between items-center"
+                          >
+                            <span className="font-semibold truncate">{s.name}</span>
+                            {s.isDefault && <span className="text-[10px] text-green-600 bg-green-100 dark:bg-green-900/30 px-1.5 rounded">Default</span>}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
 
               {/* Inline Templates quick selector */}
               <div className="relative">
