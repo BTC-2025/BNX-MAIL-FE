@@ -324,17 +324,17 @@ const Settings = () => {
     <div className="flex h-screen overflow-hidden" style={{ background: theme.bg }}>
       {/* Side Tabs Bar */}
       <aside 
-        className="w-64 border-r p-4 flex flex-col gap-1.5 shrink-0" 
+        className="w-72 border-r p-6 flex flex-col gap-2 shrink-0" 
         style={{ background: theme.cardBg, borderColor: theme.border }}
       >
         <button 
           onClick={() => navigate("/inbox")} 
-          className="text-xs font-bold mb-4 hover:underline text-left cursor-pointer flex items-center gap-1.5" 
+          className="text-sm font-semibold mb-6 hover:underline text-left cursor-pointer flex items-center gap-1.5 transition-colors hover:text-primary" 
           style={{ color: theme.accent }}
         >
           ← Back to Inbox
         </button>
-        <h2 className="text-lg font-bold mb-4 px-2" style={{ color: theme.text }}>Settings</h2>
+        <h2 className="text-2xl font-bold mb-6 px-2" style={{ color: theme.text }}>Settings</h2>
         
         {tabs.map(tab => (
           <SideTab 
@@ -349,82 +349,83 @@ const Settings = () => {
       </aside>
 
       {/* Settings Options Pane */}
-      <main className="flex-1 p-8 overflow-y-auto hidden-scrollbar">
-        {/* accounts Tab */}
-        {activeTab === "accounts" && (
-          <Section title="Email Accounts" theme={theme}>
-            <p className="text-xs opacity-70 mb-4">Manage multiple linked email addresses in your current session.</p>
-            <button 
-              onClick={() => setShowCreateEmail(true)} 
-              className="mb-4 px-4 py-2 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity" 
-              style={{ background: theme.accent }}
-            >
-              Add New Email Account
-            </button>
-            {showCreateEmail && (
-              <form onSubmit={handleCreateEmail} className="mb-6 p-4 rounded-2xl border flex flex-col gap-3" style={{ borderColor: theme.border }}>
-                <input 
-                  placeholder="Username (e.g. john)" 
-                  value={newEmail.emailName} 
-                  onChange={e => setNewEmail({...newEmail, emailName: e.target.value})} 
-                  className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
-                />
-                <input 
-                  type="password" 
-                  placeholder="Password (min 8 chars)" 
-                  value={newEmail.password} 
-                  onChange={e => setNewEmail({...newEmail, password: e.target.value})} 
-                  className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
-                />
-                <div className="flex gap-2">
-                  <button type="submit" className="px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 cursor-pointer">Create</button>
-                  <button type="button" onClick={() => setShowCreateEmail(false)} className="px-4 py-2 rounded-xl text-xs font-bold text-gray-500 bg-gray-100 dark:bg-gray-800 cursor-pointer">Cancel</button>
-                </div>
-              </form>
-            )}
-            <div className="flex flex-col gap-2">
-              {emails.map(email => (
-                <div key={email.id} className="flex items-center justify-between p-4 rounded-2xl border" style={{ borderColor: theme.border }}>
-                  <span className="text-xs font-semibold" style={{ color: theme.text }}>{email.email}</span>
-                  {email.isPrimary ? (
-                    <span className="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">Primary</span>
-                  ) : (
-                    <span className="text-[10px] text-gray-400">Alias</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          </Section>
-        )}
+      <main className="flex-1 p-10 overflow-y-auto hidden-scrollbar flex justify-center">
+        <div className="w-full max-w-5xl">
+          {/* accounts Tab */}
+          {activeTab === "accounts" && (
+            <Section title="Email Accounts" theme={theme}>
+              <p className="text-sm text-gray-500 mb-6">Manage multiple linked email addresses in your current session.</p>
+              <button 
+                onClick={() => setShowCreateEmail(true)} 
+                className="mb-6 px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
+                style={{ background: theme.accent }}
+              >
+                Add New Email Account
+              </button>
+              {showCreateEmail && (
+                <form onSubmit={handleCreateEmail} className="mb-8 p-6 rounded-2xl border flex flex-col gap-4 shadow-sm" style={{ borderColor: theme.border }}>
+                  <input 
+                    placeholder="Username (e.g. john)" 
+                    value={newEmail.emailName} 
+                    onChange={e => setNewEmail({...newEmail, emailName: e.target.value})} 
+                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                  />
+                  <input 
+                    type="password" 
+                    placeholder="Password (min 8 chars)" 
+                    value={newEmail.password} 
+                    onChange={e => setNewEmail({...newEmail, password: e.target.value})} 
+                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                  />
+                  <div className="flex gap-3 mt-2">
+                    <button type="submit" className="px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" style={{ background: theme.accent }}>Create Account</button>
+                    <button type="button" onClick={() => setShowCreateEmail(false)} className="px-5 py-2.5 rounded-xl text-sm font-medium cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all" style={{ color: theme.text, border: `1px solid ${theme.border}` }}>Cancel</button>
+                  </div>
+                </form>
+              )}
+              <div className="flex flex-col gap-3">
+                {emails.map(email => (
+                  <div key={email.id} className="flex items-center justify-between p-5 rounded-2xl border hover:shadow-sm transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
+                    <span className="text-base font-medium" style={{ color: theme.text }}>{email.email}</span>
+                    {email.isPrimary ? (
+                      <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300">Primary</span>
+                    ) : (
+                      <span className="text-xs text-gray-400 font-medium">Alias</span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
 
         {/* composing Tab */}
         {activeTab === "composing" && (
           <Section title="General & Composing Settings" theme={theme}>
-            <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-5 max-w-lg">
+            <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-6 max-w-2xl">
               {/* Signature */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Email Signature</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signature</label>
                 <textarea 
                   placeholder="Write signature here..." 
                   value={signature} 
                   onChange={e => setSignature(e.target.value)} 
                   rows={4}
-                  className="w-full p-3 text-xs rounded-xl border outline-none resize-none"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                  className="w-full p-4 text-sm rounded-xl border outline-none resize-none focus:ring-2 focus:border-transparent transition-all"
+                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                 />
-                <span className="text-[10px] text-gray-400">Signature will automatically append to the bottom of new compose frames.</span>
+                <span className="text-xs text-gray-500">Signature will automatically append to the bottom of new compose frames.</span>
               </div>
 
               {/* Undo Send */}
-              <div className="flex flex-col gap-1.5">
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Undo Send Delay</label>
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Undo Send Delay</label>
                 <select 
                   value={undoSendDelay} 
                   onChange={e => setUndoSendDelay(Number(e.target.value))}
-                  className="w-full p-2.5 text-xs rounded-xl border outline-none cursor-pointer"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                  className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
+                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                 >
                   <option value={0}>Disabled (Send instantly)</option>
                   <option value={5}>5 seconds</option>
@@ -432,12 +433,12 @@ const Settings = () => {
                   <option value={20}>20 seconds</option>
                   <option value={30}>30 seconds</option>
                 </select>
-                <span className="text-[10px] text-gray-400">Sets the grace window to cancel/undo emails after pressing send.</span>
+                <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
               </div>
 
               <button 
                 type="submit" 
-                className="w-fit px-5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity" 
+                className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
                 style={{ background: theme.accent }}
               >
                 Save Preferences
@@ -449,46 +450,46 @@ const Settings = () => {
         {/* notifications Tab */}
         {activeTab === "notifications" && (
           <Section title="Notification Preferences & Quiet Hours" theme={theme}>
-            <form onSubmit={handleSaveNotificationSettings} className="flex flex-col gap-6 max-w-lg">
+            <form onSubmit={handleSaveNotificationSettings} className="flex flex-col gap-8 max-w-2xl">
               {/* Notifications triggers */}
-              <div className="flex flex-col gap-3">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Folders & Subscriptions</h4>
+              <div className="flex flex-col gap-4">
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Folders & Subscriptions</h4>
                 <ToggleRow label="Inbox Mail Alerts" checked={inboxNotifications} onChange={setInboxNotifications} theme={theme} />
                 <ToggleRow label="Sent Confirmation Alerts" checked={sentNotifications} onChange={setSentNotifications} theme={theme} />
                 <ToggleRow label="Starred Emails Alerts" checked={starredNotifications} onChange={setStarredNotifications} theme={theme} />
                 <ToggleRow label="Snoozed Reminders" checked={snoozedNotifications} onChange={setSnoozedNotifications} theme={theme} />
               </div>
 
-              <div className="flex flex-col gap-3 border-t pt-4" style={{ borderColor: theme.border }}>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Vibration & Sounds</h4>
+              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Vibration & Sounds</h4>
                 <ToggleRow label="Play Alert Sound" checked={soundEnabled} onChange={setSoundEnabled} theme={theme} />
                 <ToggleRow label="Enable Haptic Vibration" checked={vibrationEnabled} onChange={setVibrationEnabled} theme={theme} />
               </div>
 
               {/* Quiet Hours */}
-              <div className="flex flex-col gap-3 border-t pt-4" style={{ borderColor: theme.border }}>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Quiet Hours Schedule</h4>
+              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Quiet Hours Schedule</h4>
                 <ToggleRow label="Mute Notifications Schedule" checked={quietHoursEnabled} onChange={setQuietHoursEnabled} theme={theme} />
                 
                 {quietHoursEnabled && (
-                  <div className="flex items-center gap-3 mt-1.5 animate-fadeIn">
-                    <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-[10px] text-gray-400">Quiet Starts At</label>
+                  <div className="flex items-center gap-4 mt-2 p-4 rounded-2xl animate-fadeIn" style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
+                    <div className="flex-1 flex flex-col gap-2">
+                      <label className="text-xs font-semibold text-gray-500">Quiet Starts At</label>
                       <input 
                         type="time" 
                         value={quietHoursStart} 
                         onChange={e => setQuietHoursStart(e.target.value)} 
-                        className="p-2 border text-xs rounded-xl outline-none"
+                        className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
                         style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
                       />
                     </div>
-                    <div className="flex-1 flex flex-col gap-1">
-                      <label className="text-[10px] text-gray-400">Quiet Ends At</label>
+                    <div className="flex-1 flex flex-col gap-2">
+                      <label className="text-xs font-semibold text-gray-500">Quiet Ends At</label>
                       <input 
                         type="time" 
                         value={quietHoursEnd} 
                         onChange={e => setQuietHoursEnd(e.target.value)} 
-                        className="p-2 border text-xs rounded-xl outline-none"
+                        className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
                         style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
                       />
                     </div>
@@ -498,7 +499,7 @@ const Settings = () => {
 
               <button 
                 type="submit" 
-                className="w-fit px-5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity" 
+                className="w-fit mt-4 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
                 style={{ background: theme.accent }}
               >
                 Save Notification Settings
@@ -510,17 +511,17 @@ const Settings = () => {
         {/* appearance Tab */}
         {activeTab === "appearance" && (
           <Section title="Appearance & Interface Customization" theme={theme}>
-            <form onSubmit={handleSaveAppearanceSettings} className="flex flex-col gap-6 max-w-lg">
+            <form onSubmit={handleSaveAppearanceSettings} className="flex flex-col gap-8 max-w-3xl">
               {/* Density */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Mail Density View</label>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Mail Density View</label>
+                <div className="grid grid-cols-3 gap-4">
                   {["Default", "Comfortable", "Compact"].map(d => (
                     <button
                       key={d}
                       type="button"
                       onClick={() => setDensity(d)}
-                      className={`p-3 text-xs font-semibold rounded-xl border transition-all cursor-pointer ${density === d ? 'border-primary ring-1 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                      className={`p-4 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${density === d ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
                       style={density === d ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                     >
                       {d}
@@ -530,22 +531,22 @@ const Settings = () => {
               </div>
 
               {/* Accent Color picker */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Custom Accent Color</label>
-                <div className="flex items-center gap-3">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Custom Accent Color</label>
+                <div className="flex items-center gap-4">
                   <input 
                     type="color" 
                     value={accentColor} 
                     onChange={e => setAccentColor(e.target.value)} 
-                    className="w-10 h-10 rounded-xl cursor-pointer border-0 bg-transparent shrink-0 outline-none"
+                    className="w-12 h-12 rounded-xl cursor-pointer border-0 bg-transparent shrink-0 outline-none"
                   />
-                  <div className="flex flex-wrap gap-1.5">
+                  <div className="flex flex-wrap gap-3">
                     {["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(c => (
                       <button 
                         key={c} 
                         type="button"
                         onClick={() => setAccentColor(c)}
-                        className="w-6 h-6 rounded-full border border-white dark:border-gray-800 shadow-md cursor-pointer hover:scale-110 transition-transform"
+                        className="w-8 h-8 rounded-full border border-white dark:border-gray-800 shadow-md cursor-pointer hover:scale-110 transition-transform"
                         style={{ backgroundColor: c }}
                       />
                     ))}
@@ -554,10 +555,10 @@ const Settings = () => {
               </div>
 
               {/* Font scaling size */}
-              <div className="flex flex-col gap-2">
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300 flex justify-between">
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex justify-between">
                   <span>Font Size Scale</span>
-                  <span className="font-mono text-[10px] opacity-75">{fontSize}x</span>
+                  <span className="font-mono text-xs opacity-75">{fontSize}x</span>
                 </label>
                 <input 
                   type="range" 
@@ -566,14 +567,14 @@ const Settings = () => {
                   step="0.05"
                   value={fontSize} 
                   onChange={e => setFontSize(Number(e.target.value))}
-                  className="w-full h-1.5 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
                 />
               </div>
 
               {/* Theme palettes picker */}
-              <div className="flex flex-col gap-2 border-t pt-4" style={{ borderColor: theme.border }}>
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Visual Theme Palette</label>
-                <div className="grid grid-cols-3 gap-2">
+              <div className="flex flex-col gap-3 border-t pt-6" style={{ borderColor: theme.border }}>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Visual Theme Palette</label>
+                <div className="grid grid-cols-3 gap-4">
                   {["Classic", "Dark", "Nature", "Ocean", "Sunset", "Minimal"].map(t => (
                     <button 
                       key={t} 
@@ -582,7 +583,7 @@ const Settings = () => {
                         changeTheme(t);
                         setThemeMode(t === "Dark" ? "Dark" : "Light");
                       }} 
-                      className={`p-3 text-xs rounded-xl border cursor-pointer transition-all ${currentThemeName === t ? "border-primary ring-1 ring-primary" : ""}`}
+                      className={`p-4 text-sm font-medium rounded-2xl border cursor-pointer transition-all shadow-sm ${currentThemeName === t ? "border-primary ring-2 ring-primary" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
                       style={currentThemeName === t ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                     >
                       {t}
@@ -592,22 +593,22 @@ const Settings = () => {
               </div>
 
               {/* Background Image section */}
-              <div className="flex flex-col gap-3 border-t pt-4" style={{ borderColor: theme.border }}>
-                <label className="text-xs font-bold text-gray-600 dark:text-gray-300">Background Wallpaper</label>
+              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Background Wallpaper</label>
                 
                 {/* Current background preview */}
                 {backgroundImage && (
-                  <div className="relative rounded-xl overflow-hidden border h-28" style={{ borderColor: theme.border }}>
+                  <div className="relative rounded-2xl overflow-hidden border h-40 shadow-sm" style={{ borderColor: theme.border }}>
                     <img 
                       src={backgroundImage} 
                       alt="Current background" 
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <button
                         type="button"
                         onClick={clearBackgroundImage}
-                        className="px-3 py-1.5 text-[10px] font-bold rounded-lg bg-white/90 text-gray-800 hover:bg-white cursor-pointer shadow-lg"
+                        className="px-4 py-2 text-sm font-bold rounded-xl bg-white/90 text-gray-800 hover:bg-white cursor-pointer shadow-lg transition-transform active:scale-95"
                       >
                         Remove Background
                       </button>
@@ -616,14 +617,14 @@ const Settings = () => {
                 )}
 
                 {/* Preset wallpapers grid */}
-                <div className="grid grid-cols-4 gap-2">
+                <div className="grid grid-cols-4 gap-3">
                   {PRESET_BACKGROUNDS.map((bg) => (
                     <button
                       key={bg.label}
                       type="button"
                       onClick={() => setBackgroundImage(bg.url)}
-                      className={`relative rounded-xl overflow-hidden h-16 border-2 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-md ${
-                        backgroundImage === bg.url ? "ring-2 ring-offset-1" : ""
+                      className={`relative rounded-xl overflow-hidden h-20 border-2 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-md ${
+                        backgroundImage === bg.url ? "ring-2 ring-offset-2" : ""
                       }`}
                       style={{ 
                         borderColor: backgroundImage === bg.url ? theme.accent : theme.border,
@@ -637,22 +638,22 @@ const Settings = () => {
                         className="w-full h-full object-cover" 
                         loading="lazy"
                       />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-1 py-0.5">
-                        <span className="text-[8px] text-white font-bold">{bg.label}</span>
+                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1">
+                        <span className="text-[10px] text-white font-bold">{bg.label}</span>
                       </div>
                     </button>
                   ))}
                 </div>
 
                 {/* Custom URL input */}
-                <div className="flex gap-2">
+                <div className="flex gap-3">
                   <input
                     type="url"
                     placeholder="Paste custom image URL..."
                     value={customBgUrl}
                     onChange={(e) => setCustomBgUrl(e.target.value)}
-                    className="flex-1 p-2 text-xs rounded-xl border outline-none"
-                    style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                    className="flex-1 p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
                   <button
                     type="button"
@@ -663,7 +664,7 @@ const Settings = () => {
                         toast.success("Custom background applied");
                       }
                     }}
-                    className="px-3 py-2 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-90 transition-opacity shrink-0"
+                    className="px-5 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shrink-0 shadow-sm"
                     style={{ background: theme.accent }}
                   >
                     Apply
@@ -695,8 +696,8 @@ const Settings = () => {
                 <button
                   type="button"
                   onClick={() => bgFileRef.current?.click()}
-                  className="w-fit px-4 py-2 rounded-xl text-xs font-semibold border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                  style={{ borderColor: theme.border, color: theme.subText }}
+                  className="w-fit px-5 py-2.5 rounded-xl text-sm font-medium border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all shadow-sm"
+                  style={{ borderColor: theme.border, color: theme.text }}
                 >
                   📁 Upload from device
                 </button>
@@ -716,53 +717,53 @@ const Settings = () => {
         {/* security Tab */}
         {activeTab === "security" && (
           <Section title="Security & Account Recovery" theme={theme}>
-            <div className="flex flex-col gap-6 max-w-lg">
+            <div className="flex flex-col gap-8 max-w-2xl">
               {/* Details and 2FA */}
-              <form onSubmit={handleSaveSecuritySettings} className="flex flex-col gap-4">
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Profile Information</h4>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] text-gray-400">Job Title</label>
+              <form onSubmit={handleSaveSecuritySettings} className="flex flex-col gap-5">
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Profile Information</h4>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-500">Job Title</label>
                     <input 
                       placeholder="Software Engineer" 
                       value={jobTitle} 
                       onChange={e => setJobTitle(e.target.value)} 
-                      className="p-2.5 text-xs rounded-xl border outline-none"
-                      style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                      className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                     />
                   </div>
-                  <div className="flex flex-col gap-1">
-                    <label className="text-[10px] text-gray-400">Location</label>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-500">Location</label>
                     <input 
                       placeholder="New York, USA" 
                       value={location} 
                       onChange={e => setLocation(e.target.value)} 
-                      className="p-2.5 text-xs rounded-xl border outline-none"
-                      style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                      className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                     />
                   </div>
                 </div>
 
-                <div className="flex flex-col gap-1">
-                  <label className="text-[10px] text-gray-400">Phone Contact</label>
+                <div className="flex flex-col gap-2 mt-2">
+                  <label className="text-xs font-semibold text-gray-500">Phone Contact</label>
                   <input 
                     placeholder="+1 (555) 019-2834" 
                     value={phoneNumber} 
                     onChange={e => setPhoneNumber(e.target.value)} 
-                    className="p-2.5 text-xs rounded-xl border outline-none"
-                    style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                    className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
                 </div>
 
-                <div className="border-t my-1" style={{ borderColor: theme.border }} />
+                <div className="border-t my-4" style={{ borderColor: theme.border }} />
 
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Multi-Factor Authenticator</h4>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Multi-Factor Authenticator</h4>
                 <ToggleRow label="Enable Two-Factor Authentication (2FA)" checked={twoFactorEnabled} onChange={setTwoFactorEnabled} theme={theme} />
                 <ToggleRow label="Enable Biometrics Access" checked={biometricsEnabled} onChange={setBiometricsEnabled} theme={theme} />
 
                 <button 
                   type="submit" 
-                  className="w-fit px-5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity mt-1" 
+                  className="w-fit mt-3 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
                   style={{ background: theme.accent }}
                 >
                   Save Security Preferences
@@ -770,60 +771,60 @@ const Settings = () => {
               </form>
 
               {/* Password update form */}
-              <form onSubmit={handleChangePassword} className="flex flex-col gap-3 border-t pt-4" style={{ borderColor: theme.border }}>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Update Account Password</h4>
+              <form onSubmit={handleChangePassword} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Update Account Password</h4>
                 <input 
                   type="password" 
                   placeholder="Current Password" 
                   value={passwords.oldPassword} 
                   onChange={e => setPasswords({...passwords, oldPassword: e.target.value})} 
-                  className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                  className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                 />
                 <input 
                   type="password" 
                   placeholder="New Password" 
                   value={passwords.newPassword} 
                   onChange={e => setPasswords({...passwords, newPassword: e.target.value})} 
-                  className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                  style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                  className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                 />
                 <button 
                   type="submit" 
-                  className="w-fit px-4 py-2 rounded-xl text-xs font-bold text-white bg-red-600 hover:bg-red-700 cursor-pointer"
+                  className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-sm"
                 >
                   Update Password
                 </button>
               </form>
 
               {/* Recovery Setup */}
-              <form onSubmit={handleUpdateRecovery} className="flex flex-col gap-3 border-t pt-4" style={{ borderColor: theme.border }}>
-                <h4 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-1">Backup Account Recovery</h4>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-gray-400">Recovery Email Address</label>
+              <form onSubmit={handleUpdateRecovery} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Backup Account Recovery</h4>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-gray-500">Recovery Email Address</label>
                   <input 
                     type="email" 
                     placeholder="backup@example.com" 
                     value={recoveryInfo.recoveryEmail || ""} 
                     onChange={e => setRecoveryInfo({...recoveryInfo, recoveryEmail: e.target.value})} 
-                    className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                    style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
                 </div>
-                <div className="flex flex-col gap-1.5">
-                  <label className="text-[10px] text-gray-400">Backup Phone Number</label>
+                <div className="flex flex-col gap-2">
+                  <label className="text-xs font-semibold text-gray-500">Backup Phone Number</label>
                   <input 
                     type="text" 
                     placeholder="+1234567890" 
                     value={recoveryInfo.phoneNumber || ""} 
                     onChange={e => setRecoveryInfo({...recoveryInfo, phoneNumber: e.target.value})} 
-                    className="w-full p-2.5 text-xs rounded-xl border outline-none"
-                    style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
                 </div>
                 <button 
                   type="submit" 
-                  className="w-fit px-4 py-2 rounded-xl text-xs font-bold text-white bg-blue-600 hover:bg-blue-700 cursor-pointer"
+                  className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shadow-sm"
                 >
                   Save Recovery Details
                 </button>
@@ -834,36 +835,37 @@ const Settings = () => {
 
         {/* sessions Tab */}
         {activeTab === "sessions" && (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-8">
             <Section title="Active Device Sessions" theme={theme}>
-              <p className="text-xs opacity-70 mb-3">Below are the devices currently logged into your account.</p>
-              <div className="flex flex-col gap-2.5">
+              <p className="text-sm text-gray-500 mb-6">Below are the devices currently logged into your account.</p>
+              <div className="flex flex-col gap-4">
                 {sessions.map((s, idx) => (
-                  <div key={idx} className="p-4 rounded-2xl border" style={{ borderColor: theme.border }}>
-                    <p className="text-xs font-bold" style={{ color: theme.text }}>{s.deviceName || "Unknown Browser / Client"}</p>
-                    <p className="text-[11px] opacity-70">{s.ipAddress} — {s.location}</p>
-                    <p className="text-[10px] opacity-50 mt-1">Last active: {new Date(s.lastActive).toLocaleString()}</p>
+                  <div key={idx} className="p-5 rounded-2xl border flex flex-col gap-1 shadow-sm" style={{ borderColor: theme.border, background: theme.cardBg }}>
+                    <p className="text-base font-semibold" style={{ color: theme.text }}>{s.deviceName || "Unknown Browser / Client"}</p>
+                    <p className="text-sm text-gray-500">{s.ipAddress} — {s.location}</p>
+                    <p className="text-xs text-gray-400 mt-2 font-medium">Last active: {new Date(s.lastActive).toLocaleString()}</p>
                   </div>
                 ))}
               </div>
             </Section>
 
             <Section title="Security Activity Log" theme={theme}>
-              <p className="text-xs opacity-70 mb-3">Audit history of recent security-critical adjustments on your account.</p>
-              <div className="flex flex-col gap-2 max-h-80 overflow-y-auto hidden-scrollbar">
+              <p className="text-sm text-gray-500 mb-6">Audit history of recent security-critical adjustments on your account.</p>
+              <div className="flex flex-col gap-3 max-h-96 overflow-y-auto hidden-scrollbar pr-2">
                 {activityLogs.map((log, idx) => (
-                  <div key={idx} className="p-3 border-b text-xs flex justify-between items-center" style={{ borderColor: theme.border }}>
-                    <div>
-                      <p className="font-semibold" style={{ color: theme.text }}>{log.action}</p>
-                      <p className="text-[10px] opacity-50">{log.ipAddress}</p>
+                  <div key={idx} className="p-4 border rounded-xl flex justify-between items-center bg-black/5 dark:bg-white/5" style={{ borderColor: theme.border }}>
+                    <div className="flex flex-col gap-1">
+                      <p className="font-semibold text-sm" style={{ color: theme.text }}>{log.action}</p>
+                      <p className="text-xs text-gray-500">{log.ipAddress}</p>
                     </div>
-                    <span className="text-[10px] opacity-60 text-right">{new Date(log.timestamp).toLocaleString()}</span>
+                    <span className="text-xs text-gray-400 font-medium text-right">{new Date(log.timestamp).toLocaleString()}</span>
                   </div>
                 ))}
               </div>
             </Section>
           </div>
         )}
+        </div>
       </main>
     </div>
   );
@@ -872,10 +874,10 @@ const Settings = () => {
 const SideTab = ({ icon, label, active, onClick, theme }) => (
   <button 
     onClick={onClick} 
-    className="flex items-center gap-3 px-3 py-2.5 rounded-xl transition text-xs font-semibold text-left cursor-pointer w-full" 
+    className="flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-left cursor-pointer w-full hover:bg-black/5 dark:hover:bg-white/5" 
     style={{ 
-      background: active ? "rgba(19, 91, 236, 0.08)" : "transparent", 
-      color: active ? theme.accent : theme.subText 
+      background: active ? (theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : "transparent", 
+      color: active ? theme.accent : theme.text 
     }}
   >
     {icon} {label}
@@ -884,10 +886,10 @@ const SideTab = ({ icon, label, active, onClick, theme }) => (
 
 const Section = ({ title, children, theme }) => (
   <div 
-    className="max-w-2xl p-6 rounded-2xl border shadow-sm mb-6" 
+    className="max-w-4xl p-8 rounded-3xl border shadow-sm mb-8" 
     style={{ background: theme.cardBg, borderColor: theme.border, color: theme.text }}
   >
-    <h3 className="text-sm font-bold border-b pb-3.5 mb-4 flex items-center gap-2" style={{ borderColor: theme.border }}>
+    <h3 className="text-xl font-bold border-b pb-4 mb-6 flex items-center gap-2" style={{ borderColor: theme.border }}>
       {title}
     </h3>
     {children}
@@ -895,15 +897,15 @@ const Section = ({ title, children, theme }) => (
 );
 
 const ToggleRow = ({ label, checked, onChange, theme }) => (
-  <div className="flex items-center justify-between py-1.5">
-    <span className="text-xs font-medium" style={{ color: theme.text }}>{label}</span>
+  <div className="flex items-center justify-between py-2.5">
+    <span className="text-sm font-medium" style={{ color: theme.text }}>{label}</span>
     <button
       type="button"
       onClick={() => onChange(!checked)}
-      className={`w-9 h-5 rounded-full p-0.5 transition-colors duration-200 outline-none cursor-pointer flex ${checked ? 'justify-end' : 'justify-start'}`}
+      className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center ${checked ? 'justify-end' : 'justify-start'}`}
       style={{ backgroundColor: checked ? theme.accent : 'rgba(156,163,175,0.4)' }}
     >
-      <span className="w-4 h-4 rounded-full bg-white shadow-sm" />
+      <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
     </button>
   </div>
 );
