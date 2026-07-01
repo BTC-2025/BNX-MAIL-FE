@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
-import { Toaster } from "react-hot-toast";
+import toast, { Toaster, ToastBar } from "react-hot-toast";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
@@ -58,6 +58,41 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return children;
+};
+
+const getFriendlyMessage = (msg) => {
+  if (!msg || typeof msg !== "string") return msg;
+  const msgLower = msg.toLowerCase();
+  
+  if (msgLower.includes("unauthorized") || msgLower.includes("session expired") || msgLower.includes("token expired")) {
+    return "Session expired. Please login again.";
+  }
+  if (msgLower.includes("network error") || msgLower.includes("failed to fetch") || msgLower.includes("networkerror")) {
+    return "Connection issue. Please check your internet connection.";
+  }
+  if (msgLower.includes("internal server error") || msgLower.includes("500") || msgLower.includes("server error")) {
+    return "Something went wrong on our end. Please try again later.";
+  }
+  if (msgLower.includes("bad credentials") || msgLower.includes("invalid credentials") || msgLower.includes("incorrect password")) {
+    return "Incorrect email address or password.";
+  }
+  if (msgLower.includes("required request header") || msgLower.includes("missing auth")) {
+    return "Authentication failed. Try logging out and back in.";
+  }
+  if (msgLower.includes("exceeds 5mb limit") || msgLower.includes("large file")) {
+    return "File is too large. Size limit is 5MB.";
+  }
+  if (msgLower.includes("failed to add members") || msgLower.includes("members could not be added")) {
+    return "Could not add members. Please check the email addresses.";
+  }
+  if (msgLower.includes("failed to load message history")) {
+    return "Could not load messages. Please refresh.";
+  }
+  if (msgLower.includes("subject and body are required")) {
+    return "Please enter a subject and body before sending.";
+  }
+  
+  return msg;
 };
 
 /* ---------------- APP CONTENT (MAIN LAYOUT) ---------------- */
@@ -129,7 +164,37 @@ const AppContent = () => {
         <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
       </div>
       <FloatingCompose />
-      <Toaster />
+      <Toaster 
+        position="bottom-center"
+        toastOptions={{
+          className: "custom-toast",
+        }}
+      >
+        {(t) => {
+          let displayMessage = t.message;
+          if (typeof displayMessage === 'string') {
+            displayMessage = getFriendlyMessage(displayMessage);
+          }
+          return (
+            <ToastBar toast={{ ...t, message: displayMessage }}>
+              {({ icon, message }) => (
+                <>
+                  {icon}
+                  {message}
+                  {t.type !== 'loading' && (
+                    <button 
+                      onClick={() => toast.dismiss(t.id)} 
+                      className="ml-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 text-xs font-semibold leading-none cursor-pointer p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
+                    >
+                      ✕
+                    </button>
+                  )}
+                </>
+              )}
+            </ToastBar>
+          );
+        }}
+      </Toaster>
     </div>
   );
 };
