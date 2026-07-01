@@ -67,6 +67,7 @@ const Settings = () => {
 
   // Client-only preference states
   const [signatures, setSignatures] = useState([]);
+  const [editingSignatureId, setEditingSignatureId] = useState(null);
   const [undoSendDelay, setUndoSendDelay] = useState(0);
 
   // Fetch initial data based on active tab
@@ -91,21 +92,21 @@ const Settings = () => {
   // Load client preferences on mount or user change
   useEffect(() => {
     if (user?.email) {
+      let loadedSigs = [];
       const savedSigsStr = localStorage.getItem(`bnx_signatures_${user.email}`);
       if (savedSigsStr) {
         try {
-          setSignatures(JSON.parse(savedSigsStr));
-        } catch(e) {
-          setSignatures([]);
-        }
+          loadedSigs = JSON.parse(savedSigsStr);
+        } catch(e) {}
       } else {
         const oldSig = localStorage.getItem(`bnx_signature_${user.email}`);
         if (oldSig) {
-          const migrated = [{ id: Date.now().toString(), name: "Default Signature", content: oldSig, isDefault: true }];
-          setSignatures(migrated);
-        } else {
-          setSignatures([]);
+          loadedSigs = [{ id: Date.now().toString(), name: "Default Signature", content: oldSig, isDefault: true }];
         }
+      }
+      setSignatures(loadedSigs);
+      if (loadedSigs.length > 0 && !editingSignatureId) {
+        setEditingSignatureId(loadedSigs[0].id);
       }
       const savedUndo = localStorage.getItem(`bnx_undo_send_${user.email}`) || "0";
       setUndoSendDelay(Number(savedUndo));
@@ -278,10 +279,12 @@ const Settings = () => {
   };
 
   const addSignature = () => {
+    const newId = Date.now().toString();
     setSignatures(prev => [
       ...prev,
-      { id: Date.now().toString(), name: "New Signature", content: "", isDefault: prev.length === 0 }
+      { id: newId, name: "New Signature", content: "", isDefault: prev.length === 0 }
     ]);
+    setEditingSignatureId(newId);
   };
 
   const updateSignature = (id, field, value) => {
@@ -462,7 +465,23 @@ const Settings = () => {
                   <p className="text-sm text-gray-500 italic">No signatures created. Click 'Add Signature' to create one.</p>
                 ) : (
                   <div className="flex flex-col gap-4">
-                    {signatures.map((sig) => (
+                    {/* Select Signature Tabs */}
+                    <div className="flex flex-wrap gap-2">
+                      {signatures.map((sig) => (
+                        <button
+                          key={sig.id}
+                          type="button"
+                          onClick={() => setEditingSignatureId(sig.id)}
+                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer border ${editingSignatureId === sig.id ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5'}`}
+                        >
+                          {sig.name || 'Unnamed'}
+                          {sig.isDefault && <span className="ml-2 text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1 rounded-sm">Default</span>}
+                        </button>
+                      ))}
+                    </div>
+
+                    {/* Active Signature Editor */}
+                    {signatures.filter(s => s.id === editingSignatureId).map((sig) => (
                       <div key={sig.id} className="border rounded-xl p-4 flex flex-col gap-3 shadow-sm bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
                         <div className="flex items-center gap-3">
                           <input 
@@ -482,7 +501,12 @@ const Settings = () => {
                           </button>
                           <button 
                             type="button"
-                            onClick={() => deleteSignature(sig.id)}
+                            onClick={() => {
+                              deleteSignature(sig.id);
+                              if (editingSignatureId === sig.id) {
+                                setEditingSignatureId(signatures.find(s => s.id !== sig.id)?.id || null);
+                              }
+                            }}
                             className="text-red-500 hover:text-red-700 px-2 py-1 cursor-pointer font-bold"
                             title="Delete Signature"
                           >
