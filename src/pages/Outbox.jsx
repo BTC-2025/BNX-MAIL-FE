@@ -18,6 +18,8 @@ const Outbox = ({ searchQuery }) => {
       e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.to?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      e.recipientEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase())
   );

@@ -25,9 +25,14 @@ const Inbox = ({ searchQuery }) => {
   const visibleEmails = emails.filter(
     (e) =>
       ((e.category || 'PRIMARY').toUpperCase() === activeTab) &&
-      (e.subject?.toLowerCase().includes((searchQuery || "").toLowerCase()) ||
-        e.from?.toLowerCase().includes((searchQuery || "").toLowerCase()) ||
-        e.senderEmail?.toLowerCase().includes((searchQuery || "").toLowerCase()))
+      (!searchQuery ||
+        e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.to?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.recipientEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase()))
   );
 
   useEffect(() => {
