@@ -657,58 +657,63 @@ const ChatRoom = () => {
               </div>
 
               {/* Body Textarea */}
+              {/* Unified Message Body Input Container */}
               <div>
                 <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65">
                   Message Body (HTML support)
                 </label>
-                <textarea
-                  placeholder="Write email content here..."
-                  value={emailBody}
-                  onChange={(e) => setEmailBody(e.target.value)}
-                  className="w-full p-3 border border-gray-200 dark:border-gray-800 rounded-xl text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white placeholder-gray-400 outline-none focus:ring-1 focus:ring-primary/45 focus:border-transparent transition-all"
-                  rows={8}
-                  required
-                />
-              </div>
-
-              {/* Attachments Upload */}
-              <div className="p-3.5 bg-black/[0.02] dark:bg-white/[0.02] border border-gray-200/50 dark:border-gray-800/50 rounded-xl space-y-3">
-                <label className="block text-[11px] font-bold uppercase tracking-wider mb-1 opacity-65 flex items-center justify-between">
-                  <span>Attachments</span>
-                  <span className="text-[10px] text-gray-400 font-normal">Max 5MB each</span>
-                </label>
                 
-                <div className="flex items-center gap-2">
-                  <label className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 dark:border-gray-700 hover:border-gray-400 dark:hover:border-gray-600 text-xs cursor-pointer transition-all">
-                    <MdAttachFile size={16} /> Choose Files
-                    <input 
-                      type="file" 
-                      multiple 
-                      onChange={handleAttachmentChange} 
-                      className="hidden" 
-                    />
-                  </label>
-                </div>
+                <div 
+                  className="flex flex-col border rounded-xl overflow-hidden transition-all bg-white dark:bg-gray-900"
+                  style={{ borderColor: theme.border }}
+                >
+                  {/* Textarea */}
+                  <textarea
+                    placeholder="Write email content here..."
+                    value={emailBody}
+                    onChange={(e) => setEmailBody(e.target.value)}
+                    className="w-full p-3 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none resize-none text-sm"
+                    rows={8}
+                    required
+                  />
 
-                {broadcastAttachments.length > 0 && (
-                  <div className="space-y-1.5 pt-1">
-                    {broadcastAttachments.map((att, idx) => (
-                      <div key={idx} className="flex justify-between items-center text-xs p-2 bg-white dark:bg-gray-900 border dark:border-gray-800 rounded-lg">
-                        <span className="truncate max-w-[80%] font-medium">{att.name}</span>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[10px] opacity-60">{(att.size / 1024).toFixed(1)} KB</span>
+                  {/* Selected Attachments Chips */}
+                  {broadcastAttachments.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 p-2 border-t bg-black/[0.01] dark:bg-white/[0.01]" style={{ borderColor: theme.border }}>
+                      {broadcastAttachments.map((att, idx) => (
+                        <div 
+                          key={idx} 
+                          className="flex items-center gap-1.5 px-2 py-1 bg-black/[0.03] dark:bg-white/[0.03] border rounded-lg text-[11px] font-medium"
+                          style={{ borderColor: theme.border }}
+                        >
+                          <span className="truncate max-w-[150px]">{att.name}</span>
+                          <span className="text-[9px] opacity-60">({(att.size / 1024).toFixed(0)} KB)</span>
                           <button
                             type="button"
                             onClick={() => setBroadcastAttachments(prev => prev.filter((_, i) => i !== idx))}
-                            className="p-1 text-red-500 hover:bg-red-500/10 rounded cursor-pointer flex items-center justify-center"
+                            className="p-0.5 text-red-500 hover:bg-red-500/10 rounded cursor-pointer flex items-center justify-center"
                           >
-                            <MdClose size={14} />
+                            <MdClose size={12} />
                           </button>
                         </div>
-                      </div>
-                    ))}
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Toolbar with Attach Icon */}
+                  <div className="flex items-center justify-between px-3 py-2 border-t bg-black/[0.02] dark:bg-white/[0.02]" style={{ borderColor: theme.border }}>
+                    <label className="flex items-center justify-center w-8 h-8 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer transition-all" title="Attach file">
+                      <MdAttachFile size={18} />
+                      <input 
+                        type="file" 
+                        multiple 
+                        onChange={handleAttachmentChange} 
+                        className="hidden" 
+                    />
+                    </label>
+                    <span className="text-[10px] text-gray-450 dark:text-gray-500 font-normal">HTML enabled • Max 5MB per file</span>
                   </div>
-                )}
+                </div>
               </div>
 
               {/* Actions */}
