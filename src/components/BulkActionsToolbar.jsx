@@ -42,6 +42,8 @@ const BulkActionsToolbar = ({
   const [showMoreMenu, setShowMoreMenu] = useState(false);
   const [showSnoozeSub, setShowSnoozeSub] = useState(false);
   const [showLabelSub, setShowLabelSub] = useState(false);
+  const [showCustomSnoozeForm, setShowCustomSnoozeForm] = useState(false);
+  const [customSnoozeTime, setCustomSnoozeTime] = useState("");
   const menuRef = useRef(null);
 
   // Close menus on click outside
@@ -51,6 +53,7 @@ const BulkActionsToolbar = ({
         setShowMoreMenu(false);
         setShowSnoozeSub(false);
         setShowLabelSub(false);
+        setShowCustomSnoozeForm(false);
       }
     };
     document.addEventListener("mousedown", handleClickOutside);
@@ -166,6 +169,21 @@ const BulkActionsToolbar = ({
       await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString())));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
+      toast.success("Emails snoozed", { id: "bulk-snooze" });
+    } catch (err) {
+      toast.error("Failed to snooze emails", { id: "bulk-snooze" });
+    }
+  };
+
+  // Bulk Snooze with custom Date ISO string
+  const handleBulkSnoozeWithDate = async (wakeUpAtIso) => {
+    try {
+      toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAtIso)));
+      setSelectedIds(new Set());
+      setShowMoreMenu(false);
+      setShowSnoozeSub(false);
+      setShowCustomSnoozeForm(false);
       toast.success("Emails snoozed", { id: "bulk-snooze" });
     } catch (err) {
       toast.error("Failed to snooze emails", { id: "bulk-snooze" });
@@ -293,7 +311,12 @@ const BulkActionsToolbar = ({
               {/* Snooze Sub-Trigger */}
               <div className="relative">
                 <button
-                  onMouseEnter={() => { setShowSnoozeSub(true); setShowLabelSub(false); }}
+                  onMouseEnter={() => {
+                    if (!showCustomSnoozeForm) {
+                      setShowSnoozeSub(true);
+                      setShowLabelSub(false);
+                    }
+                  }}
                   onClick={() => setShowSnoozeSub(!showSnoozeSub)}
                   className="w-full px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 text-gray-700 dark:text-gray-300"
                 >
@@ -301,13 +324,64 @@ const BulkActionsToolbar = ({
                 </button>
                 {showSnoozeSub && (
                   <div 
-                    className="absolute right-full top-0 mr-1 w-40 rounded-xl shadow-xl border bg-white dark:bg-gray-900 py-1 z-[60]"
+                    className="absolute right-full top-0 mr-1 w-44 rounded-xl shadow-xl border bg-white dark:bg-gray-900 py-1 z-[60]"
                     style={{ borderColor: theme.border }}
                   >
-                    <button onClick={() => handleBulkSnooze(2)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Later today</button>
-                    <button onClick={() => handleBulkSnooze(24)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Tomorrow</button>
-                    <button onClick={() => handleBulkSnooze(48)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">This weekend</button>
-                    <button onClick={() => handleBulkSnooze(168)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Next week</button>
+                    {showCustomSnoozeForm ? (
+                      <div className="p-3 flex flex-col gap-2 bg-white dark:bg-gray-900">
+                        <label className="text-[10px] font-bold text-gray-500 dark:text-gray-400">Select Date & Time</label>
+                        <input
+                          type="datetime-local"
+                          value={customSnoozeTime}
+                          onChange={(e) => setCustomSnoozeTime(e.target.value)}
+                          className="w-full p-1.5 rounded-lg border text-xs bg-gray-50 dark:bg-neutral-850 text-gray-900 dark:text-white outline-none border-gray-200 dark:border-neutral-700"
+                        />
+                        <div className="flex justify-end gap-1.5 mt-1">
+                          <button
+                            onClick={() => setShowCustomSnoozeForm(false)}
+                            className="px-2 py-1 rounded text-[10px] bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-600 dark:text-gray-300"
+                          >
+                            Back
+                          </button>
+                          <button
+                            onClick={() => {
+                              if (!customSnoozeTime) {
+                                alert("Please select a valid date and time.");
+                                return;
+                              }
+                              const dateObj = new Date(customSnoozeTime);
+                              if (dateObj <= new Date()) {
+                                alert("Please select a future date and time.");
+                                return;
+                              }
+                              handleBulkSnoozeWithDate(dateObj.toISOString());
+                            }}
+                            className="px-2 py-1 rounded text-[10px] bg-blue-600 hover:bg-blue-700 text-white font-medium"
+                          >
+                            Save
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <>
+                        <button onClick={() => handleBulkSnooze(2)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Later today</button>
+                        <button onClick={() => handleBulkSnooze(24)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Tomorrow</button>
+                        <button onClick={() => handleBulkSnooze(48)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">This weekend</button>
+                        <button onClick={() => handleBulkSnooze(168)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Next week</button>
+                        <div className="border-t border-gray-100 dark:border-neutral-800 my-1"></div>
+                        <button
+                          onClick={() => {
+                            setShowCustomSnoozeForm(true);
+                            const defaultCustom = new Date();
+                            defaultCustom.setMinutes(defaultCustom.getMinutes() - defaultCustom.getTimezoneOffset());
+                            setCustomSnoozeTime(defaultCustom.toISOString().slice(0, 16));
+                          }}
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 text-blue-500 font-semibold"
+                        >
+                          Select date & time
+                        </button>
+                      </>
+                    )}
                   </div>
                 )}
               </div>
