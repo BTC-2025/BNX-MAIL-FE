@@ -151,7 +151,7 @@ const AppContent = () => {
           className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
           style={{
             backgroundColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.75)" : "rgba(255, 255, 255, 0.75)") 
+              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.35)") 
               : theme.cardBg,
             backdropFilter: backgroundImage ? "blur(12px)" : "none",
             WebkitBackdropFilter: backgroundImage ? "blur(12px)" : "none",
