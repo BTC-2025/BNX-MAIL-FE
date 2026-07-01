@@ -119,7 +119,7 @@ const AppContent = () => {
       {backgroundImage && (
         <div 
           className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.45)" : "rgba(255,255,255,0.35)" }}
+          style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.15)" }}
         />
       )}
       <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
@@ -151,12 +151,12 @@ const AppContent = () => {
           className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
           style={{
             backgroundColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.25)" : "rgba(255, 255, 255, 0.25)") 
+              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.85)" : "rgba(255, 255, 255, 0.85)") 
               : theme.cardBg,
-            backdropFilter: backgroundImage ? "blur(12px)" : "none",
-            WebkitBackdropFilter: backgroundImage ? "blur(12px)" : "none",
+            backdropFilter: backgroundImage ? "none" : "none",
+            WebkitBackdropFilter: backgroundImage ? "none" : "none",
             borderColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(255,255,255,0.4)") 
+              ? (theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)") 
               : theme.border,
           }}
         >
