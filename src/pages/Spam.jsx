@@ -6,12 +6,28 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
+import BulkActionsToolbar from "../components/BulkActionsToolbar";
+
 const Spam = ({ searchQuery }) => {
   const navigate = useNavigate();
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
+
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const handleToggleSelect = (uid) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(uid)) next.delete(uid);
+      else next.add(uid);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [emails]);
 
   useEffect(() => {
     fetchEmails('spam');
@@ -62,23 +78,32 @@ const Spam = ({ searchQuery }) => {
       ) : (
         <>
           {/* HEADER */}
-          <div
-            className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-            style={{ borderColor: theme.border }}
-          >
-            <h2
-              className="text-base font-bold flex items-center gap-2"
-              style={{ color: theme.text }}
+          {selectedIds.size > 0 ? (
+            <BulkActionsToolbar
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              visibleEmails={visibleEmails}
+              folder="spam"
+            />
+          ) : (
+            <div
+              className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
+              style={{ borderColor: theme.border }}
             >
-              <MdReport size={20} className="text-red-500" /> Spam
-              <span
-                className="ml-2 text-xs font-normal"
-                style={{ color: theme.subText }}
+              <h2
+                className="text-base font-bold flex items-center gap-2"
+                style={{ color: theme.text }}
               >
-                ({emails.length})
-              </span>
-            </h2>
-          </div>
+                <MdReport size={20} className="text-red-500" /> Spam
+                <span
+                  className="ml-2 text-xs font-normal"
+                  style={{ color: theme.subText }}
+                >
+                  ({emails.length})
+                </span>
+              </h2>
+            </div>
+          )}
 
           {/* LIST / EMPTY */}
           <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
@@ -103,6 +128,8 @@ const Spam = ({ searchQuery }) => {
                 onDelete={(uid) => handleMoveToTrash(uid, "spam")}
                 onStar={(uid) => handleToggleStar(uid, "spam")}
                 onArchive={(uid) => handleArchive(uid, "spam")}
+                selectedIds={selectedIds}
+                onToggleSelect={handleToggleSelect}
               />
             )}
           </div>

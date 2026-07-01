@@ -4,12 +4,28 @@ import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
+import BulkActionsToolbar from "../components/BulkActionsToolbar";
+
 const Archive = ({ searchQuery }) => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleUnarchive } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
+
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const handleToggleSelect = (uid) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(uid)) next.delete(uid);
+      else next.add(uid);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [emails]);
 
   const visibleEmails = emails.filter(
     (e) =>
@@ -76,19 +92,28 @@ const Archive = ({ searchQuery }) => {
       ) : (
         <>
           {/* HEADER */}
-          <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3 shrink-0 bg-transparent">
-            <span
-              className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
-              style={{ background: theme.accent }}
-            >
-              📦 Archive ({emails.length})
-            </span>
+          {selectedIds.size > 0 ? (
+            <BulkActionsToolbar
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              visibleEmails={visibleEmails}
+              folder="archive"
+            />
+          ) : (
+            <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3 shrink-0 bg-transparent">
+              <span
+                className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
+                style={{ background: theme.accent }}
+              >
+                📦 Archive ({emails.length})
+              </span>
 
-            {/* UI-only filters */}
-            <FilterButton label="From" open={showFrom} setOpen={setShowFrom} />
-            <FilterButton label="To" open={showTo} setOpen={setShowTo} />
-            <FilterButton label="Any time" open={showTime} setOpen={setShowTime} />
-          </div>
+              {/* UI-only filters */}
+              <FilterButton label="From" open={showFrom} setOpen={setShowFrom} />
+              <FilterButton label="To" open={showTo} setOpen={setShowTo} />
+              <FilterButton label="Any time" open={showTime} setOpen={setShowTime} />
+            </div>
+          )}
 
           {/* LIST / EMPTY */}
           <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
@@ -109,6 +134,8 @@ const Archive = ({ searchQuery }) => {
                 onStar={(uid) => handleToggleStar(uid, "archive")}
                 onArchive={handleUnarchive}
                 isArchiveFolder={true}
+                selectedIds={selectedIds}
+                onToggleSelect={handleToggleSelect}
               />
             )}
           </div>

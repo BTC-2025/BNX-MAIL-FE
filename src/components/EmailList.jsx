@@ -24,7 +24,7 @@ const EmailList = ({
 
   const getSnoozeOptions = () => {
     const now = new Date();
-    
+
     // Later today: 6 PM today (or +3 hours if past 5 PM)
     const laterToday = new Date(now);
     if (now.getHours() >= 17) {
@@ -90,7 +90,7 @@ const EmailList = ({
           >
             <div className="px-4 py-2 font-semibold text-gray-700 dark:text-gray-200 border-b border-gray-100 dark:border-neutral-800 flex items-center justify-between">
               <span>Snooze until...</span>
-              <button 
+              <button
                 onClick={() => { setSnoozeOpenUid(null); setCustomPickerUid(null); }}
                 className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
               >
@@ -234,11 +234,10 @@ const EmailList = ({
                   {/* Sender Name */}
                   <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
                     <span
-                      className={`text-sm ${
-                        isUnread
+                      className={`text-sm ${isUnread
                           ? "font-bold text-gray-900 dark:text-gray-100"
                           : "font-medium text-gray-600 dark:text-gray-300"
-                      }`}
+                        }`}
                     >
                       {isSentByUser ? (
                         <span className="flex items-center gap-1">
@@ -246,9 +245,9 @@ const EmailList = ({
                           {(email.to || email.recipientEmail)?.split("@")[0]}
                         </span>
                       ) : (
-                        sender?.includes("<") 
-                        ? sender.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim() 
-                        : (sender?.split("@")[0] || sender)
+                        sender?.includes("<")
+                          ? sender.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim()
+                          : (sender?.split("@")[0] || sender)
                       )}
                     </span>
                   </div>
@@ -256,11 +255,10 @@ const EmailList = ({
                   {/* Subject & Snippet */}
                   <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
                     <span
-                      className={`text-sm truncate ${
-                        isUnread
+                      className={`text-sm truncate ${isUnread
                           ? "font-bold text-gray-900 dark:text-gray-100"
                           : "font-medium text-gray-800 dark:text-gray-200"
-                      }`}
+                        }`}
                     >
                       {email.subject || "(No Subject)"}
                     </span>
@@ -287,15 +285,14 @@ const EmailList = ({
                   {/* Date / Hover Actions */}
                   <div className={`w-16 sm:w-20 shrink-0 text-right relative flex justify-end items-center h-full ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}`}>
                     <span
-                      className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${
-                        isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
-                      }`}
+                      className={`text-xs whitespace-nowrap transition-opacity duration-100 group-hover:opacity-0 ${isUnread ? "font-bold text-primary" : "text-gray-400 dark:text-gray-500"
+                        }`}
                     >
                       {email.receivedDate
                         ? new Date(email.receivedDate).toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                          })
+                          month: "short",
+                          day: "numeric",
+                        })
                         : ""}
                     </span>
 

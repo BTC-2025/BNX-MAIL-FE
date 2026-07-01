@@ -7,10 +7,26 @@ import { useTheme } from "../context/ThemeContext";
 import { mailAPI } from "../services/api";
 import toast from "react-hot-toast";
 
+import BulkActionsToolbar from "../components/BulkActionsToolbar";
+
 const Trash = ({ searchQuery }) => {
   const { theme } = useTheme();
   const { emails, loading, fetchEmails } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
+
+  const [selectedIds, setSelectedIds] = useState(new Set());
+  const handleToggleSelect = (uid) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(uid)) next.delete(uid);
+      else next.add(uid);
+      return next;
+    });
+  };
+
+  useEffect(() => {
+    setSelectedIds(new Set());
+  }, [emails]);
 
   useEffect(() => {
     fetchEmails('trash');
@@ -94,23 +110,32 @@ const Trash = ({ searchQuery }) => {
       ) : (
         <>
           {/* HEADER */}
-          <div
-            className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
-            style={{ borderColor: theme.border }}
-          >
-            <h2
-              className="text-base font-bold flex items-center gap-2"
-              style={{ color: theme.text }}
+          {selectedIds.size > 0 ? (
+            <BulkActionsToolbar
+              selectedIds={selectedIds}
+              setSelectedIds={setSelectedIds}
+              visibleEmails={visibleEmails}
+              folder="trash"
+            />
+          ) : (
+            <div
+              className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
+              style={{ borderColor: theme.border }}
             >
-              <MdDelete size={20} className="text-gray-500" /> Trash
-              <span
-                className="ml-2 text-xs font-normal"
-                style={{ color: theme.subText }}
+              <h2
+                className="text-base font-bold flex items-center gap-2"
+                style={{ color: theme.text }}
               >
-                ({emails.length})
-              </span>
-            </h2>
-          </div>
+                <MdDelete size={20} className="text-gray-500" /> Trash
+                <span
+                  className="ml-2 text-xs font-normal"
+                  style={{ color: theme.subText }}
+                >
+                  ({emails.length})
+                </span>
+              </h2>
+            </div>
+          )}
 
           {/* LIST / EMPTY */}
           <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
@@ -130,6 +155,8 @@ const Trash = ({ searchQuery }) => {
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
                 onDelete={handlePermanentDelete}
+                selectedIds={selectedIds}
+                onToggleSelect={handleToggleSelect}
               />
             )}
           </div>

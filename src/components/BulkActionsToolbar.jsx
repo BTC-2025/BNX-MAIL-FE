@@ -1,0 +1,374 @@
+import React, { useState, useRef, useEffect } from "react";
+import { useMail } from "../context/MailContext";
+import { useTheme } from "../context/ThemeContext";
+import {
+  MdArchive,
+  MdUnarchive,
+  MdDelete,
+  MdReport,
+  MdMarkEmailRead,
+  MdMail,
+  MdMoreVert,
+  MdAccessTime,
+  MdLabel,
+  MdReply,
+  MdClose,
+  MdBlock
+} from "react-icons/md";
+import toast from "react-hot-toast";
+
+const BulkActionsToolbar = ({
+  selectedIds,
+  setSelectedIds,
+  visibleEmails,
+  folder,
+}) => {
+  const { theme } = useTheme();
+  const {
+    labels,
+    handleMoveToTrash,
+    handleArchive,
+    handleUnarchive,
+    handleMarkRead,
+    handleMarkUnread,
+    handleMarkSpam,
+    handleRestoreSpam,
+    handleUnsubscribe,
+    handleSnooze,
+    handleApplyLabel,
+    openCompose
+  } = useMail();
+
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [showSnoozeSub, setShowSnoozeSub] = useState(false);
+  const [showLabelSub, setShowLabelSub] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menus on click outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowMoreMenu(false);
+        setShowSnoozeSub(false);
+        setShowLabelSub(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  if (selectedIds.size === 0) return null;
+
+  // Find the selected email objects
+  const selectedEmails = visibleEmails.filter((e) => selectedIds.has(e.uid));
+
+  // Determine if any of the selected emails are unread
+  const hasUnread = selectedEmails.some((e) => !e.isRead);
+
+  // Select all toggle handler
+  const handleSelectAllToggle = () => {
+    const allSelected = visibleEmails.every((e) => selectedIds.has(e.uid));
+    if (allSelected) {
+      setSelectedIds(new Set());
+    } else {
+      setSelectedIds(new Set(visibleEmails.map((e) => e.uid)));
+    }
+  };
+
+  // Bulk Archive
+  const handleBulkArchive = async () => {
+    try {
+      toast.loading("Archiving selected emails...", { id: "bulk-archive" });
+      await Promise.all(selectedEmails.map((e) => handleArchive(e.uid, folder)));
+      setSelectedIds(new Set());
+      toast.success("Emails archived", { id: "bulk-archive" });
+    } catch (err) {
+      toast.error("Failed to archive some emails", { id: "bulk-archive" });
+    }
+  };
+
+  // Bulk Unarchive / Restore
+  const handleBulkUnarchive = async () => {
+    try {
+      toast.loading("Restoring selected emails...", { id: "bulk-restore" });
+      if (folder === "spam") {
+        await Promise.all(selectedEmails.map((e) => handleRestoreSpam(e.uid)));
+      } else {
+        await Promise.all(selectedEmails.map((e) => handleUnarchive(e.uid)));
+      }
+      setSelectedIds(new Set());
+      toast.success("Emails restored", { id: "bulk-restore" });
+    } catch (err) {
+      toast.error("Failed to restore some emails", { id: "bulk-restore" });
+    }
+  };
+
+  // Bulk Trash
+  const handleBulkDelete = async () => {
+    try {
+      toast.loading("Deleting selected emails...", { id: "bulk-delete" });
+      await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder)));
+      setSelectedIds(new Set());
+      toast.success("Emails moved to trash", { id: "bulk-delete" });
+    } catch (err) {
+      toast.error("Failed to delete some emails", { id: "bulk-delete" });
+    }
+  };
+
+  // Bulk Mark Read / Unread
+  const handleBulkReadStatus = async () => {
+    try {
+      toast.loading("Updating read status...", { id: "bulk-read" });
+      if (hasUnread) {
+        await Promise.all(selectedEmails.map((e) => !e.isRead ? handleMarkRead(e.uid) : Promise.resolve()));
+        toast.success("Emails marked as read", { id: "bulk-read" });
+      } else {
+        await Promise.all(selectedEmails.map((e) => e.isRead ? handleMarkUnread(e.uid) : Promise.resolve()));
+        toast.success("Emails marked as unread", { id: "bulk-read" });
+      }
+      setSelectedIds(new Set());
+    } catch (err) {
+      toast.error("Failed to update status", { id: "bulk-read" });
+    }
+  };
+
+  // Bulk Spam
+  const handleBulkSpam = async () => {
+    try {
+      toast.loading("Reporting spam...", { id: "bulk-spam" });
+      await Promise.all(selectedEmails.map((e) => handleMarkSpam(e.uid, folder)));
+      setSelectedIds(new Set());
+      toast.success("Reported as spam", { id: "bulk-spam" });
+    } catch (err) {
+      toast.error("Failed to report spam", { id: "bulk-spam" });
+    }
+  };
+
+  // Bulk Unsubscribe
+  const handleBulkUnsubscribe = async () => {
+    try {
+      toast.loading("Unsubscribing...", { id: "bulk-unsub" });
+      const uniqueSenders = [...new Set(selectedEmails.map((e) => e.senderEmail || e.from).filter(Boolean))];
+      await Promise.all(uniqueSenders.map((email) => handleUnsubscribe(email)));
+      setSelectedIds(new Set());
+      toast.success("Unsubscribed successfully", { id: "bulk-unsub" });
+    } catch (err) {
+      toast.error("Failed to unsubscribe", { id: "bulk-unsub" });
+    }
+  };
+
+  // Bulk Snooze
+  const handleBulkSnooze = async (hours) => {
+    try {
+      toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
+      const wakeUpAt = new Date();
+      wakeUpAt.setHours(wakeUpAt.getHours() + hours);
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString())));
+      setSelectedIds(new Set());
+      setShowMoreMenu(false);
+      toast.success("Emails snoozed", { id: "bulk-snooze" });
+    } catch (err) {
+      toast.error("Failed to snooze emails", { id: "bulk-snooze" });
+    }
+  };
+
+  // Bulk Apply Label
+  const handleBulkApplyLabel = async (labelId) => {
+    try {
+      toast.loading("Applying label...", { id: "bulk-label" });
+      await Promise.all(selectedEmails.map((e) => handleApplyLabel(e.uid, labelId, folder)));
+      setSelectedIds(new Set());
+      setShowMoreMenu(false);
+      toast.success("Label applied", { id: "bulk-label" });
+    } catch (err) {
+      toast.error("Failed to apply label", { id: "bulk-label" });
+    }
+  };
+
+  // Bulk Reply (Only for single select)
+  const handleBulkReply = () => {
+    if (selectedEmails.length !== 1) return;
+    const email = selectedEmails[0];
+    openCompose({
+      replyTo: email.senderEmail || email.from,
+      subject: `Re: ${email.subject || ""}`,
+      originalBody: email.body,
+    });
+    setSelectedIds(new Set());
+    setShowMoreMenu(false);
+  };
+
+  return (
+    <div 
+      className="flex items-center gap-3 px-4 py-2.5 rounded-t-2xl shrink-0 transition-all border-b"
+      style={{ 
+        backgroundColor: theme.bg || "rgba(19, 91, 236, 0.05)", 
+        borderColor: theme.border,
+        color: theme.text
+      }}
+    >
+      {/* Select All Checkbox */}
+      <input
+        type="checkbox"
+        checked={visibleEmails.length > 0 && visibleEmails.every((e) => selectedIds.has(e.uid))}
+        onChange={handleSelectAllToggle}
+        className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer shrink-0"
+      />
+
+      <span className="text-xs font-bold shrink-0">{selectedIds.size} selected</span>
+
+      <button 
+        onClick={() => setSelectedIds(new Set())}
+        className="p-1 hover:bg-black/5 dark:hover:bg-white/10 rounded-lg text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer flex items-center justify-center"
+        title="Clear Selection"
+      >
+        <MdClose size={18} />
+      </button>
+
+      {/* Bulk Action Buttons Row */}
+      <div className="flex items-center gap-1.5 ml-auto">
+        {/* Archive/Unarchive */}
+        {folder === "archive" || folder === "spam" || folder === "trash" ? (
+          <button
+            onClick={handleBulkUnarchive}
+            className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all cursor-pointer text-gray-600 dark:text-gray-300 flex items-center justify-center"
+            title="Restore / Move to Inbox"
+          >
+            <MdUnarchive size={19} />
+          </button>
+        ) : (
+          <button
+            onClick={handleBulkArchive}
+            className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all cursor-pointer text-gray-600 dark:text-gray-300 flex items-center justify-center"
+            title="Archive"
+          >
+            <MdArchive size={19} />
+          </button>
+        )}
+
+        {/* Report Spam (not shown in spam/trash) */}
+        {folder !== "spam" && folder !== "trash" && (
+          <button
+            onClick={handleBulkSpam}
+            className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all cursor-pointer text-gray-600 dark:text-gray-300 flex items-center justify-center"
+            title="Report Spam"
+          >
+            <MdReport size={19} />
+          </button>
+        )}
+
+        {/* Mark Read/Unread */}
+        <button
+          onClick={handleBulkReadStatus}
+          className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all cursor-pointer text-gray-600 dark:text-gray-300 flex items-center justify-center"
+          title={hasUnread ? "Mark as Read" : "Mark as Unread"}
+        >
+          {hasUnread ? <MdMarkEmailRead size={19} /> : <MdMail size={19} />}
+        </button>
+
+        {/* Delete */}
+        <button
+          onClick={handleBulkDelete}
+          className="p-2 hover:bg-red-50 dark:hover:bg-red-950/20 text-red-600 hover:text-red-700 rounded-xl transition-all cursor-pointer flex items-center justify-center"
+          title="Delete"
+        >
+          <MdDelete size={19} />
+        </button>
+
+        {/* More Actions vertical dots menu */}
+        <div className="relative" ref={menuRef}>
+          <button
+            onClick={() => setShowMoreMenu(!showMoreMenu)}
+            className="p-2 hover:bg-black/5 dark:hover:bg-white/10 rounded-xl transition-all cursor-pointer text-gray-600 dark:text-gray-300 flex items-center justify-center"
+            title="More Options"
+          >
+            <MdMoreVert size={19} />
+          </button>
+
+          {showMoreMenu && (
+            <div 
+              className="absolute right-0 mt-1 w-48 rounded-xl shadow-xl dark:shadow-soft-dark border z-50 py-1 bg-white dark:bg-gray-900 text-xs text-left"
+              style={{ borderColor: theme.border }}
+            >
+              {/* Snooze Sub-Trigger */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => { setShowSnoozeSub(true); setShowLabelSub(false); }}
+                  onClick={() => setShowSnoozeSub(!showSnoozeSub)}
+                  className="w-full px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 text-gray-700 dark:text-gray-300"
+                >
+                  <MdAccessTime size={16} className="text-gray-400" /> Snooze it...
+                </button>
+                {showSnoozeSub && (
+                  <div 
+                    className="absolute right-full top-0 mr-1 w-40 rounded-xl shadow-xl border bg-white dark:bg-gray-900 py-1 z-[60]"
+                    style={{ borderColor: theme.border }}
+                  >
+                    <button onClick={() => handleBulkSnooze(2)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Later today</button>
+                    <button onClick={() => handleBulkSnooze(24)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Tomorrow</button>
+                    <button onClick={() => handleBulkSnooze(48)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">This weekend</button>
+                    <button onClick={() => handleBulkSnooze(168)} className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800">Next week</button>
+                  </div>
+                )}
+              </div>
+
+              {/* Label As Sub-Trigger */}
+              <div className="relative">
+                <button
+                  onMouseEnter={() => { setShowLabelSub(true); setShowSnoozeSub(false); }}
+                  onClick={() => setShowLabelSub(!showLabelSub)}
+                  className="w-full px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 text-gray-700 dark:text-gray-300"
+                >
+                  <MdLabel size={16} className="text-gray-400" /> Label as...
+                </button>
+                {showLabelSub && (
+                  <div 
+                    className="absolute right-full top-0 mr-1 w-44 max-h-48 overflow-y-auto rounded-xl shadow-xl border bg-white dark:bg-gray-900 py-1 z-[60] hidden-scrollbar"
+                    style={{ borderColor: theme.border }}
+                  >
+                    {labels.length === 0 ? (
+                      <div className="px-4 py-2 text-gray-400">No labels found</div>
+                    ) : (
+                      labels.map((lbl) => (
+                        <button 
+                          key={lbl.id} 
+                          onClick={() => handleBulkApplyLabel(lbl.id)} 
+                          className="w-full text-left px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 flex items-center gap-1.5"
+                        >
+                          <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: lbl.colorHex || "#135bec" }} />
+                          <span className="truncate">{lbl.name}</span>
+                        </button>
+                      ))
+                    )}
+                  </div>
+                )}
+              </div>
+
+              {/* Unsubscribe */}
+              <button
+                onClick={handleBulkUnsubscribe}
+                onMouseEnter={() => { setShowSnoozeSub(false); setShowLabelSub(false); }}
+                className="w-full px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 text-gray-700 dark:text-gray-300"
+              >
+                <MdBlock size={16} className="text-gray-400" /> Unsubscribe
+              </button>
+
+              {/* Reply (only for 1 selected) */}
+              {selectedEmails.length === 1 && (
+                <button
+                  onClick={handleBulkReply}
+                  onMouseEnter={() => { setShowSnoozeSub(false); setShowLabelSub(false); }}
+                  className="w-full px-4 py-2 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors flex items-center gap-2.5 text-gray-700 dark:text-gray-300 font-bold border-t border-gray-100 dark:border-gray-850 mt-1 pt-1"
+                >
+                  <MdReply size={16} className="text-gray-400" /> Reply
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BulkActionsToolbar;

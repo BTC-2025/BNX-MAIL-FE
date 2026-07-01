@@ -334,6 +334,35 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleMarkSpam = async (uid, folder = currentFolder) => {
+        try {
+            await mailAPI.markSpam(uid, folder);
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            toast.success('Reported as spam');
+        } catch (error) {
+            toast.error('Failed to report spam');
+        }
+    };
+
+    const handleRestoreSpam = async (uid) => {
+        try {
+            await mailAPI.restoreSpam(uid);
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            toast.success('Restored from spam');
+        } catch (error) {
+            toast.error('Failed to restore from spam');
+        }
+    };
+
+    const handleUnsubscribe = async (senderEmail) => {
+        try {
+            await mailAPI.unsubscribe(senderEmail);
+            toast.success('Unsubscribed from ' + senderEmail);
+        } catch (error) {
+            toast.error('Failed to unsubscribe');
+        }
+    };
+
     const [isComposeOpen, setIsComposeOpen] = useState(false);
     const [isComposeMinimized, setIsComposeMinimized] = useState(false);
     const [isComposeMaximized, setIsComposeMaximized] = useState(false);
@@ -372,6 +401,9 @@ export const MailProvider = ({ children }) => {
             handleRemoveLabel,
             handleArchive,
             handleUnarchive,
+            handleMarkSpam,
+            handleRestoreSpam,
+            handleUnsubscribe,
             handleDeleteLabel,
             isComposeOpen,
             setIsComposeOpen,
