@@ -202,7 +202,7 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleMarkRead = async (uid) => {
+    const handleMarkRead = async (uid, silent = false) => {
         try {
             await mailAPI.markRead(uid);
             setEmails(prev => prev.map(m => {
@@ -221,7 +221,7 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleMarkUnread = async (uid) => {
+    const handleMarkUnread = async (uid, silent = false) => {
         try {
             await mailAPI.markUnread(uid);
             setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, isRead: false } : m));
@@ -230,23 +230,23 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleMoveToTrash = async (uid, folder) => {
+    const handleMoveToTrash = async (uid, folder, silent = false) => {
         try {
             await mailAPI.trash(uid, folder);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
-            toast.success('Moved to trash');
+            if (!silent) toast.success('Moved to trash');
         } catch (error) {
-            toast.error('Failed to move to trash');
+            if (!silent) toast.error('Failed to move to trash');
         }
     };
 
-    const handleSnooze = async (uid, wakeUpAt) => {
+    const handleSnooze = async (uid, wakeUpAt, silent = false) => {
         try {
             await mailAPI.snooze(uid, wakeUpAt);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
-            toast.success('Snoozed email');
+            if (!silent) toast.success('Snoozed email');
         } catch (error) {
-            toast.error('Failed to snooze');
+            if (!silent) toast.error('Failed to snooze');
         }
     };
 
@@ -275,10 +275,10 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleApplyLabel = async (uid, labelId, folder = currentFolder) => {
+    const handleApplyLabel = async (uid, labelId, folder = currentFolder, silent = false) => {
         try {
             await mailAPI.applyLabel(uid, labelId, folder);
-            toast.success('Label applied');
+            if (!silent) toast.success('Label applied');
             if (currentFolder.startsWith('label-')) {
                 const currentLabelId = currentFolder.replace('label-', '');
                 fetchLabelEmails(currentLabelId);
@@ -286,25 +286,25 @@ export const MailProvider = ({ children }) => {
                 fetchEmails(currentFolder);
             }
         } catch (error) {
-            toast.error('Failed to apply label');
+            if (!silent) toast.error('Failed to apply label');
         }
     };
 
-    const handleRemoveLabel = async (uid, labelId, folder = currentFolder) => {
+    const handleRemoveLabel = async (uid, labelId, folder = currentFolder, silent = false) => {
         try {
             await mailAPI.removeLabel(uid, labelId, folder);
-            toast.success('Label removed');
+            if (!silent) toast.success('Label removed');
             if (currentFolder === `label-${labelId}`) {
                 setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             } else {
                 setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, labels: m.labels?.filter(l => l.id !== labelId) } : m));
             }
         } catch (error) {
-            toast.error('Failed to remove label');
+            if (!silent) toast.error('Failed to remove label');
         }
     };
 
-    const handleArchive = async (uid, folder) => {
+    const handleArchive = async (uid, folder, silent = false) => {
         try {
             await mailAPI.archive(uid, folder);
             if (currentFolder === 'inbox') {
@@ -312,14 +312,14 @@ export const MailProvider = ({ children }) => {
             } else {
                 setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'Archive' } : m));
             }
-            toast.success('Email archived');
+            if (!silent) toast.success('Email archived');
         } catch (error) {
             console.error('Failed to archive:', error);
-            toast.error('Failed to archive email');
+            if (!silent) toast.error('Failed to archive email');
         }
     };
 
-    const handleUnarchive = async (uid) => {
+    const handleUnarchive = async (uid, silent = false) => {
         try {
             await mailAPI.unarchive(uid);
             if (currentFolder === 'archive') {
@@ -327,39 +327,39 @@ export const MailProvider = ({ children }) => {
             } else {
                 setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'INBOX' } : m));
             }
-            toast.success('Email restored');
+            if (!silent) toast.success('Email restored');
         } catch (error) {
             console.error('Failed to unarchive:', error);
-            toast.error('Failed to unarchive email');
+            if (!silent) toast.error('Failed to unarchive email');
         }
     };
 
-    const handleMarkSpam = async (uid, folder = currentFolder) => {
+    const handleMarkSpam = async (uid, folder = currentFolder, silent = false) => {
         try {
             await mailAPI.markSpam(uid, folder);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
-            toast.success('Reported as spam');
+            if (!silent) toast.success('Reported as spam');
         } catch (error) {
-            toast.error('Failed to report spam');
+            if (!silent) toast.error('Failed to report spam');
         }
     };
 
-    const handleRestoreSpam = async (uid) => {
+    const handleRestoreSpam = async (uid, silent = false) => {
         try {
             await mailAPI.restoreSpam(uid);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
-            toast.success('Restored from spam');
+            if (!silent) toast.success('Restored from spam');
         } catch (error) {
-            toast.error('Failed to restore from spam');
+            if (!silent) toast.error('Failed to restore from spam');
         }
     };
 
-    const handleUnsubscribe = async (senderEmail) => {
+    const handleUnsubscribe = async (senderEmail, silent = false) => {
         try {
             await mailAPI.unsubscribe(senderEmail);
-            toast.success('Unsubscribed from ' + senderEmail);
+            if (!silent) toast.success('Unsubscribed from ' + senderEmail);
         } catch (error) {
-            toast.error('Failed to unsubscribe');
+            if (!silent) toast.error('Failed to unsubscribe');
         }
     };
 

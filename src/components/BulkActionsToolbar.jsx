@@ -82,7 +82,7 @@ const BulkActionsToolbar = ({
   const handleBulkArchive = async () => {
     try {
       toast.loading("Archiving selected emails...", { id: "bulk-archive" });
-      await Promise.all(selectedEmails.map((e) => handleArchive(e.uid, folder)));
+      await Promise.all(selectedEmails.map((e) => handleArchive(e.uid, folder, true)));
       setSelectedIds(new Set());
       toast.success("Emails archived", { id: "bulk-archive" });
     } catch (err) {
@@ -95,9 +95,9 @@ const BulkActionsToolbar = ({
     try {
       toast.loading("Restoring selected emails...", { id: "bulk-restore" });
       if (folder === "spam") {
-        await Promise.all(selectedEmails.map((e) => handleRestoreSpam(e.uid)));
+        await Promise.all(selectedEmails.map((e) => handleRestoreSpam(e.uid, true)));
       } else {
-        await Promise.all(selectedEmails.map((e) => handleUnarchive(e.uid)));
+        await Promise.all(selectedEmails.map((e) => handleUnarchive(e.uid, true)));
       }
       setSelectedIds(new Set());
       toast.success("Emails restored", { id: "bulk-restore" });
@@ -110,7 +110,7 @@ const BulkActionsToolbar = ({
   const handleBulkDelete = async () => {
     try {
       toast.loading("Deleting selected emails...", { id: "bulk-delete" });
-      await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder)));
+      await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder, true)));
       setSelectedIds(new Set());
       toast.success("Emails moved to trash", { id: "bulk-delete" });
     } catch (err) {
@@ -123,10 +123,10 @@ const BulkActionsToolbar = ({
     try {
       toast.loading("Updating read status...", { id: "bulk-read" });
       if (hasUnread) {
-        await Promise.all(selectedEmails.map((e) => !e.isRead ? handleMarkRead(e.uid) : Promise.resolve()));
+        await Promise.all(selectedEmails.map((e) => !e.isRead ? handleMarkRead(e.uid, true) : Promise.resolve()));
         toast.success("Emails marked as read", { id: "bulk-read" });
       } else {
-        await Promise.all(selectedEmails.map((e) => e.isRead ? handleMarkUnread(e.uid) : Promise.resolve()));
+        await Promise.all(selectedEmails.map((e) => e.isRead ? handleMarkUnread(e.uid, true) : Promise.resolve()));
         toast.success("Emails marked as unread", { id: "bulk-read" });
       }
       setSelectedIds(new Set());
@@ -139,7 +139,7 @@ const BulkActionsToolbar = ({
   const handleBulkSpam = async () => {
     try {
       toast.loading("Reporting spam...", { id: "bulk-spam" });
-      await Promise.all(selectedEmails.map((e) => handleMarkSpam(e.uid, folder)));
+      await Promise.all(selectedEmails.map((e) => handleMarkSpam(e.uid, folder, true)));
       setSelectedIds(new Set());
       toast.success("Reported as spam", { id: "bulk-spam" });
     } catch (err) {
@@ -152,7 +152,7 @@ const BulkActionsToolbar = ({
     try {
       toast.loading("Unsubscribing...", { id: "bulk-unsub" });
       const uniqueSenders = [...new Set(selectedEmails.map((e) => e.senderEmail || e.from).filter(Boolean))];
-      await Promise.all(uniqueSenders.map((email) => handleUnsubscribe(email)));
+      await Promise.all(uniqueSenders.map((email) => handleUnsubscribe(email, true)));
       setSelectedIds(new Set());
       toast.success("Unsubscribed successfully", { id: "bulk-unsub" });
     } catch (err) {
@@ -166,7 +166,7 @@ const BulkActionsToolbar = ({
       toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
       const wakeUpAt = new Date();
       wakeUpAt.setHours(wakeUpAt.getHours() + hours);
-      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString())));
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString(), true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       toast.success("Emails snoozed", { id: "bulk-snooze" });
@@ -179,7 +179,7 @@ const BulkActionsToolbar = ({
   const handleBulkSnoozeWithDate = async (wakeUpAtIso) => {
     try {
       toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
-      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAtIso)));
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAtIso, true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       setShowSnoozeSub(false);
@@ -194,7 +194,7 @@ const BulkActionsToolbar = ({
   const handleBulkApplyLabel = async (labelId) => {
     try {
       toast.loading("Applying label...", { id: "bulk-label" });
-      await Promise.all(selectedEmails.map((e) => handleApplyLabel(e.uid, labelId, folder)));
+      await Promise.all(selectedEmails.map((e) => handleApplyLabel(e.uid, labelId, folder, true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       toast.success("Label applied", { id: "bulk-label" });
