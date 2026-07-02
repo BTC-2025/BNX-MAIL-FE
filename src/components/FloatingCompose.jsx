@@ -17,8 +17,13 @@ import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
 import { DEFAULT_TEMPLATES } from "../pages/Templates";
 import toast from "react-hot-toast";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
+import ImageResize from 'quill-image-resize-module-react';
+
+// For quill-image-resize-module-react
+window.Quill = Quill;
+Quill.register('modules/imageResize', ImageResize);
 
 const quillModules = {
   toolbar: [
@@ -28,6 +33,10 @@ const quillModules = {
     ['link', 'image'],
     ['clean']
   ],
+  imageResize: {
+    parchment: Quill.import('parchment'),
+    modules: ['Resize', 'DisplaySize', 'Toolbar']
+  }
 };
 
 const FloatingCompose = () => {
