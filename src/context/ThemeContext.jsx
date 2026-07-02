@@ -74,13 +74,13 @@ export const ThemeProvider = ({ children }) => {
 
   // Calculate brightness of background image to determine font color
   useEffect(() => {
-    if (!backgroundImageState) {
+    if (!backgroundImage) {
       setDynamicTextColor(null);
       return;
     }
     const img = new Image();
     img.crossOrigin = "Anonymous";
-    img.src = backgroundImageState;
+    img.src = backgroundImage;
     img.onload = () => {
       const canvas = document.createElement("canvas");
       canvas.width = 50;
@@ -110,7 +110,7 @@ export const ThemeProvider = ({ children }) => {
     img.onerror = () => {
       setDynamicTextColor("#ffffff");
     };
-  }, [backgroundImageState]);
+  }, [backgroundImage]);
 
   // Sync theme changes
   useEffect(() => {
@@ -146,7 +146,7 @@ export const ThemeProvider = ({ children }) => {
 
   // Merge dynamic text color into the current theme
   const activeTheme = { ...themes[currentThemeName] };
-  if (backgroundImageState && dynamicTextColor) {
+  if (backgroundImage && dynamicTextColor) {
     activeTheme.text = dynamicTextColor;
     activeTheme.subText = dynamicTextColor === "#ffffff" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
     // Keep accent blue intact!
@@ -159,7 +159,7 @@ export const ThemeProvider = ({ children }) => {
         currentThemeName,
         changeTheme,
         themeNames: Object.keys(themes),
-        backgroundImage: backgroundImageState,
+        backgroundImage,
         setBackgroundImage,
         clearBackgroundImage,
       }}
