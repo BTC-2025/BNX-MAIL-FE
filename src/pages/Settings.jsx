@@ -76,6 +76,7 @@ const Settings = () => {
       fetchEmails();
     } else if (activeTab === "composing") {
       fetchBackendSettings();
+      fetchSignatures();
     } else if (activeTab === "notifications") {
       fetchBackendSettings();
     } else if (activeTab === "appearance") {
@@ -89,28 +90,9 @@ const Settings = () => {
     }
   }, [activeTab]);
 
-  // Load client preferences on mount or user change
+  // Load client preferences from backend only
   useEffect(() => {
-    if (user?.email) {
-      let loadedSigs = [];
-      const savedSigsStr = localStorage.getItem(`bnx_signatures_${user.email}`);
-      if (savedSigsStr) {
-        try {
-          loadedSigs = JSON.parse(savedSigsStr);
-        } catch(e) {}
-      } else {
-        const oldSig = localStorage.getItem(`bnx_signature_${user.email}`);
-        if (oldSig) {
-          loadedSigs = [{ id: Date.now().toString(), name: "Default Signature", content: oldSig, isDefault: true }];
-        }
-      }
-      setSignatures(loadedSigs);
-      if (loadedSigs.length > 0 && !editingSignatureId) {
-        setEditingSignatureId(loadedSigs[0].id);
-      }
-      const savedUndo = localStorage.getItem(`bnx_undo_send_${user.email}`) || "0";
-      setUndoSendDelay(Number(savedUndo));
-    }
+    // Removed localStorage logic per user request
   }, [user]);
 
   const fetchBackendSettings = async () => {
@@ -138,6 +120,7 @@ const Settings = () => {
         setTwoFactorEnabled(d.twoFactorEnabled ?? false);
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
+        setUndoSendDelay(d.undoSendDelay || 0);
       }
     } catch (err) {
       toast.error("Failed to load settings from server");
@@ -160,6 +143,32 @@ const Settings = () => {
       setLoading(false);
     }
     return false;
+  };
+
+  const fetchSignatures = async () => {
+    try {
+      setLoading(true);
+      const res = await userAPI.getSignatures();
+      if (res.data?.success) {
+        let sigs = res.data.data;
+        // If data is wrapped in { signatures: [] }
+        if (!Array.isArray(sigs) && sigs.signatures) {
+          sigs = sigs.signatures;
+        }
+        if (Array.isArray(sigs)) {
+          setSignatures(sigs);
+          if (sigs.length > 0 && !editingSignatureId) {
+            setEditingSignatureId(sigs[0].id);
+          }
+        } else {
+          setSignatures([]);
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load signatures", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const fetchEmails = async () => {
@@ -305,12 +314,25 @@ const Settings = () => {
     setSignatures(prev => prev.map(s => ({ ...s, isDefault: s.id === id })));
   };
 
-  const handleSaveComposingSettings = (e) => {
+  const handleSaveComposingSettings = async (e) => {
     e.preventDefault();
     if (user?.email) {
-      localStorage.setItem(`bnx_signatures_${user.email}`, JSON.stringify(signatures));
-      localStorage.setItem(`bnx_undo_send_${user.email}`, undoSendDelay.toString());
-      toast.success("Composing preferences saved locally");
+      setLoading(true);
+      try {
+        const ok = await saveBackendSettings({
+          undoSendDelay
+        });
+        const sigRes = await userAPI.updateSignatures({ signatures });
+        if (ok && sigRes.data?.success) {
+          toast.success("Composing preferences saved to cloud");
+        } else if (sigRes.data?.success) {
+          toast.success("Signatures saved to cloud");
+        }
+      } catch (err) {
+        toast.error("Failed to sync composing preferences");
+      } finally {
+        setLoading(false);
+      }
     }
   };
 

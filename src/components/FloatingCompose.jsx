@@ -56,6 +56,8 @@ const FloatingCompose = () => {
 
   const [signatures, setSignatures] = useState([]);
   const [showSignaturesMenu, setShowSignaturesMenu] = useState(false);
+  const [undoSendDelay, setUndoSendDelay] = useState(0);
+  const signatureInjectedRef = useRef(false);
 
   const [draftId, setDraftId] = useState(null);
   const [attachments, setAttachments] = useState([]);
@@ -129,81 +131,116 @@ const FloatingCompose = () => {
       } catch (e) {}
     }
     setAllTemplates([...DEFAULT_TEMPLATES, ...custom]);
+  }, [showTemplates, isComposeOpen]);
 
-    if (user?.email) {
-      const savedSigsStr = localStorage.getItem(`bnx_signatures_${user.email}`);
-      if (savedSigsStr) {
-        try {
-          setSignatures(JSON.parse(savedSigsStr));
-        } catch(e) {}
-      }
+  /* ---------------- FETCH SETTINGS FROM BACKEND ---------------- */
+  useEffect(() => {
+    if (!isComposeOpen) {
+      signatureInjectedRef.current = false;
+      return;
     }
-  }, [showTemplates, isComposeOpen, user]);
+    const fetchSettings = async () => {
+      try {
+        const [settingsRes, sigsRes] = await Promise.all([
+          userAPI.getSettings(),
+          userAPI.getSignatures().catch(() => null)
+        ]);
+
+        if (settingsRes.data?.success) {
+          setUndoSendDelay(settingsRes.data.data.undoSendDelay || 0);
+        }
+
+        if (sigsRes?.data?.success) {
+          let sigs = sigsRes.data.data;
+          if (!Array.isArray(sigs) && sigs.signatures) {
+            sigs = sigs.signatures;
+          }
+          if (Array.isArray(sigs)) {
+            setSignatures(sigs);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to load settings for compose", e);
+      }
+    };
+    fetchSettings();
+  }, [isComposeOpen]);
 
   /* ---------------- PREFILL ON COMPOSE DATA CHANGE ---------------- */
   useEffect(() => {
     if (isComposeOpen) {
-      setDraftId(null);
-      setAttachments([]);
-      setUploading(false);
+      // Only set initial empty state once when opening
+      if (!signatureInjectedRef.current && signatures.length === 0) {
+        setDraftId(null);
+        setAttachments([]);
+        setUploading(false);
+      }
 
       if (composeData) {
-        if (composeData.replyTo) {
-          setFormData({
-            to: composeData.replyTo,
-            cc: "",
-            bcc: "",
-            subject: composeData.subject || "",
-            body: composeData.originalBody
-              ? `<br/><br/><div>--- Original Message ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
-              : "",
-          });
-        } else if (composeData.draft) {
-          const d = composeData.draft;
-          setFormData({
-            to: d.to || "",
-            cc: d.cc || "",
-            bcc: d.bcc || "",
-            subject: d.subject || "",
-            body: d.body || "",
-          });
-          if (d.cc) setShowCc(true);
-          if (d.bcc) setShowBcc(true);
-        } else {
-          setFormData({
-            to: composeData.to || "",
-            cc: composeData.cc || "",
-            bcc: composeData.bcc || "",
-            subject: composeData.subject || "",
-            body: composeData.body || "",
-          });
-          if (composeData.cc) setShowCc(true);
-          if (composeData.bcc) setShowBcc(true);
+        if (!signatureInjectedRef.current) {
+          if (composeData.replyTo) {
+            setFormData({
+              to: composeData.replyTo,
+              cc: "",
+              bcc: "",
+              subject: composeData.subject || "",
+              body: composeData.originalBody
+                ? `<br/><br/><div>--- Original Message ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
+                : "",
+            });
+          } else if (composeData.draft) {
+            const d = composeData.draft;
+            setFormData({
+              to: d.to || "",
+              cc: d.cc || "",
+              bcc: d.bcc || "",
+              subject: d.subject || "",
+              body: d.body || "",
+            });
+            if (d.cc) setShowCc(true);
+            if (d.bcc) setShowBcc(true);
+          } else {
+            setFormData({
+              to: composeData.to || "",
+              cc: composeData.cc || "",
+              bcc: composeData.bcc || "",
+              subject: composeData.subject || "",
+              body: composeData.body || "",
+            });
+            if (composeData.cc) setShowCc(true);
+            if (composeData.bcc) setShowBcc(true);
+          }
+          signatureInjectedRef.current = true;
         }
       } else {
-        let defaultSig = "";
-        const savedSigsStr = localStorage.getItem(`bnx_signatures_${user?.email}`);
-        if (savedSigsStr) {
-          try {
-            const sigs = JSON.parse(savedSigsStr);
-            const def = sigs.find(s => s.isDefault);
-            if (def) defaultSig = def.content;
-          } catch(e) {}
+        // If we have signatures loaded, inject the default one once
+        if (!signatureInjectedRef.current && signatures.length > 0) {
+          let defaultSig = "";
+          const def = signatures.find(s => s.isDefault);
+          if (def) defaultSig = def.content;
+          
+          setFormData(prev => ({
+            ...prev,
+            body: defaultSig ? `<br/><br/>${defaultSig}` : "",
+          }));
+          signatureInjectedRef.current = true;
+        } else if (!signatureInjectedRef.current) {
+          // Reset form data if signatures are not yet loaded, but don't mark as injected so it triggers again
+          setFormData({
+            to: "",
+            cc: "",
+            bcc: "",
+            subject: "",
+            body: "",
+          });
         }
-        setFormData({
-          to: "",
-          cc: "",
-          bcc: "",
-          subject: "",
-          body: defaultSig ? `<br/><br/>${defaultSig}` : "",
-        });
         setShowCc(false);
         setShowBcc(false);
       }
       setError("");
       setSuccess("");
     }
-  }, [composeData, isComposeOpen, user]);
+  }, [composeData, isComposeOpen, signatures]);
 
   if (!isComposeOpen) return null;
 
@@ -323,8 +360,7 @@ const FloatingCompose = () => {
       return;
     }
 
-    const savedUndo = localStorage.getItem(`bnx_undo_send_${user?.email}`) || "0";
-    const delaySeconds = Number(savedUndo);
+    const delaySeconds = Number(undoSendDelay);
 
     const payload = {
       to: formData.to,

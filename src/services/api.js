@@ -178,6 +178,8 @@ export const userAPI = {
     activityLogs: () => api.get(API_ENDPOINTS.USERS.ACTIVITY_LOGS),
     getRecovery: () => api.get(API_ENDPOINTS.USERS.RECOVERY),
     updateRecovery: (data) => api.patch(API_ENDPOINTS.USERS.RECOVERY, data),
+    getSignatures: () => api.get(API_ENDPOINTS.USERS.SIGNATURES),
+    updateSignatures: (data) => api.put(API_ENDPOINTS.USERS.SIGNATURES, data),
 };
 
 // Business APIs

@@ -159,7 +159,8 @@ export const API_ENDPOINTS = {
   USERS: {
     SETTINGS: '/api/users/settings',
     ACTIVITY_LOGS: '/api/users/activity-logs',
-    RECOVERY: '/api/users/recovery'
+    RECOVERY: '/api/users/recovery',
+    SIGNATURES: '/api/users/signatures'
   },
   BUSINESS: {
     REGISTER: '/api/business/register',
