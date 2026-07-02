@@ -58,6 +58,7 @@ export const PRESET_BACKGROUNDS = [
 export const ThemeProvider = ({ children }) => {
   const [currentThemeName, setCurrentThemeName] = useState("Classic");
   const [backgroundImage, setBackgroundImageState] = useState(null);
+  const [dynamicTextColor, setDynamicTextColor] = useState(null);
 
   // Load theme + background on first mount
   useEffect(() => {
@@ -70,6 +71,46 @@ export const ThemeProvider = ({ children }) => {
       setBackgroundImageState(savedBg);
     }
   }, []);
+
+  // Calculate brightness of background image to determine font color
+  useEffect(() => {
+    if (!backgroundImageState) {
+      setDynamicTextColor(null);
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = "Anonymous";
+    img.src = backgroundImageState;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = 50;
+      canvas.height = 50;
+      const ctx = canvas.getContext("2d", { willReadFrequently: true });
+      ctx.drawImage(img, 0, 0, 50, 50);
+      try {
+        const data = ctx.getImageData(0, 0, 50, 50).data;
+        let r = 0, g = 0, b = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+        }
+        const pixels = data.length / 4;
+        const brightness = (0.299 * (r / pixels) + 0.587 * (g / pixels) + 0.114 * (b / pixels));
+        if (brightness > 135) {
+          setDynamicTextColor("#000000"); // Light image, black text
+        } else {
+          setDynamicTextColor("#ffffff"); // Dark image, white text
+        }
+      } catch (e) {
+        console.error("CORS issue calculating brightness, falling back to white", e);
+        setDynamicTextColor("#ffffff");
+      }
+    };
+    img.onerror = () => {
+      setDynamicTextColor("#ffffff");
+    };
+  }, [backgroundImageState]);
 
   // Sync theme changes
   useEffect(() => {
@@ -103,14 +144,22 @@ export const ThemeProvider = ({ children }) => {
     localStorage.removeItem("bnx_bg_image");
   };
 
+  // Merge dynamic text color into the current theme
+  const activeTheme = { ...themes[currentThemeName] };
+  if (backgroundImageState && dynamicTextColor) {
+    activeTheme.text = dynamicTextColor;
+    activeTheme.subText = dynamicTextColor === "#ffffff" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
+    // Keep accent blue intact!
+  }
+
   return (
     <ThemeContext.Provider
       value={{
-        theme: themes[currentThemeName],
+        theme: activeTheme,
         currentThemeName,
         changeTheme,
         themeNames: Object.keys(themes),
-        backgroundImage,
+        backgroundImage: backgroundImageState,
         setBackgroundImage,
         clearBackgroundImage,
       }}
