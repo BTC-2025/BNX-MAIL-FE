@@ -17,12 +17,22 @@ import {
   MdRefresh,
   MdSignalCellularAlt
 } from "react-icons/md";
-import { emailAPI, authAPI, userAPI } from "../services/api";
+import { emailAPI, authAPI, userAPI, signatureAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useTheme, PRESET_BACKGROUNDS } from "../context/ThemeContext";
 import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    ['link', 'image'],
+    ['clean']
+  ],
+};
 
 const Settings = () => {
   const navigate = useNavigate();
@@ -148,13 +158,9 @@ const Settings = () => {
   const fetchSignatures = async () => {
     try {
       setLoading(true);
-      const res = await userAPI.getSignatures();
+      const res = await signatureAPI.getSignatures();
       if (res.data?.success) {
-        let sigs = res.data.data;
-        // If data is wrapped in { signatures: [] }
-        if (!Array.isArray(sigs) && sigs.signatures) {
-          sigs = sigs.signatures;
-        }
+        const sigs = res.data.data;
         if (Array.isArray(sigs)) {
           setSignatures(sigs);
           if (sigs.length > 0 && !editingSignatureId) {
@@ -287,31 +293,53 @@ const Settings = () => {
     }
   };
 
-  const addSignature = () => {
-    const newId = Date.now().toString();
-    setSignatures(prev => [
-      ...prev,
-      { id: newId, name: "New Signature", content: "", isDefault: prev.length === 0 }
-    ]);
-    setEditingSignatureId(newId);
+  const addSignature = async () => {
+    try {
+      setLoading(true);
+      const res = await signatureAPI.createSignature({ name: "New Signature", content: "", isDefault: signatures.length === 0 });
+      if (res.data?.success) {
+        const newSig = res.data.data;
+        setSignatures(prev => [...prev, newSig]);
+        setEditingSignatureId(newSig.id);
+        toast.success("Signature created");
+      }
+    } catch (e) {
+      toast.error("Failed to create signature");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const updateSignature = (id, field, value) => {
     setSignatures(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
   };
 
-  const deleteSignature = (id) => {
-    setSignatures(prev => {
-      const filtered = prev.filter(s => s.id !== id);
-      if (filtered.length > 0 && !filtered.some(s => s.isDefault)) {
-        filtered[0].isDefault = true;
-      }
-      return filtered;
-    });
+  const deleteSignature = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this signature?")) return;
+    try {
+      setLoading(true);
+      await signatureAPI.deleteSignature(id);
+      setSignatures(prev => prev.filter(s => s.id !== id));
+      toast.success("Signature deleted");
+      fetchSignatures(); // Refresh defaults if needed
+    } catch (e) {
+      toast.error("Failed to delete signature");
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const setDefaultSignature = (id) => {
-    setSignatures(prev => prev.map(s => ({ ...s, isDefault: s.id === id })));
+  const setDefaultSignature = async (id) => {
+    try {
+      setLoading(true);
+      await signatureAPI.setDefaultSignature(id);
+      setSignatures(prev => prev.map(s => ({ ...s, isDefault: s.id === id })));
+      toast.success("Default signature updated");
+    } catch (e) {
+      toast.error("Failed to set default signature");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleSaveComposingSettings = async (e) => {
@@ -319,14 +347,18 @@ const Settings = () => {
     if (user?.email) {
       setLoading(true);
       try {
-        const ok = await saveBackendSettings({
-          undoSendDelay
-        });
-        const sigRes = await userAPI.updateSignatures({ signatures });
-        if (ok && sigRes.data?.success) {
-          toast.success("Composing preferences saved to cloud");
-        } else if (sigRes.data?.success) {
-          toast.success("Signatures saved to cloud");
+        const ok = await saveBackendSettings({ undoSendDelay });
+        
+        // Save the currently active signature if one exists
+        if (editingSignatureId) {
+          const currentSig = signatures.find(s => s.id === editingSignatureId);
+          if (currentSig) {
+            await signatureAPI.updateSignature(currentSig.id, { name: currentSig.name, content: currentSig.content });
+          }
+        }
+        
+        if (ok) {
+          toast.success("Composing & Signature preferences saved to cloud");
         }
       } catch (err) {
         toast.error("Failed to sync composing preferences");
@@ -538,6 +570,7 @@ const Settings = () => {
                         <div className="bg-white text-black rounded-md overflow-hidden border">
                           <ReactQuill 
                             theme="snow" 
+                            modules={quillModules}
                             value={sig.content} 
                             onChange={(content) => updateSignature(sig.id, "content", content)} 
                             className="h-32 mb-10"

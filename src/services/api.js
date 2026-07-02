@@ -178,8 +178,14 @@ export const userAPI = {
     activityLogs: () => api.get(API_ENDPOINTS.USERS.ACTIVITY_LOGS),
     getRecovery: () => api.get(API_ENDPOINTS.USERS.RECOVERY),
     updateRecovery: (data) => api.patch(API_ENDPOINTS.USERS.RECOVERY, data),
-    getSignatures: () => api.get(API_ENDPOINTS.USERS.SIGNATURES),
-    updateSignatures: (data) => api.put(API_ENDPOINTS.USERS.SIGNATURES, data),
+};
+
+export const signatureAPI = {
+    getSignatures: () => api.get(API_ENDPOINTS.SIGNATURES.BASE),
+    createSignature: (data) => api.post(API_ENDPOINTS.SIGNATURES.BASE, data),
+    updateSignature: (id, data) => api.put(`${API_ENDPOINTS.SIGNATURES.BASE}/${id}`, data),
+    deleteSignature: (id) => api.delete(`${API_ENDPOINTS.SIGNATURES.BASE}/${id}`),
+    setDefaultSignature: (id) => api.patch(`${API_ENDPOINTS.SIGNATURES.BASE}/${id}/default`),
 };
 
 // Business APIs

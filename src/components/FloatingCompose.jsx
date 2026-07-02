@@ -11,7 +11,7 @@ import {
   MdCloseFullscreen,
   MdEditDocument
 } from "react-icons/md";
-import { mailAPI, api } from "../services/api";
+import { mailAPI, api, userAPI, signatureAPI } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
@@ -19,6 +19,16 @@ import { DEFAULT_TEMPLATES } from "../pages/Templates";
 import toast from "react-hot-toast";
 import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+const quillModules = {
+  toolbar: [
+    [{ 'header': [1, 2, false] }],
+    ['bold', 'italic', 'underline', 'strike', 'blockquote'],
+    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    ['link', 'image'],
+    ['clean']
+  ],
+};
 
 const FloatingCompose = () => {
   const { theme } = useTheme();
@@ -143,7 +153,7 @@ const FloatingCompose = () => {
       try {
         const [settingsRes, sigsRes] = await Promise.all([
           userAPI.getSettings(),
-          userAPI.getSignatures().catch(() => null)
+          signatureAPI.getSignatures().catch(() => null)
         ]);
 
         if (settingsRes.data?.success) {
@@ -151,10 +161,7 @@ const FloatingCompose = () => {
         }
 
         if (sigsRes?.data?.success) {
-          let sigs = sigsRes.data.data;
-          if (!Array.isArray(sigs) && sigs.signatures) {
-            sigs = sigs.signatures;
-          }
+          const sigs = sigsRes.data.data;
           if (Array.isArray(sigs)) {
             setSignatures(sigs);
           }
@@ -694,6 +701,7 @@ const FloatingCompose = () => {
             <div className="flex-1 mt-2 overflow-y-auto w-full compose-quill rounded-md" style={{ minHeight: "150px" }}>
               <ReactQuill
                 theme="snow"
+                modules={quillModules}
                 value={formData.body}
                 onChange={(content) => setFormData((prev) => ({ ...prev, body: content }))}
                 placeholder="Type your message here..."
