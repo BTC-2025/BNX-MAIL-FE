@@ -49,7 +49,7 @@ const ReadingPaneLayout = ({
     document.body.style.cursor = 'default';
   };
 
-  if (mode === 'no_split') {
+  if (mode === 'no_split' || !hasSelection) {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-transparent">
         {hasSelection ? detailsComponent : (
@@ -97,15 +97,7 @@ const ReadingPaneLayout = ({
 
       {/* Detail View (Email content) */}
       <div className="flex-1 overflow-hidden bg-transparent">
-        {hasSelection ? detailsComponent : (
-          <div className="flex items-center justify-center h-full w-full bg-black/5 dark:bg-white/5">
-            <div className="flex flex-col items-center opacity-50">
-              <span className="text-4xl mb-4">📭</span>
-              <p className="font-medium text-gray-500">Select an item to read</p>
-              <p className="text-xs text-gray-400 mt-1">Nothing is selected</p>
-            </div>
-          </div>
-        )}
+        {detailsComponent}
       </div>
     </div>
   );
