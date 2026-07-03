@@ -45,7 +45,7 @@ const quillModules = {
 
 const Settings = () => {
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, getSessions, switchAccount } = useAuth();
   const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState } = useTheme();
 
   const bgFileRef = useRef(null);
@@ -474,44 +474,20 @@ const Settings = () => {
           {activeTab === "accounts" && (
             <Section title="Email Accounts" theme={theme}>
               <p className="text-sm text-gray-500 mb-6">Manage multiple linked email addresses in your current session.</p>
-              <button 
-                onClick={() => setShowCreateEmail(true)} 
-                className="mb-6 px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
-                style={{ background: theme.accent }}
-              >
-                Add New Email Account
-              </button>
-              {showCreateEmail && (
-                <form onSubmit={handleCreateEmail} className="mb-8 p-6 rounded-2xl border flex flex-col gap-4 shadow-sm" style={{ borderColor: theme.border }}>
-                  <input 
-                    placeholder="Username (e.g. john)" 
-                    value={newEmail.emailName} 
-                    onChange={e => setNewEmail({...newEmail, emailName: e.target.value})} 
-                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                  />
-                  <input 
-                    type="password" 
-                    placeholder="Password (min 8 chars)" 
-                    value={newEmail.password} 
-                    onChange={e => setNewEmail({...newEmail, password: e.target.value})} 
-                    className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                  />
-                  <div className="flex gap-3 mt-2">
-                    <button type="submit" className="px-5 py-2.5 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" style={{ background: theme.accent }}>Create Account</button>
-                    <button type="button" onClick={() => setShowCreateEmail(false)} className="px-5 py-2.5 rounded-xl text-sm font-medium cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all" style={{ color: theme.text, border: `1px solid ${theme.border}` }}>Cancel</button>
-                  </div>
-                </form>
-              )}
+              
               <div className="flex flex-col gap-3">
-                {emails.map(email => (
-                  <div key={email.id} className="flex items-center justify-between p-5 rounded-2xl border hover:shadow-sm transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
-                    <span className="text-base font-medium" style={{ color: theme.text }}>{email.email}</span>
-                    {email.isPrimary ? (
-                      <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300">Primary</span>
+                {getSessions().map(session => (
+                  <div 
+                    key={session.email} 
+                    onClick={() => switchAccount(session.email)}
+                    className="flex items-center justify-between p-5 rounded-2xl border hover:shadow-sm transition-shadow cursor-pointer" 
+                    style={{ borderColor: theme.border, background: user?.email === session.email ? theme.accent + '11' : theme.cardBg }}
+                  >
+                    <span className="text-base font-medium" style={{ color: theme.text }}>{session.email}</span>
+                    {user?.email === session.email ? (
+                      <span className="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-900 dark:text-emerald-300">Active</span>
                     ) : (
-                      <span className="text-xs text-gray-400 font-medium">Alias</span>
+                      <span className="text-xs text-gray-400 font-medium hover:text-gray-600 transition-colors">Switch Account</span>
                     )}
                   </div>
                 ))}
