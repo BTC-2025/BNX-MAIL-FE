@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import toast, { Toaster, ToastBar } from "react-hot-toast";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { ThemeProvider, useTheme, PRESET_BACKGROUNDS } from "./context/ThemeContext";
+import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { MailProvider } from "./context/MailContext";
 import { SocketProvider } from "./context/SocketContext";
 
@@ -63,7 +63,7 @@ const ProtectedRoute = ({ children }) => {
 const getFriendlyMessage = (msg) => {
   if (!msg || typeof msg !== "string") return msg;
   const msgLower = msg.toLowerCase();
-  
+
   if (msgLower.includes("unauthorized") || msgLower.includes("session expired") || msgLower.includes("token expired")) {
     return "Session expired. Please login again.";
   }
@@ -91,7 +91,7 @@ const getFriendlyMessage = (msg) => {
   if (msgLower.includes("subject and body are required")) {
     return "Please enter a subject and body before sending.";
   }
-  
+
   return msg;
 };
 
@@ -103,123 +103,106 @@ const AppContent = () => {
   const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
   const { theme, backgroundImage } = useTheme();
 
-  const isLandscapeTheme = PRESET_BACKGROUNDS?.some(
-    bg => ["Mountain Lake", "Night Sky", "Aurora Borealis", "Forest Path"].includes(bg.label) && bg.url === backgroundImage
-  );
-
   const rootStyle = { backgroundColor: theme.bg };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden relative" style={rootStyle}>
+      {/* Premium Background: Blurred Cover + Contained Image */}
       {backgroundImage && (
-        isLandscapeTheme ? (
-          <div 
+        <>
+          <div
             className="absolute inset-0 pointer-events-none z-0"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              backgroundAttachment: "fixed",
+              filter: "blur(24px) brightness(0.8)",
+              transform: "scale(1.1)",
             }}
           />
-        ) : (
-          <>
-            <div 
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{
-                backgroundImage: `url(${backgroundImage})`,
-                backgroundSize: "cover",
-                backgroundPosition: "center",
-                filter: "blur(24px) brightness(0.8)",
-                transform: "scale(1.1)",
-              }}
-            />
-            <div 
-              className="absolute inset-0 pointer-events-none z-0"
-              style={{
-                backgroundImage: `url(${backgroundImage})`,
-                backgroundSize: "contain",
-                backgroundPosition: "center",
-                backgroundRepeat: "no-repeat",
-              }}
-            />
-            <div 
-              className="absolute inset-0 pointer-events-none z-0" 
-              style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)" }}
-            />
-          </>
-        )
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+          <div
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)" }}
+          />
+        </>
       )}
       <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
-      <NavBar
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        onToggleDesktopSidebar={() =>
-          setIsDesktopSidebarOpen((v) => !v)
-        }
-        onOpenMenu={() => setIsMobileSidebarOpen(true)}
-        onToggleBitToolSidebar={() => setIsBitToolSidebarOpen(v => !v)}
-      />
-
-      <div className="flex-1 flex overflow-hidden relative">
-        {isMobileSidebarOpen && (
-          <div
-            className="fixed inset-0 bg-black/40 z-50 md:hidden"
-            onClick={() => setIsMobileSidebarOpen(false)}
-          />
-        )}
-
-        <SideBar
-          isDesktopOpen={isDesktopSidebarOpen}
-          isMobileOpen={isMobileSidebarOpen}
-          onCloseMobile={() => setIsMobileSidebarOpen(false)}
+        <NavBar
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          onToggleDesktopSidebar={() =>
+            setIsDesktopSidebarOpen((v) => !v)
+          }
+          onOpenMenu={() => setIsMobileSidebarOpen(true)}
+          onToggleBitToolSidebar={() => setIsBitToolSidebarOpen(v => !v)}
         />
 
-        <main
-          className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
-          style={{
-            backgroundColor: isLandscapeTheme
-              ? theme.cardBg
-              : (backgroundImage 
-                  ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.85)" : "rgba(255, 255, 255, 0.85)") 
-                  : theme.cardBg),
-            backdropFilter: (backgroundImage && !isLandscapeTheme) ? "blur(24px)" : "none",
-            WebkitBackdropFilter: (backgroundImage && !isLandscapeTheme) ? "blur(24px)" : "none",
-            borderColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)") 
-              : theme.border,
-          }}
-        >
-          <Routes>
-            <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
-            <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
-            <Route path="/starred" element={<Starred searchQuery={searchQuery} />} />
-            <Route path="/snoozed" element={<Snoozed searchQuery={searchQuery} />} />
-            <Route path="/draft" element={<Draft searchQuery={searchQuery} />} />
-            <Route path="/sent" element={<Send searchQuery={searchQuery} />} />
-            <Route path="/outbox" element={<Outbox searchQuery={searchQuery} />} />
-            <Route path="/scheduled" element={<Scheduled searchQuery={searchQuery} />} />
-            <Route path="/spam" element={<Spam searchQuery={searchQuery} />} />
-            <Route path="/trash" element={<Trash searchQuery={searchQuery} />} />
-            <Route path="/archive" element={<Archive searchQuery={searchQuery} />} />
-            <Route path="/all-mail" element={<AllMail searchQuery={searchQuery} />} />
-            <Route path="/allmail" element={<AllMail searchQuery={searchQuery} />} />
-            <Route path="/templates" element={<Templates />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/colab" element={<Groups />} />
-            <Route path="/colab/:id" element={<GroupDetails />} />
-            <Route path="/chat" element={<Groups />} />
-            <Route path="/chat/:chatId" element={<ChatRoom />} />
-            <Route path="/label/:labelId" element={<AllMail searchQuery={searchQuery} />} />
-            <Route path="/subscriptions" element={<Subscriptions searchQuery={searchQuery} />} />
-          </Routes>
-        </main>
+        <div className="flex-1 flex overflow-hidden relative">
+          {isMobileSidebarOpen && (
+            <div
+              className="fixed inset-0 bg-black/40 z-50 md:hidden"
+              onClick={() => setIsMobileSidebarOpen(false)}
+            />
+          )}
 
-        <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
-      </div>
+          <SideBar
+            isDesktopOpen={isDesktopSidebarOpen}
+            isMobileOpen={isMobileSidebarOpen}
+            onCloseMobile={() => setIsMobileSidebarOpen(false)}
+          />
+
+          <main
+            className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
+            style={{
+              backgroundColor: backgroundImage
+                ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.45)")
+                : theme.cardBg,
+              backdropFilter: backgroundImage ? "none" : "none",
+              WebkitBackdropFilter: backgroundImage ? "none" : "none",
+              borderColor: backgroundImage
+                ? (theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)")
+                : theme.border,
+            }}
+          >
+            <Routes>
+              <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
+              <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
+              <Route path="/starred" element={<Starred searchQuery={searchQuery} />} />
+              <Route path="/snoozed" element={<Snoozed searchQuery={searchQuery} />} />
+              <Route path="/draft" element={<Draft searchQuery={searchQuery} />} />
+              <Route path="/sent" element={<Send searchQuery={searchQuery} />} />
+              <Route path="/outbox" element={<Outbox searchQuery={searchQuery} />} />
+              <Route path="/scheduled" element={<Scheduled searchQuery={searchQuery} />} />
+              <Route path="/spam" element={<Spam searchQuery={searchQuery} />} />
+              <Route path="/trash" element={<Trash searchQuery={searchQuery} />} />
+              <Route path="/archive" element={<Archive searchQuery={searchQuery} />} />
+              <Route path="/all-mail" element={<AllMail searchQuery={searchQuery} />} />
+              <Route path="/allmail" element={<AllMail searchQuery={searchQuery} />} />
+              <Route path="/templates" element={<Templates />} />
+              <Route path="/settings" element={<Settings />} />
+              <Route path="/colab" element={<Groups />} />
+              <Route path="/colab/:id" element={<GroupDetails />} />
+              <Route path="/chat" element={<Groups />} />
+              <Route path="/chat/:chatId" element={<ChatRoom />} />
+              <Route path="/label/:labelId" element={<AllMail searchQuery={searchQuery} />} />
+              <Route path="/subscriptions" element={<Subscriptions searchQuery={searchQuery} />} />
+            </Routes>
+          </main>
+
+          <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
+        </div>
       </div>
       <FloatingCompose />
-      <Toaster 
+      <Toaster
         position="bottom-center"
         toastOptions={{
           className: "custom-toast",
@@ -237,8 +220,8 @@ const AppContent = () => {
                   {icon}
                   {message}
                   {t.type !== 'loading' && (
-                    <button 
-                      onClick={() => toast.dismiss(t.id)} 
+                    <button
+                      onClick={() => toast.dismiss(t.id)}
                       className="ml-2 text-gray-400 hover:text-gray-500 dark:hover:text-gray-300 text-xs font-semibold leading-none cursor-pointer p-0.5 hover:bg-black/5 dark:hover:bg-white/10 rounded"
                     >
                       ✕

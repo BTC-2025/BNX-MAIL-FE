@@ -13,7 +13,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
   const { theme, currentThemeName, changeTheme, backgroundImage } = useTheme();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
-  
+
   const allSessions = getSessions();
   const otherSessions = allSessions.filter(sess => sess.email !== user?.email);
 
@@ -53,14 +53,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300"
-      style={{
-        backgroundColor: backgroundImage 
-          ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.6)") 
-          : theme.bg,
-        backdropFilter: backgroundImage ? "blur(16px)" : "none",
-        WebkitBackdropFilter: backgroundImage ? "blur(16px)" : "none",
-        borderBottom: backgroundImage ? `1px solid ${theme.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}` : "none",
-      }}
+      style={{ backgroundColor: backgroundImage ? "transparent" : theme.bg }}
     >
       <div className="flex items-center justify-between">
         {/* LEFT */}
@@ -196,7 +189,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-full">
                     {user?.email}
                   </p>
-                  
+
                   <button
                     onClick={() => {
                       setShowDropdown(false);
@@ -293,18 +286,18 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               </div>
             )}
           </div>
-          
+
           <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
-          
+
           <button
             onClick={onToggleBitToolSidebar}
             className="p-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0 ml-2"
             title="Toggle BIT Tools"
           >
-            <img 
-              src={bitToolLogo} 
-              alt="BIT Tool" 
-              className="h-8 object-contain" 
+            <img
+              src={bitToolLogo}
+              alt="BIT Tool"
+              className="h-8 object-contain"
             />
           </button>
         </div>

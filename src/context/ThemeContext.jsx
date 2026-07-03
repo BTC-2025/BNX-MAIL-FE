@@ -151,11 +151,8 @@ export const ThemeProvider = ({ children }) => {
 
   // Merge dynamic text color into the current theme
   const activeTheme = { ...themes[currentThemeName] };
-  if (backgroundImage && dynamicTextColor) {
-    activeTheme.text = dynamicTextColor;
-    activeTheme.subText = dynamicTextColor === "#ffffff" ? "rgba(255,255,255,0.7)" : "rgba(0,0,0,0.6)";
-    // Keep accent blue intact!
-  }
+  // Removed dynamicTextColor override: with the new glassmorphism and opaque 
+  // UI backgrounds, the standard theme text color is always perfectly readable.
 
   return (
     <ThemeContext.Provider
