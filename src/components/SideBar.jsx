@@ -46,7 +46,15 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden -translate-x-full"}
         ${isDesktopOpen ? "md:flex md:relative md:translate-x-0" : "md:hidden"}
       `}
-        style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
+        style={{
+          backgroundColor: isMobileOpen 
+            ? undefined 
+            : (backgroundImage 
+                ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.6)") 
+                : theme.bg),
+          backdropFilter: backgroundImage ? "blur(16px)" : "none",
+          WebkitBackdropFilter: backgroundImage ? "blur(16px)" : "none",
+        }}
       >
         {/* COMPOSE */}
         <div className="p-3 pl-3.5 pb-2">

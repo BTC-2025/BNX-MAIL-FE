@@ -53,7 +53,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300"
-      style={{ backgroundColor: backgroundImage ? "transparent" : theme.bg }}
+      style={{
+        backgroundColor: backgroundImage 
+          ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.6)") 
+          : theme.bg,
+        backdropFilter: backgroundImage ? "blur(16px)" : "none",
+        WebkitBackdropFilter: backgroundImage ? "blur(16px)" : "none",
+        borderBottom: backgroundImage ? `1px solid ${theme.mode === "dark" ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.05)"}` : "none",
+      }}
     >
       <div className="flex items-center justify-between">
         {/* LEFT */}

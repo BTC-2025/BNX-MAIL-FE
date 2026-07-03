@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "r
 import toast, { Toaster, ToastBar } from "react-hot-toast";
 
 import { AuthProvider, useAuth } from "./context/AuthContext";
-import { ThemeProvider, useTheme } from "./context/ThemeContext";
+import { ThemeProvider, useTheme, PRESET_BACKGROUNDS } from "./context/ThemeContext";
 import { MailProvider } from "./context/MailContext";
 import { SocketProvider } from "./context/SocketContext";
 
@@ -103,37 +103,52 @@ const AppContent = () => {
   const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
   const { theme, backgroundImage } = useTheme();
 
+  const isLandscapeTheme = PRESET_BACKGROUNDS?.some(
+    bg => ["Mountain Lake", "Night Sky", "Aurora Borealis", "Forest Path"].includes(bg.label) && bg.url === backgroundImage
+  );
+
   const rootStyle = { backgroundColor: theme.bg };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden relative" style={rootStyle}>
-      {/* Premium Background: Blurred Cover + Contained Image */}
       {backgroundImage && (
-        <>
+        isLandscapeTheme ? (
           <div 
             className="absolute inset-0 pointer-events-none z-0"
             style={{
               backgroundImage: `url(${backgroundImage})`,
               backgroundSize: "cover",
               backgroundPosition: "center",
-              filter: "blur(24px) brightness(0.8)",
-              transform: "scale(1.1)",
+              backgroundAttachment: "fixed",
             }}
           />
-          <div 
-            className="absolute inset-0 pointer-events-none z-0"
-            style={{
-              backgroundImage: `url(${backgroundImage})`,
-              backgroundSize: "contain",
-              backgroundPosition: "center",
-              backgroundRepeat: "no-repeat",
-            }}
-          />
-          <div 
-            className="absolute inset-0 pointer-events-none z-0" 
-            style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)" }}
-          />
-        </>
+        ) : (
+          <>
+            <div 
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundSize: "cover",
+                backgroundPosition: "center",
+                filter: "blur(24px) brightness(0.8)",
+                transform: "scale(1.1)",
+              }}
+            />
+            <div 
+              className="absolute inset-0 pointer-events-none z-0"
+              style={{
+                backgroundImage: `url(${backgroundImage})`,
+                backgroundSize: "contain",
+                backgroundPosition: "center",
+                backgroundRepeat: "no-repeat",
+              }}
+            />
+            <div 
+              className="absolute inset-0 pointer-events-none z-0" 
+              style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)" }}
+            />
+          </>
+        )
       )}
       <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
       <NavBar
@@ -163,13 +178,15 @@ const AppContent = () => {
         <main
           className="flex-1 overflow-hidden mr-3 mb-3 mt-1 rounded-2xl border flex flex-col shadow-sm transition-all duration-300"
           style={{
-            backgroundColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.45)" : "rgba(255, 255, 255, 0.45)") 
-              : theme.cardBg,
-            backdropFilter: backgroundImage ? "none" : "none",
-            WebkitBackdropFilter: backgroundImage ? "none" : "none",
+            backgroundColor: isLandscapeTheme
+              ? theme.cardBg
+              : (backgroundImage 
+                  ? (theme.mode === "dark" ? "rgba(31, 41, 55, 0.85)" : "rgba(255, 255, 255, 0.85)") 
+                  : theme.cardBg),
+            backdropFilter: (backgroundImage && !isLandscapeTheme) ? "blur(24px)" : "none",
+            WebkitBackdropFilter: (backgroundImage && !isLandscapeTheme) ? "blur(24px)" : "none",
             borderColor: backgroundImage 
-              ? (theme.mode === "dark" ? "rgba(255,255,255,0.15)" : "rgba(0,0,0,0.1)") 
+              ? (theme.mode === "dark" ? "rgba(255,255,255,0.2)" : "rgba(0,0,0,0.15)") 
               : theme.border,
           }}
         >
