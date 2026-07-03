@@ -101,8 +101,9 @@ const AppContent = () => {
   const [isDesktopSidebarOpen, setIsDesktopSidebarOpen] = useState(true);
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false);
   const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
-  const { theme, backgroundImage } = useTheme();
+  const { theme, backgroundImage, isLandscapeImage } = useTheme();
 
+  const isLandscapeTheme = isLandscapeImage;
   const rootStyle = { backgroundColor: theme.bg };
 
   return (

@@ -59,7 +59,8 @@ export const ThemeProvider = ({ children }) => {
   const [currentThemeName, setCurrentThemeName] = useState("Classic");
   const [backgroundImage, setBackgroundImageState] = useState(null);
   const [dynamicTextColor, setDynamicTextColor] = useState(null);
-  const [readingPaneMode, setReadingPaneMode] = useState("no_split");
+  const [readingPaneMode, setReadingPaneMode] = useState("right");
+  const [isLandscapeImage, setIsLandscapeImage] = useState(true);
 
   // Load theme + background on first mount
   useEffect(() => {
@@ -81,12 +82,14 @@ export const ThemeProvider = ({ children }) => {
   useEffect(() => {
     if (!backgroundImage) {
       setDynamicTextColor(null);
+      setIsLandscapeImage(true);
       return;
     }
     const img = new Image();
     img.crossOrigin = "Anonymous";
     img.src = backgroundImage;
     img.onload = () => {
+      setIsLandscapeImage(img.width >= img.height);
       const canvas = document.createElement("canvas");
       canvas.width = 50;
       canvas.height = 50;
@@ -165,6 +168,7 @@ export const ThemeProvider = ({ children }) => {
         setBackgroundImage,
         clearBackgroundImage,
         dynamicTextColor,
+        isLandscapeImage,
         readingPaneMode,
         setReadingPaneModeState: (mode) => {
           setReadingPaneMode(mode);
