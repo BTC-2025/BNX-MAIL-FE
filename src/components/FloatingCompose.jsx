@@ -50,7 +50,8 @@ const FloatingCompose = () => {
     isComposeMaximized, 
     setIsComposeMaximized, 
     composeData,
-    fetchEmails
+    fetchEmails,
+    openCompose
   } = useMail();
 
   const fileInputRef = useRef(null);
@@ -404,7 +405,9 @@ const FloatingCompose = () => {
         if (response.data?.success) {
           toast.success("Email sent successfully", { id: tid });
           fetchEmails('inbox');
-          closeCompose();
+          if (delaySeconds === 0) {
+            closeCompose();
+          }
         }
       } catch (err) {
         setError(err.response?.data?.message || "Failed to send email");
@@ -418,27 +421,48 @@ const FloatingCompose = () => {
 
     if (delaySeconds > 0) {
       let isUndone = false;
+      
+      // Fake instant send by closing compose immediately
+      closeCompose();
+      
       const toastId = toast((t) => (
-        <div className="flex items-center justify-between gap-4 text-xs font-semibold">
-          <span>Sending email in {delaySeconds}s...</span>
+        <div className="flex items-center justify-between gap-6 w-full min-w-[250px] text-sm text-white">
+          <span>Message sent.</span>
           <button
             type="button"
             onClick={() => {
               isUndone = true;
               toast.dismiss(t.id);
             }}
-            className="px-2.5 py-1 text-[10px] font-bold rounded-lg text-white bg-red-600 hover:bg-red-700 cursor-pointer outline-none"
-            style={{ backgroundColor: "#ef4444" }}
+            className="font-bold text-[#fbbc04] hover:text-yellow-300 cursor-pointer"
           >
             Undo
           </button>
         </div>
-      ), { duration: delaySeconds * 1000, position: "bottom-center" });
+      ), { 
+        duration: delaySeconds * 1000, 
+        position: "bottom-left",
+        style: {
+          background: '#202124',
+          color: '#fff',
+          borderRadius: '4px',
+          padding: '12px 24px',
+          boxShadow: '0 1px 3px 0 rgba(60,64,67,0.3), 0 4px 8px 3px rgba(60,64,67,0.15)'
+        }
+      });
 
       setTimeout(() => {
         if (isUndone) {
-          setSending(false);
           toast.error("Sending cancelled", { id: toastId });
+          openCompose({
+            draft: true,
+            id: draftId,
+            to: payload.to,
+            cc: payload.cc,
+            bcc: payload.bcc,
+            subject: payload.subject,
+            body: payload.body,
+          });
           return;
         }
         executeSend(toastId);
