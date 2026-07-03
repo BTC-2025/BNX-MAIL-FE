@@ -34,7 +34,7 @@ export const MailProvider = ({ children }) => {
                 const normalizedEmails = (data.emails || data || []).map(m => ({
                     ...m,
                     starred: m.starred ?? m.isStarred ?? false
-                }));
+                })).filter(m => m.folderName?.toLowerCase() !== 'trash');
                 setEmails(normalizedEmails);
             }
         } catch (error) {
@@ -117,10 +117,13 @@ export const MailProvider = ({ children }) => {
             if (res.data?.success) {
                 if (currentFolderRef.current === folder) {
                     const data = res.data.data;
-                    const normalizedEmails = (data.emails || []).map(m => ({
+                    let normalizedEmails = (data.emails || []).map(m => ({
                         ...m,
                         starred: m.starred ?? m.isStarred ?? false
                     }));
+                    if (folder === 'starred') {
+                        normalizedEmails = normalizedEmails.filter(m => m.folderName?.toLowerCase() !== 'trash');
+                    }
                     setEmails(normalizedEmails);
                     setUnreadCounts(prev => ({ ...prev, [folder]: data.unreadCount || 0 }));
                 }
