@@ -59,6 +59,7 @@ export const ThemeProvider = ({ children }) => {
   const [currentThemeName, setCurrentThemeName] = useState("Classic");
   const [backgroundImage, setBackgroundImageState] = useState(null);
   const [dynamicTextColor, setDynamicTextColor] = useState(null);
+  const [readingPaneMode, setReadingPaneMode] = useState("no_split");
 
   // Load theme + background on first mount
   useEffect(() => {
@@ -69,6 +70,10 @@ export const ThemeProvider = ({ children }) => {
     const savedBg = localStorage.getItem("bnx_bg_image");
     if (savedBg) {
       setBackgroundImageState(savedBg);
+    }
+    const savedReadingPane = localStorage.getItem("bnx_reading_pane");
+    if (savedReadingPane) {
+      setReadingPaneMode(savedReadingPane);
     }
   }, []);
 
@@ -162,6 +167,12 @@ export const ThemeProvider = ({ children }) => {
         backgroundImage,
         setBackgroundImage,
         clearBackgroundImage,
+        dynamicTextColor,
+        readingPaneMode,
+        setReadingPaneModeState: (mode) => {
+          setReadingPaneMode(mode);
+          localStorage.setItem("bnx_reading_pane", mode);
+        }
       }}
     >
       {children}

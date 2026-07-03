@@ -7,6 +7,7 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Draft = ({ searchQuery }) => {
   const navigate = useNavigate();
@@ -71,73 +72,75 @@ const Draft = ({ searchQuery }) => {
     );
   }
 
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
+  
+  const detailsComponent = selectedEmail ? (
+<EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onClose={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "draft");
             setSelectedEmailUid(null);
-          }}
+          }
           onStar={(uid) => handleToggleStar(uid, "draft")}
           onArchive={(uid) => {
             handleArchive(uid, "draft");
             setSelectedEmailUid(null);
-          }}
+          }
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}
         />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder="draft"
             />
-          ) : (
+          
+  ) : (
+
             <div
               className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-              style={{ borderColor: theme.border }}
+              style={ borderColor: theme.border }
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={{ color: theme.text }}
+                style={ color: theme.text }
               >
-                <MdDrafts className="text-primary" size={20} style={{ color: theme.accent }} /> Drafts
+                <MdDrafts className="text-primary" size={20} style={ color: theme.accent } /> Drafts
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={{ color: theme.subText }}
+                  style={ color: theme.subText }
                 >
                   ({emails.length})
                 </span>
               </h2>
             </div>
-          )}
+          
+  );
 
-          {/* EMAIL LIST CONTAINER */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📝</span>
                 <p
                   className="text-base font-semibold mb-1"
-                  style={{ color: theme.text }}
+                  style={ color: theme.text }
                 >
                   No drafts
                 </p>
-                <p className="text-sm mb-4" style={{ color: theme.subText }}>
+                <p className="text-sm mb-4" style={ color: theme.subText }>
                   Draft emails you save will appear here
                 </p>
                 <button
                   onClick={() => openCompose()}
                   className="px-4 py-2 rounded-full text-white text-sm cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
-                  style={{ backgroundColor: theme.accent }}
+                  style={ backgroundColor: theme.accent }
                 >
                   Compose Email
                 </button>
@@ -155,11 +158,19 @@ const Draft = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 export default Draft;

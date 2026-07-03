@@ -6,6 +6,7 @@ import { useTheme } from "../context/ThemeContext";
 import toast from "react-hot-toast";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Scheduled = ({ searchQuery }) => {
   const { theme } = useTheme();
@@ -133,53 +134,55 @@ const Scheduled = ({ searchQuery }) => {
   }
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
+  
+  const detailsComponent = selectedEmail ? (
+<EmailDetails
           email={selectedEmail}
           onClose={() => setSelectedEmail(null)}
           onDelete={handleDelete}
           onStar={handleStar}
           onArchive={handleArchive}
         />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder="scheduled"
             />
-          ) : (
+          
+  ) : (
+
             <div
               className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
-              style={{ borderColor: theme.border }}
+              style={ borderColor: theme.border }
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={{ color: theme.text }}
+                style={ color: theme.text }
               >
                 🕒 Scheduled
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={{ color: theme.subText }}
+                  style={ color: theme.subText }
                 >
                   ({emails.length})
                 </span>
               </h2>
             </div>
-          )}
+          
+  );
 
-          {/* LIST / EMPTY */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📭</span>
-                <p className="text-base font-semibold" style={{ color: theme.text }}>No scheduled emails</p>
-                <p className="text-sm" style={{ color: theme.subText }}>
+                <p className="text-base font-semibold" style={ color: theme.text }>No scheduled emails</p>
+                <p className="text-sm" style={ color: theme.subText }>
                   Emails scheduled to be sent later will appear here
                 </p>
               </div>
@@ -195,11 +198,19 @@ const Scheduled = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 export default Scheduled;

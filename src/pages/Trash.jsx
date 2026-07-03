@@ -8,6 +8,7 @@ import { mailAPI } from "../services/api";
 import toast from "react-hot-toast";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Trash = ({ searchQuery }) => {
   const { theme } = useTheme();
@@ -71,12 +72,11 @@ const Trash = ({ searchQuery }) => {
   };
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <div className="h-full flex flex-col overflow-hidden">
+  
+  const detailsComponent = selectedEmail ? (
+<div className="h-full flex flex-col overflow-hidden">
           {/* TRASH QUICK ACTIONS */}
-          <div className="p-3 border-b flex gap-3 shrink-0" style={{ borderColor: theme.border }}>
+          <div className="p-3 border-b flex gap-3 shrink-0" style={ borderColor: theme.border }>
             <button
               onClick={() => setSelectedEmail(null)}
               className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-900 cursor-pointer"
@@ -107,44 +107,47 @@ const Trash = ({ searchQuery }) => {
             />
           </div>
         </div>
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder="trash"
             />
-          ) : (
+          
+  ) : (
+
             <div
               className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
-              style={{ borderColor: theme.border }}
+              style={ borderColor: theme.border }
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={{ color: theme.text }}
+                style={ color: theme.text }
               >
                 <MdDelete size={20} className="text-gray-500" /> Trash
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={{ color: theme.subText }}
+                  style={ color: theme.subText }
                 >
                   ({emails.length})
                 </span>
               </h2>
             </div>
-          )}
+          
+  );
 
-          {/* LIST / EMPTY */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <MdDelete size={52} className="text-gray-300 dark:text-gray-600 mb-4 opacity-50" />
                 <p
                   className="text-base font-semibold mb-1"
-                  style={{ color: theme.text }}
+                  style={ color: theme.text }
                 >
                   Trash is empty
                 </p>
@@ -159,11 +162,19 @@ const Trash = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 export default Trash;

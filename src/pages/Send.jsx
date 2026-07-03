@@ -7,6 +7,7 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Send = ({ searchQuery }) => {
   const navigate = useNavigate();
@@ -81,77 +82,83 @@ const Send = ({ searchQuery }) => {
   }
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
-          email={selectedEmail}
-          onBack={() => setSelectedEmailUid(null)}
-          onDelete={handleDelete}
-          onStar={(uid) => handleToggleStar(uid, "Sent")}
-          onArchive={(uid) => {
-            handleArchive(uid, "Sent");
-            setSelectedEmailUid(null);
-          }}
-          onSnooze={handleSnooze}
-          onApplyLabel={handleApplyLabel}
-          onReply={handleReply}
-        />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
-            <BulkActionsToolbar
-              selectedIds={selectedIds}
-              setSelectedIds={setSelectedIds}
-              visibleEmails={visibleEmails}
-              folder="sent"
-            />
-          ) : (
-            <div
-              className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-              style={{ borderColor: theme.border }}
-            >
-              <h2
-                className="text-base font-bold flex items-center gap-2"
-                style={{ color: theme.text }}
-              >
-                Sent
-                <span
-                  className="ml-2 text-xs font-normal"
-                  style={{ color: theme.subText }}
-                >
-                  ({emails.length})
-                </span>
-              </h2>
-            </div>
-          )}
+  const detailsComponent = selectedEmail ? (
+    <EmailDetails
+      email={selectedEmail}
+      onBack={() => setSelectedEmailUid(null)}
+      onClose={() => setSelectedEmailUid(null)}
+      onDelete={(uid) => {
+        handleMoveToTrash(uid, "Sent");
+        setSelectedEmailUid(null);
+      }}
+      onStar={(uid) => handleToggleStar(uid, "Sent")}
+      onArchive={(uid) => {
+        handleArchive(uid, "Sent");
+        setSelectedEmailUid(null);
+      }}
+      onApplyLabel={handleApplyLabel}
+    />
+  ) : null;
 
-          {/* LIST / EMPTY */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
-              <div className="flex flex-col items-center justify-center min-h-[50vh]">
-                <MdSend className="text-5xl mb-4 text-gray-300 dark:text-gray-600 opacity-55" />
-                <p className="text-base font-semibold" style={{ color: theme.text }}>No sent emails</p>
-              </div>
-            ) : (
-              <EmailList
-                emails={visibleEmails}
-                selectedEmailId={selectedEmail?.uid}
-                onSelectEmail={handleSelectEmail}
-                onStar={(uid) => handleToggleStar(uid, "Sent")}
-                onDelete={(uid) => handleMoveToTrash(uid, "Sent")}
-                onArchive={(uid) => handleArchive(uid, "Sent")}
-                onSnooze={handleSnooze}
-                showTo={true}
-                selectedIds={selectedIds}
-                onToggleSelect={handleToggleSelect}
-              />
-            )}
-          </div>
-        </>
+  const headerComponent = selectedIds.size > 0 ? (
+    <BulkActionsToolbar
+      selectedIds={selectedIds}
+      setSelectedIds={setSelectedIds}
+      visibleEmails={visibleEmails}
+      folder="sent"
+    />
+  ) : (
+    <div
+      className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
+      style={{ borderColor: theme.border }}
+    >
+      <h2
+        className="text-base font-bold flex items-center gap-2"
+        style={{ color: theme.text }}
+      >
+        Sent
+        <span
+          className="ml-2 text-xs font-normal"
+          style={{ color: theme.subText }}
+        >
+          ({emails.length})
+        </span>
+      </h2>
+    </div>
+  );
+
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+      {emails.length === 0 ? (
+        <div className="flex flex-col items-center justify-center min-h-[50vh]">
+          <MdSend className="text-5xl mb-4 text-gray-300 dark:text-gray-600 opacity-55" />
+          <p className="text-base font-semibold" style={{ color: theme.text }}>No sent emails</p>
+        </div>
+      ) : (
+        <EmailList
+          emails={visibleEmails}
+          selectedEmailId={selectedEmailUid}
+          onSelectEmail={handleSelectEmail}
+          onStar={(uid) => handleToggleStar(uid, "Sent")}
+          onDelete={(uid) => handleMoveToTrash(uid, "Sent")}
+          onArchive={(uid) => handleArchive(uid, "Sent")}
+          onSnooze={handleSnooze}
+          showTo={true}
+          selectedIds={selectedIds}
+          onToggleSelect={handleToggleSelect}
+        />
       )}
     </div>
+  );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
   );
 };
 

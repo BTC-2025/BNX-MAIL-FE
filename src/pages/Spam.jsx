@@ -7,6 +7,7 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Spam = ({ searchQuery }) => {
   const navigate = useNavigate();
@@ -58,65 +59,67 @@ const Spam = ({ searchQuery }) => {
   };
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
+  
+  const detailsComponent = selectedEmail ? (
+<EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "spam");
             setSelectedEmailUid(null);
-          }}
+          }
           onStar={(uid) => handleToggleStar(uid, "spam")}
           onArchive={(uid) => {
             handleArchive(uid, "spam");
             setSelectedEmailUid(null);
-          }}
+          }
           onReply={handleReply}
         />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder="spam"
             />
-          ) : (
+          
+  ) : (
+
             <div
               className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-              style={{ borderColor: theme.border }}
+              style={ borderColor: theme.border }
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={{ color: theme.text }}
+                style={ color: theme.text }
               >
                 <MdReport size={20} className="text-red-500" /> Spam
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={{ color: theme.subText }}
+                  style={ color: theme.subText }
                 >
                   ({emails.length})
                 </span>
               </h2>
             </div>
-          )}
+          
+  );
 
-          {/* LIST / EMPTY */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <MdReport size={52} className="text-gray-300 dark:text-gray-600 mb-4 opacity-50" />
                 <p
                   className="text-base font-semibold mb-1"
-                  style={{ color: theme.text }}
+                  style={ color: theme.text }
                 >
                   No spam emails
                 </p>
-                <p className="text-sm" style={{ color: theme.subText }}>
+                <p className="text-sm" style={ color: theme.subText }>
                   Spam emails will automatically appear here
                 </p>
               </div>
@@ -132,11 +135,19 @@ const Spam = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 export default Spam;

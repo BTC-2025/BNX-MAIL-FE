@@ -7,6 +7,7 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const AllMail = ({ searchQuery }) => {
   const navigate = useNavigate();
@@ -74,10 +75,9 @@ const AllMail = ({ searchQuery }) => {
 
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
+  
+  const detailsComponent = selectedEmail ? (
+<EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
@@ -96,17 +96,19 @@ const AllMail = ({ searchQuery }) => {
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}
         />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder={labelId ? `label-${labelId}` : "all-mail"}
             />
-          ) : (
+          
+  ) : (
+
             <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center justify-between gap-3 shrink-0 bg-transparent">
               <div className="flex items-center gap-3">
                 <span
@@ -140,11 +142,12 @@ const AllMail = ({ searchQuery }) => {
                 <FilterButton label="Date" open={showTime} setOpen={setShowTime} />
               </div>
             </div>
-          )}
+          
+  );
 
-          {/* EMAIL LIST CONTAINER */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] opacity-85">
                 <MdMail className="text-5xl mb-4 text-gray-300 dark:text-gray-600 drop-shadow-sm" />
                 <p className="text-base font-semibold text-gray-500 dark:text-gray-400">No emails found</p>
@@ -162,11 +165,19 @@ const AllMail = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 /* ---------------- FILTER BUTTON ---------------- */

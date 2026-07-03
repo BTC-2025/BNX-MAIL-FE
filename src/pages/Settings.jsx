@@ -88,6 +88,7 @@ const Settings = () => {
   const [signatures, setSignatures] = useState([]);
   const [editingSignatureId, setEditingSignatureId] = useState(null);
   const [undoSendDelay, setUndoSendDelay] = useState(0);
+  const [readingPaneMode, setReadingPaneMode] = useState("no_split");
 
   // Fetch initial data based on active tab
   useEffect(() => {
@@ -140,6 +141,12 @@ const Settings = () => {
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
         setUndoSendDelay(d.undoSendDelay || 0);
+        setReadingPaneMode(d.readingPaneMode || "no_split");
+        
+        // Update local context for reading pane immediately on load
+        if (d.readingPaneMode) {
+          theme.setReadingPaneModeState?.(d.readingPaneMode);
+        }
       }
     } catch (err) {
       toast.error("Failed to load settings from server");
@@ -398,12 +405,17 @@ const Settings = () => {
       themeMode,
       accentColor,
       fontSize,
-      density
+      density,
+      readingPaneMode
     });
     if (ok) {
       // Apply themeMode / accentColor changes locally if required
       if (themeMode === "Dark") changeTheme("Dark");
       else if (themeMode === "Light") changeTheme("Classic");
+      
+      if (theme.setReadingPaneModeState) {
+        theme.setReadingPaneModeState(readingPaneMode);
+      }
     }
   };
 
@@ -876,6 +888,22 @@ const Settings = () => {
                 >
                   📁 Upload from device
                 </button>
+              </div>
+
+              {/* Reading Pane */}
+              <div className="flex flex-col gap-2 mt-4 pt-4 border-t" style={{ borderColor: theme.border }}>
+                <label className="text-sm font-semibold" style={{ color: theme.text }}>Reading Pane</label>
+                <select 
+                  value={readingPaneMode}
+                  onChange={e => setReadingPaneMode(e.target.value)}
+                  className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
+                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                >
+                  <option value="no_split">No split (Full screen)</option>
+                  <option value="right">Right of inbox</option>
+                  <option value="below">Below inbox</option>
+                </select>
+                <span className="text-xs text-gray-500">Choose how emails open in your mailbox.</span>
               </div>
 
               <button 

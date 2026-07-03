@@ -5,6 +5,7 @@ import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
 
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
+import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Archive = ({ searchQuery }) => {
   const { theme } = useTheme();
@@ -71,39 +72,40 @@ const Archive = ({ searchQuery }) => {
   }
 
   /* ---------------- MAIN UI ---------------- */
-  return (
-    <div className="h-full flex flex-col overflow-hidden bg-transparent">
-      {selectedEmail ? (
-        <EmailDetails
+  
+  const detailsComponent = selectedEmail ? (
+<EmailDetails
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onClose={() => setSelectedEmailUid(null)}
           onDelete={(uid) => {
             handleMoveToTrash(uid, "archive");
             setSelectedEmailUid(null);
-          }}
+          }
           onStar={(uid) => handleToggleStar(uid, "archive")}
           onArchive={(uid) => {
             handleUnarchive(uid);
             setSelectedEmailUid(null);
-          }}
+          }
           isArchiveFolder={true}
         />
-      ) : (
-        <>
-          {/* HEADER */}
-          {selectedIds.size > 0 ? (
+  ) : null;
+
+  const headerComponent = selectedIds.size > 0 ? (
+
             <BulkActionsToolbar
               selectedIds={selectedIds}
               setSelectedIds={setSelectedIds}
               visibleEmails={visibleEmails}
               folder="archive"
             />
-          ) : (
+          
+  ) : (
+
             <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3 shrink-0 bg-transparent">
               <span
                 className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
-                style={{ background: theme.accent }}
+                style={ background: theme.accent }
               >
                 📦 Archive ({emails.length})
               </span>
@@ -113,15 +115,16 @@ const Archive = ({ searchQuery }) => {
               <FilterButton label="To" open={showTo} setOpen={setShowTo} />
               <FilterButton label="Any time" open={showTime} setOpen={setShowTime} />
             </div>
-          )}
+          
+  );
 
-          {/* LIST / EMPTY */}
-          <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
-            {emails.length === 0 ? (
+  const listComponent = (
+    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+{emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📭</span>
-                <p className="text-base font-semibold" style={{ color: theme.text }}>No archived emails</p>
-                <p className="text-sm" style={{ color: theme.subText }}>
+                <p className="text-base font-semibold" style={ color: theme.text }>No archived emails</p>
+                <p className="text-sm" style={ color: theme.subText }>
                   Archive emails to keep your inbox clean
                 </p>
               </div>
@@ -138,11 +141,19 @@ const Archive = ({ searchQuery }) => {
                 onToggleSelect={handleToggleSelect}
               />
             )}
-          </div>
-        </>
-      )}
     </div>
   );
+
+  return (
+    <ReadingPaneLayout
+      mode={theme.readingPaneMode || 'no_split'}
+      hasSelection={!!selectedEmail}
+      listComponent={listComponent}
+      detailsComponent={detailsComponent}
+      headerComponent={headerComponent}
+    />
+  );
+
 };
 
 /* ---------------- FILTER BUTTON ---------------- */
