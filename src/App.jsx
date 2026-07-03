@@ -103,24 +103,37 @@ const AppContent = () => {
   const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
   const { theme, backgroundImage } = useTheme();
 
-  const rootStyle = backgroundImage
-    ? {
-        backgroundImage: `url(${backgroundImage})`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-        backgroundRepeat: "no-repeat",
-        backgroundAttachment: "fixed",
-      }
-    : { backgroundColor: theme.bg };
+  const rootStyle = { backgroundColor: theme.bg };
 
   return (
     <div className="flex flex-col h-screen overflow-hidden relative" style={rootStyle}>
-      {/* Semi-transparent overlay when a background image is active */}
+      {/* Premium Background: Blurred Cover + Contained Image */}
       {backgroundImage && (
-        <div 
-          className="absolute inset-0 pointer-events-none z-0" 
-          style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.2)" : "rgba(255,255,255,0.15)" }}
-        />
+        <>
+          <div 
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              filter: "blur(24px) brightness(0.8)",
+              transform: "scale(1.1)",
+            }}
+          />
+          <div 
+            className="absolute inset-0 pointer-events-none z-0"
+            style={{
+              backgroundImage: `url(${backgroundImage})`,
+              backgroundSize: "contain",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          />
+          <div 
+            className="absolute inset-0 pointer-events-none z-0" 
+            style={{ backgroundColor: theme.mode === "dark" ? "rgba(0,0,0,0.3)" : "rgba(255,255,255,0.2)" }}
+          />
+        </>
       )}
       <div className="relative z-[1] flex flex-col flex-1 overflow-hidden">
       <NavBar
