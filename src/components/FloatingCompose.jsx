@@ -428,7 +428,7 @@ const FloatingCompose = () => {
       closeCompose();
       
       const toastId = toast((t) => (
-        <div className="flex items-center justify-between gap-6 w-full min-w-[250px] text-sm text-white">
+        <div className="flex items-center justify-between gap-6 w-full min-w-[250px] text-sm text-black">
           <span>Message sent.</span>
           <button
             type="button"
