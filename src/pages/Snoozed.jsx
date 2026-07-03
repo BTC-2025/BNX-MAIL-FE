@@ -11,7 +11,7 @@ import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Snoozed = ({ searchQuery }) => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, readingPaneMode } = useTheme();
   const { 
     emails, 
     loading, 
@@ -160,7 +160,7 @@ const Snoozed = ({ searchQuery }) => {
 
   return (
     <ReadingPaneLayout
-      mode={theme.readingPaneMode || 'no_split'}
+      mode={readingPaneMode || 'no_split'}
       hasSelection={!!selectedEmail}
       listComponent={listComponent}
       detailsComponent={detailsComponent}

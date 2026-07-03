@@ -8,7 +8,7 @@ import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Archive = ({ searchQuery }) => {
-  const { theme } = useTheme();
+  const { theme, readingPaneMode } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleUnarchive } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
@@ -146,7 +146,7 @@ const Archive = ({ searchQuery }) => {
 
   return (
     <ReadingPaneLayout
-      mode={theme.readingPaneMode || 'no_split'}
+      mode={readingPaneMode || 'no_split'}
       hasSelection={!!selectedEmail}
       listComponent={listComponent}
       detailsComponent={detailsComponent}

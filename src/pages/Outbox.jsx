@@ -8,7 +8,7 @@ import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Outbox = ({ searchQuery }) => {
-  const { theme } = useTheme();
+  const { theme, readingPaneMode } = useTheme();
 
   const [emails, setEmails] = useState([]);
   const [selectedEmail, setSelectedEmail] = useState(null);
@@ -197,7 +197,7 @@ const Outbox = ({ searchQuery }) => {
 
   return (
     <ReadingPaneLayout
-      mode={theme.readingPaneMode || 'no_split'}
+      mode={readingPaneMode || 'no_split'}
       hasSelection={!!selectedEmail}
       listComponent={listComponent}
       detailsComponent={detailsComponent}

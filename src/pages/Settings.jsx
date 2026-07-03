@@ -46,7 +46,7 @@ const quillModules = {
 const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage } = useTheme();
+  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState } = useTheme();
 
   const bgFileRef = useRef(null);
   const [customBgUrl, setCustomBgUrl] = useState("");
@@ -145,7 +145,7 @@ const Settings = () => {
         
         // Update local context for reading pane immediately on load
         if (d.readingPaneMode) {
-          theme.setReadingPaneModeState?.(d.readingPaneMode);
+          setReadingPaneModeState?.(d.readingPaneMode);
         }
       }
     } catch (err) {
@@ -413,8 +413,8 @@ const Settings = () => {
       if (themeMode === "Dark") changeTheme("Dark");
       else if (themeMode === "Light") changeTheme("Classic");
       
-      if (theme.setReadingPaneModeState) {
-        theme.setReadingPaneModeState(readingPaneMode);
+      if (setReadingPaneModeState) {
+        setReadingPaneModeState(readingPaneMode);
       }
     }
   };

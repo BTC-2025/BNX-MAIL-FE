@@ -11,7 +11,7 @@ import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Trash = ({ searchQuery }) => {
-  const { theme } = useTheme();
+  const { theme, readingPaneMode } = useTheme();
   const { emails, loading, fetchEmails } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
 
@@ -167,7 +167,7 @@ const Trash = ({ searchQuery }) => {
 
   return (
     <ReadingPaneLayout
-      mode={theme.readingPaneMode || 'no_split'}
+      mode={readingPaneMode || 'no_split'}
       hasSelection={!!selectedEmail}
       listComponent={listComponent}
       detailsComponent={detailsComponent}

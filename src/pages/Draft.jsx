@@ -11,7 +11,7 @@ import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Draft = ({ searchQuery }) => {
   const navigate = useNavigate();
-  const { theme } = useTheme();
+  const { theme, readingPaneMode } = useTheme();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleApplyLabel, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
@@ -163,7 +163,7 @@ const Draft = ({ searchQuery }) => {
 
   return (
     <ReadingPaneLayout
-      mode={theme.readingPaneMode || 'no_split'}
+      mode={readingPaneMode || 'no_split'}
       hasSelection={!!selectedEmail}
       listComponent={listComponent}
       detailsComponent={detailsComponent}
