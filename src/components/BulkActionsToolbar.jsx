@@ -27,6 +27,7 @@ const BulkActionsToolbar = ({
   const {
     labels,
     handleMoveToTrash,
+    handleDeletePermanently,
     handleArchive,
     handleUnarchive,
     handleMarkRead,
@@ -106,13 +107,20 @@ const BulkActionsToolbar = ({
     }
   };
 
-  // Bulk Trash
+  // Bulk Trash or Permanent Delete
   const handleBulkDelete = async () => {
     try {
-      toast.loading("Deleting selected emails...", { id: "bulk-delete" });
-      await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder, true)));
-      setSelectedIds(new Set());
-      toast.success("Emails moved to trash", { id: "bulk-delete" });
+      if (folder === "trash" && handleDeletePermanently) {
+        toast.loading("Permanently deleting selected emails...", { id: "bulk-delete" });
+        await Promise.all(selectedEmails.map((e) => handleDeletePermanently(e.uid, true)));
+        setSelectedIds(new Set());
+        toast.success("Emails permanently deleted", { id: "bulk-delete" });
+      } else {
+        toast.loading("Deleting selected emails...", { id: "bulk-delete" });
+        await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder, true)));
+        setSelectedIds(new Set());
+        toast.success("Emails moved to trash", { id: "bulk-delete" });
+      }
     } catch (err) {
       toast.error("Failed to delete some emails", { id: "bulk-delete" });
     }

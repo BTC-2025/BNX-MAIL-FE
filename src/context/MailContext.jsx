@@ -243,6 +243,16 @@ export const MailProvider = ({ children }) => {
         }
     };
 
+    const handleDeletePermanently = async (uid, silent = false) => {
+        try {
+            await mailAPI.permanentDelete(uid);
+            setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            if (!silent) toast.success('Permanently deleted');
+        } catch (error) {
+            if (!silent) toast.error('Failed to delete permanently');
+        }
+    };
+
     const handleSnooze = async (uid, wakeUpAt, silent = false) => {
         try {
             await mailAPI.snooze(uid, wakeUpAt);
@@ -413,6 +423,7 @@ export const MailProvider = ({ children }) => {
             handleMarkRead,
             handleMarkUnread,
             handleMoveToTrash,
+            handleDeletePermanently,
             handleSnooze,
             handleCreateLabel,
             handleUpdateLabel,
