@@ -79,16 +79,16 @@ const Snoozed = ({ searchQuery }) => {
           onDelete={(uid) => {
             handleMoveToTrash(uid, "snoozed");
             setSelectedEmailUid(null);
-          }
+          }}
           onStar={(uid) => handleToggleStar(uid, "snoozed")}
           onArchive={(uid) => {
             handleArchive(uid, "snoozed");
             setSelectedEmailUid(null);
-          }
+          }}
           onUnarchive={(uid) => {
             handleUnarchive(uid);
             setSelectedEmailUid(null);
-          }
+          }}
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}
           onSnooze={handleSnooze}
@@ -108,16 +108,16 @@ const Snoozed = ({ searchQuery }) => {
 
             <div
               className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-              style={ borderColor: theme.border }
+              style={{ borderColor: theme.border }}
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={ color: theme.text }
+                style={{ color: theme.text }}
               >
                 <MdAccessTime className="text-blue-500" size={20} /> Snoozed
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={ color: theme.subText }
+                  style={{ color: theme.subText }}
                 >
                   ({emails.length})
                 </span>
@@ -133,11 +133,11 @@ const Snoozed = ({ searchQuery }) => {
                 <MdAccessTime className="text-5xl mb-4 text-blue-500 opacity-50" />
                 <p
                   className="text-base font-semibold mb-1"
-                  style={ color: theme.text }
+                  style={{ color: theme.text }}
                 >
                   No snoozed emails
                 </p>
-                <p className="text-sm" style={ color: theme.subText }>
+                <p className="text-sm" style={{ color: theme.subText }}>
                   Snooze emails to hide them from your inbox until a later time
                 </p>
               </div>

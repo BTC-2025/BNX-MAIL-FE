@@ -158,16 +158,16 @@ const Scheduled = ({ searchQuery }) => {
 
             <div
               className="p-4 sm:p-5 border-b flex justify-between items-center shrink-0 bg-transparent"
-              style={ borderColor: theme.border }
+              style={{ borderColor: theme.border }}
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={ color: theme.text }
+                style={{ color: theme.text }}
               >
                 🕒 Scheduled
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={ color: theme.subText }
+                  style={{ color: theme.subText }}
                 >
                   ({emails.length})
                 </span>
@@ -181,8 +181,8 @@ const Scheduled = ({ searchQuery }) => {
 {emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📭</span>
-                <p className="text-base font-semibold" style={ color: theme.text }>No scheduled emails</p>
-                <p className="text-sm" style={ color: theme.subText }>
+                <p className="text-base font-semibold" style={{ color: theme.text }}>No scheduled emails</p>
+                <p className="text-sm" style={{ color: theme.subText }}>
                   Emails scheduled to be sent later will appear here
                 </p>
               </div>

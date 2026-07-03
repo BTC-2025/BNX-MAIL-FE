@@ -81,12 +81,12 @@ const Draft = ({ searchQuery }) => {
           onDelete={(uid) => {
             handleMoveToTrash(uid, "draft");
             setSelectedEmailUid(null);
-          }
+          }}
           onStar={(uid) => handleToggleStar(uid, "draft")}
           onArchive={(uid) => {
             handleArchive(uid, "draft");
             setSelectedEmailUid(null);
-          }
+          }}
           onReply={handleReply}
           onApplyLabel={handleApplyLabel}
         />
@@ -105,16 +105,16 @@ const Draft = ({ searchQuery }) => {
 
             <div
               className="p-4 sm:p-5 border-b flex items-center justify-between shrink-0 bg-transparent"
-              style={ borderColor: theme.border }
+              style={{ borderColor: theme.border }}
             >
               <h2
                 className="text-base font-bold flex items-center gap-2"
-                style={ color: theme.text }
+                style={{ color: theme.text }}
               >
-                <MdDrafts className="text-primary" size={20} style={ color: theme.accent } /> Drafts
+                <MdDrafts className="text-primary" size={20} style={{ color: theme.accent }} /> Drafts
                 <span
                   className="ml-2 text-xs font-normal"
-                  style={ color: theme.subText }
+                  style={{ color: theme.subText }}
                 >
                   ({emails.length})
                 </span>
@@ -130,17 +130,17 @@ const Draft = ({ searchQuery }) => {
                 <span className="text-5xl mb-3">📝</span>
                 <p
                   className="text-base font-semibold mb-1"
-                  style={ color: theme.text }
+                  style={{ color: theme.text }}
                 >
                   No drafts
                 </p>
-                <p className="text-sm mb-4" style={ color: theme.subText }>
+                <p className="text-sm mb-4" style={{ color: theme.subText }}>
                   Draft emails you save will appear here
                 </p>
                 <button
                   onClick={() => openCompose()}
                   className="px-4 py-2 rounded-full text-white text-sm cursor-pointer shadow-sm hover:shadow hover:-translate-y-0.5 transition-all"
-                  style={ backgroundColor: theme.accent }
+                  style={{ backgroundColor: theme.accent }}
                 >
                   Compose Email
                 </button>

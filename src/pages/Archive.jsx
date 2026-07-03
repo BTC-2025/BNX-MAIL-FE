@@ -81,12 +81,12 @@ const Archive = ({ searchQuery }) => {
           onDelete={(uid) => {
             handleMoveToTrash(uid, "archive");
             setSelectedEmailUid(null);
-          }
+          }}
           onStar={(uid) => handleToggleStar(uid, "archive")}
           onArchive={(uid) => {
             handleUnarchive(uid);
             setSelectedEmailUid(null);
-          }
+          }}
           isArchiveFolder={true}
         />
   ) : null;
@@ -105,7 +105,7 @@ const Archive = ({ searchQuery }) => {
             <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex flex-wrap items-center gap-3 shrink-0 bg-transparent">
               <span
                 className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
-                style={ background: theme.accent }
+                style={{ background: theme.accent }}
               >
                 📦 Archive ({emails.length})
               </span>
@@ -123,8 +123,8 @@ const Archive = ({ searchQuery }) => {
 {emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📭</span>
-                <p className="text-base font-semibold" style={ color: theme.text }>No archived emails</p>
-                <p className="text-sm" style={ color: theme.subText }>
+                <p className="text-base font-semibold" style={{ color: theme.text }}>No archived emails</p>
+                <p className="text-sm" style={{ color: theme.subText }}>
                   Archive emails to keep your inbox clean
                 </p>
               </div>
