@@ -13,7 +13,9 @@ import {
   MdAssignment,
   MdClose,
   MdKeyboardArrowRight,
-  MdKeyboardArrowLeft
+  MdKeyboardArrowLeft,
+  MdImage,
+  MdPictureAsPdf
 } from "react-icons/md";
 import { chatAPI, mailAPI, templateAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -39,6 +41,10 @@ const ChatRoom = () => {
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [showComposeModal, setShowComposeModal] = useState(false);
   const [isChatPaneOpen, setIsChatPaneOpen] = useState(true);
+  const [broadcastSubject, setBroadcastSubject] = useState("");
+  const [broadcastBody, setBroadcastBody] = useState("");
+  const [selectedAttachments, setSelectedAttachments] = useState([]);
+  const fileInputRef = useRef(null);
 
   // Group Members State
   const [membersList, setMembersList] = useState([]);
@@ -109,6 +115,34 @@ const ChatRoom = () => {
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const removeAttachment = (index) => {
+    setSelectedAttachments(prev => prev.filter((_, i) => i !== index));
+  };
+
+  const handleFileSelect = (e) => {
+    const files = Array.from(e.target.files);
+    if (!files.length) return;
+
+    files.forEach(file => {
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error(`File ${file.name} is too large (max 5MB)`);
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setSelectedAttachments(prev => [...prev, {
+          name: file.name,
+          type: file.type,
+          size: file.size,
+          content: event.target.result
+        }]);
+      };
+      reader.readAsDataURL(file);
+    });
+    // Reset input
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const fetchChatDetails = async () => {
@@ -226,7 +260,9 @@ const ChatRoom = () => {
 
   const handleSend = (e) => {
     e.preventDefault();
-    if (!newMessage.trim()) return;
+    if (!newMessage.trim() && selectedAttachments.length === 0) return;
+
+    const attachmentsJson = selectedAttachments.length > 0 ? JSON.stringify(selectedAttachments) : null;
 
     // Optimistic update
     const tempMsg = {
@@ -234,22 +270,25 @@ const ChatRoom = () => {
       chatId: parseInt(chatId),
       sender: user.email,
       content: newMessage,
+      attachmentsJson: attachmentsJson,
       timestamp: new Date().toISOString(),
       isOptimistic: true
     };
     
     setMessages(prev => [...prev, tempMsg]);
     setNewMessage("");
+    setSelectedAttachments([]); // Clear after send
     setTimeout(scrollToBottom, 50);
 
     // Send via WebSocket
     if (isConnected) {
-      sendMessage(chatId, tempMsg.content);
+      sendMessage(chatId, tempMsg.content, attachmentsJson);
     } else {
       chatAPI.sendMessage({
         chatId: parseInt(chatId),
         sender: user.email,
-        message: tempMsg.content
+        message: tempMsg.content,
+        attachmentsJson: attachmentsJson
       }).catch(() => {
         toast.error("Failed to send message");
         setMessages(prev => prev.filter(m => m.id !== tempMsg.id));
@@ -553,6 +592,39 @@ const ChatRoom = () => {
                         }`}
                       >
                         <p className="text-[14px] leading-relaxed whitespace-pre-wrap">{msg.content}</p>
+                        
+                        {/* Attachments Rendering */}
+                        {msg.attachmentsJson && (
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            {(() => {
+                              try {
+                                const atts = JSON.parse(msg.attachmentsJson);
+                                return atts.map((att, i) => (
+                                  <div key={i} className="max-w-xs rounded-lg overflow-hidden border border-black/10 dark:border-white/10 shadow-sm bg-black/5 dark:bg-white/5 relative group">
+                                    {att.type.startsWith('image/') ? (
+                                      <a href={att.content} target="_blank" rel="noreferrer" download={att.name}>
+                                        <img src={att.content} alt={att.name} className="max-h-48 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity" />
+                                      </a>
+                                    ) : (
+                                      <a href={att.content} download={att.name} className="flex items-center gap-2 p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                        <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg">
+                                          <MdPictureAsPdf size={24} />
+                                        </div>
+                                        <div className="flex flex-col min-w-0">
+                                          <span className="text-xs font-semibold truncate max-w-[150px]">{att.name}</span>
+                                          <span className="text-[10px] opacity-70">{(att.size / 1024).toFixed(1)} KB</span>
+                                        </div>
+                                      </a>
+                                    )}
+                                  </div>
+                                ));
+                              } catch (e) {
+                                return null;
+                              }
+                            })()}
+                          </div>
+                        )}
+
                         <div className={`text-[9px] mt-1 opacity-60 font-medium ${isMe ? 'text-white/80' : 'text-gray-500'}`}>
                           {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                           {msg.isOptimistic && " • sending..."}
@@ -568,10 +640,45 @@ const ChatRoom = () => {
 
           {/* INPUT AREA */}
           <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0">
+            {/* Attachments Preview Area */}
+            {selectedAttachments.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-3 max-w-5xl mx-auto px-12">
+                {selectedAttachments.map((att, idx) => (
+                  <div key={idx} className="relative group rounded-xl border shadow-sm overflow-hidden bg-white dark:bg-gray-800 w-20 h-20 flex items-center justify-center shrink-0">
+                    <button 
+                      onClick={() => removeAttachment(idx)}
+                      className="absolute top-1 right-1 bg-black/60 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity z-10 hover:bg-black/80"
+                    >
+                      <MdClose size={12} />
+                    </button>
+                    {att.type.startsWith('image/') ? (
+                      <img src={att.content} alt={att.name} className="w-full h-full object-cover" />
+                    ) : (
+                      <div className="flex flex-col items-center p-2 text-center text-red-500 dark:text-red-400">
+                        <MdPictureAsPdf size={24} />
+                        <span className="text-[8px] font-medium truncate w-full mt-1 px-1 text-gray-700 dark:text-gray-300" title={att.name}>
+                          {att.name}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+            
             <form onSubmit={handleSend} className="flex items-center gap-3 max-w-5xl mx-auto">
+              <input 
+                type="file"
+                multiple
+                accept="image/*,application/pdf"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleFileSelect}
+              />
               <button 
                 type="button" 
-                className="p-2.5 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all"
+                onClick={() => fileInputRef.current?.click()}
+                className="p-2.5 rounded-xl text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 transition-all focus:outline-none"
               >
                 <MdAttachFile size={22} className="rotate-45" />
               </button>
@@ -585,8 +692,8 @@ const ChatRoom = () => {
                 />
                 <button 
                   type="submit"
-                  disabled={!newMessage.trim()}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-white shadow-md disabled:opacity-30 transition-all hover:scale-105 active:scale-95"
+                  disabled={!newMessage.trim() && selectedAttachments.length === 0}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-lg bg-primary text-white shadow-md disabled:opacity-30 transition-all hover:scale-105 active:scale-95 focus:outline-none"
                 >
                   <MdSend size={18} />
                 </button>

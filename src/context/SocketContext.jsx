@@ -108,13 +108,14 @@ export const SocketProvider = ({ children }) => {
         });
     };
 
-    const sendMessage = (chatId, messageContent) => {
+    const sendMessage = (chatId, messageContent, attachmentsJson = null) => {
         if (!stompClient || !isConnected || !user) return;
         
         const payload = {
             chatId: parseInt(chatId),
             sender: user.email,
-            message: messageContent
+            message: messageContent,
+            attachmentsJson: attachmentsJson
         };
 
         stompClient.publish({
