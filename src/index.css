@@ -93,6 +93,24 @@
   scrollbar-width: none;  /* Firefox */
 }
 
+.hover-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  background-color: transparent;
+}
+.hover-scrollbar::-webkit-scrollbar-thumb {
+  background-color: transparent;
+  border-radius: 10px;
+}
+.hover-scrollbar:hover::-webkit-scrollbar-thumb {
+  background-color: rgba(156, 163, 175, 0.5); /* gray-400 */
+}
+.hover-scrollbar {
+  scrollbar-width: none;
+}
+.hover-scrollbar:hover {
+  scrollbar-width: thin;
+}
+
 /* Custom Premium Glassmorphic Toast Notification Styling */
 .custom-toast {
   background: rgba(255, 255, 255, 0.85) !important;

@@ -62,7 +62,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* NAVIGATION */}
-        <nav className="flex-1 flex flex-col pr-0 py-2 space-y-0 overflow-y-auto">
+        <nav className="flex-1 flex flex-col pr-0 py-2 space-y-0 overflow-y-auto hover-scrollbar">
           {/* TOP ITEMS */}
           {["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
@@ -309,27 +309,27 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           {/* HELP & SUPPORT (Removed HR above it) */}
           <div className="pt-2">
           </div>
-
-          <div className="space-y-0 mb-6 mt-auto">
-            <button
-              onClick={() => alert("Help center opening...")}
-              className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
-              style={{ color: theme.sidebarText, fontWeight: 500 }}
-            >
-              <span className="text-[18px]"><MdSettings size={22} /></span>
-              <span>Settings</span>
-            </button>
-
-            <button
-              onClick={() => alert("Contacting support...")}
-              className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
-              style={{ color: theme.sidebarText, fontWeight: 500 }}
-            >
-              <span className="text-[18px]"><MdHelpOutline size={22} /></span>
-              <span>Help & Support</span>
-            </button>
-          </div>
         </nav>
+
+        <div className="space-y-0 mb-6 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+          <button
+            onClick={() => alert("Help center opening...")}
+            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
+            style={{ color: theme.sidebarText, fontWeight: 500 }}
+          >
+            <span className="text-[18px]"><MdSettings size={22} /></span>
+            <span>Settings</span>
+          </button>
+
+          <button
+            onClick={() => alert("Contacting support...")}
+            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
+            style={{ color: theme.sidebarText, fontWeight: 500 }}
+          >
+            <span className="text-[18px]"><MdHelpOutline size={22} /></span>
+            <span>Help & Support</span>
+          </button>
+        </div>
       </aside>
 
       {/* CREATE LABEL MODAL */}
