@@ -967,12 +967,14 @@ const ChatRoom = () => {
                   <h5 className="text-xs font-bold uppercase tracking-wider text-red-500 opacity-80 mb-2">
                     Danger Zone
                   </h5>
-                  <button
-                    onClick={handleLeaveGroup}
-                    className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-800/50"
-                  >
-                    Leave Colab
-                  </button>
+                  {chat?.creatorEmail !== user.email && (
+                    <button
+                      onClick={handleLeaveGroup}
+                      className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-800/50"
+                    >
+                      Leave Colab
+                    </button>
+                  )}
                   {chat?.creatorEmail === user.email && (
                     <button
                       onClick={handleDeleteGroup}
