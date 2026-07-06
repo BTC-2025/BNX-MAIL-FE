@@ -192,7 +192,7 @@ const EmailList = ({
         </>
       )}
 
-      <div className="flex-1 overflow-y-auto bg-transparent">
+      <div className="flex-1 overflow-y-auto bg-transparent hidden-scrollbar">
         {emails.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-400 p-8">
             <span className="text-5xl mb-4 opacity-75">📭</span>

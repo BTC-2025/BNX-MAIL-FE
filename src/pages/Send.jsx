@@ -128,7 +128,7 @@ const Send = ({ searchQuery }) => {
   );
 
   const listComponent = (
-    <div className="flex-1 overflow-y-auto hidden-scrollbar pb-12">
+    <div className="flex-1 flex flex-col overflow-hidden pb-12">
       {emails.length === 0 ? (
         <div className="flex flex-col items-center justify-center min-h-[50vh]">
           <MdSend className="text-5xl mb-4 text-gray-300 dark:text-gray-600 opacity-55" />
