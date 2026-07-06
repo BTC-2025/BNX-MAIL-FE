@@ -311,7 +311,7 @@ const ChatRoom = () => {
       setAddingMembers(true);
       const res = await chatAPI.addMembers(chatId, { emails: emailsList });
       if (res.data) {
-        toast.success("Members added to group!");
+        toast.success("Invitations sent!");
         setEmailsInput("");
         fetchChatMembers();
       }

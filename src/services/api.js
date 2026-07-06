@@ -3,7 +3,7 @@ import { API_ENDPOINTS } from '../Data/constants';
 
 const API_BASE_URL = import.meta.env.VITE_API_URL;
 
-console.log('🔧 API Base URL:', API_BASE_URL);
+// console.log('🔧 API Base URL:', API_BASE_URL);
 
 export const api = axios.create({
     baseURL: API_BASE_URL,
@@ -218,6 +218,10 @@ export const chatAPI = {
     getMembers: (chatId) => api.get(`/api/chat/${chatId}/members`),
     getBroadcasts: (chatId) => api.get(`/api/chat/${chatId}/broadcasts`),
     sendBroadcast: (chatId, data) => api.post(`/api/chat/${chatId}/broadcast`, data),
+    
+    getInvitations: () => api.get('/api/chat/invitations'),
+    acceptInvitation: (id) => api.post(`/api/chat/invitations/${id}/accept`),
+    rejectInvitation: (id) => api.post(`/api/chat/invitations/${id}/reject`)
 };
 
 // Template APIs

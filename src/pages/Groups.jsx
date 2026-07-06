@@ -23,6 +23,9 @@ const Groups = () => {
     const [showCreateGroup, setShowCreateGroup] = useState(false);
     const [showStartDirect, setShowStartDirect] = useState(false);
 
+    const [pendingInvitations, setPendingInvitations] = useState([]);
+    const [showInvitationsModal, setShowInvitationsModal] = useState(false);
+
     const [groupData, setGroupData] = useState({ name: "", members: "" });
     const [directEmail, setDirectEmail] = useState("");
 
@@ -43,9 +46,43 @@ const Groups = () => {
         }
     };
 
+    const fetchInvitations = async () => {
+        if (!user?.email) return;
+        try {
+            const res = await chatAPI.getInvitations();
+            if (res.data) {
+                setPendingInvitations(res.data);
+            }
+        } catch (err) {
+            console.error("Failed to load invitations", err);
+        }
+    };
+
     useEffect(() => {
         fetchChats();
+        fetchInvitations();
     }, [user?.email, location.pathname]);
+
+    const handleAcceptInvitation = async (id) => {
+        try {
+            await chatAPI.acceptInvitation(id);
+            toast.success("Invitation accepted!");
+            fetchInvitations();
+            fetchChats();
+        } catch (err) {
+            toast.error("Failed to accept invitation");
+        }
+    };
+
+    const handleRejectInvitation = async (id) => {
+        try {
+            await chatAPI.rejectInvitation(id);
+            toast.success("Invitation rejected");
+            fetchInvitations();
+        } catch (err) {
+            toast.error("Failed to reject invitation");
+        }
+    };
 
     const handleCreateGroup = async (e) => {
         e.preventDefault();
@@ -144,6 +181,25 @@ const Groups = () => {
                     )}
                 </div>
             </div>
+
+            {/* INVITATIONS BANNER */}
+            {pendingInvitations.length > 0 && isGroupsMode && (
+                <div className="mx-6 mt-4 p-4 rounded-xl bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 flex items-center justify-between shadow-sm animate-fade-in">
+                    <div className="flex items-center gap-3 text-blue-800 dark:text-blue-300">
+                        <MdPersonAdd size={24} />
+                        <div>
+                            <p className="font-semibold">You have {pendingInvitations.length} pending Colab invitation{pendingInvitations.length > 1 ? 's' : ''}</p>
+                            <p className="text-sm opacity-80">Review your invitations to join new groups.</p>
+                        </div>
+                    </div>
+                    <button 
+                        onClick={() => setShowInvitationsModal(true)}
+                        className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                    >
+                        View Invitations
+                    </button>
+                </div>
+            )}
 
             {/* SEARCH & FILTER */}
             <div className="px-6 py-4">
@@ -285,6 +341,55 @@ const Groups = () => {
                                     </button>
                                 </div>
                             </form>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* INVITATIONS MODAL */}
+            {showInvitationsModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4 animate-fade-in">
+                    <div className="bg-white dark:bg-gray-900 rounded-2xl shadow-xl w-full max-w-md overflow-hidden" style={{ borderColor: theme.border, borderWidth: '1px' }}>
+                        <div className="p-5 border-b flex justify-between items-center" style={{ borderColor: theme.border }}>
+                            <h3 className="text-xl font-bold flex items-center gap-2" style={{ color: theme.text }}>
+                                <MdPersonAdd className="text-primary" />
+                                Pending Invitations
+                            </h3>
+                            <button onClick={() => setShowInvitationsModal(false)} className="p-1 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors" style={{ color: theme.subText }}>
+                                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+                            </button>
+                        </div>
+                        <div className="p-5 max-h-[60vh] overflow-y-auto">
+                            {pendingInvitations.length === 0 ? (
+                                <p className="text-center py-4" style={{ color: theme.subText }}>No pending invitations.</p>
+                            ) : (
+                                <div className="space-y-4">
+                                    {pendingInvitations.map(inv => (
+                                        <div key={inv.id} className="p-4 rounded-xl border flex flex-col gap-3" style={{ borderColor: theme.border, backgroundColor: 'rgba(0,0,0,0.02)' }}>
+                                            <div>
+                                                <p className="font-bold text-lg" style={{ color: theme.text }}>{inv.chatName || "Direct Chat"}</p>
+                                                <p className="text-sm" style={{ color: theme.subText }}>
+                                                    Invited by: <span className="font-medium text-primary">{inv.inviterEmail}</span>
+                                                </p>
+                                            </div>
+                                            <div className="flex gap-2 w-full pt-2">
+                                                <button 
+                                                    onClick={() => handleAcceptInvitation(inv.id)}
+                                                    className="flex-1 py-2 bg-primary text-white rounded-lg font-medium hover:opacity-90 transition-opacity"
+                                                >
+                                                    Accept
+                                                </button>
+                                                <button 
+                                                    onClick={() => handleRejectInvitation(inv.id)}
+                                                    className="flex-1 py-2 bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+                                                >
+                                                    Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>
