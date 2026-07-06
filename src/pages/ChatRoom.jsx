@@ -965,7 +965,7 @@ const ChatRoom = () => {
               {chat?.type === 'GROUP' && (
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
                   <h5 className="text-xs font-bold uppercase tracking-wider text-red-500 opacity-80 mb-2">
-                    Danger Zone
+                    Danger Zone {chat?.creatorEmail ? `(Creator: ${chat.creatorEmail})` : '(No Creator)'}
                   </h5>
                   <button
                     onClick={handleLeaveGroup}
