@@ -178,6 +178,9 @@ export const userAPI = {
     activityLogs: () => api.get(API_ENDPOINTS.USERS.ACTIVITY_LOGS),
     getRecovery: () => api.get(API_ENDPOINTS.USERS.RECOVERY),
     updateRecovery: (data) => api.patch(API_ENDPOINTS.USERS.RECOVERY, data),
+    updateProfilePicture: (formData) => api.post('/api/users/profile-picture', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
 };
 
 export const signatureAPI = {

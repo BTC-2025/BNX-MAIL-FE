@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera } from "react-icons/md";
+import { userAPI } from "../services/api";
+import toast from "react-hot-toast";
 // import logo from "../assets/bnx.jpeg";
 
 import logo from "../assets/bnx-remove.png";
@@ -20,6 +22,41 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
+  const fileInputRef = useRef(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+
+  const handleProfilePictureUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Profile picture must be under 2MB");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("file", file);
+
+    try {
+      setUploadingAvatar(true);
+      const res = await userAPI.updateProfilePicture(formData);
+      if (res.data?.success) {
+        toast.success("Profile picture updated!");
+        // Update user session data
+        if (typeof switchAccount === "function") {
+          // Simply calling switchAccount with current email might force a refresh of the session data,
+          // or we might need a dedicated refresh method. Assuming a reload is simplest for now.
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to update profile picture");
+    } finally {
+      setUploadingAvatar(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    }
+  };
 
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -171,22 +208,36 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 style={{ borderColor: theme.border }}
               >
                 {/* Active User Large Header */}
-                <div className="flex flex-col items-center px-5 py-5 border-b text-center" style={{ borderColor: theme.border }}>
-                  {user?.profilePictureUrl ? (
-                    <img
-                      src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${user.profilePictureUrl}`}
-                      alt={user?.username}
-                      className="w-14 h-14 rounded-full object-cover mb-2.5 border-2 border-primary/20"
-                    />
-                  ) : (
-                    <div className="w-14 h-14 rounded-full flex items-center justify-center text-white text-xl font-bold mb-2.5 shadow-sm" style={{ backgroundColor: theme.accent || "#135bec" }}>
-                      {(user?.username || user?.email || "U").charAt(0).toUpperCase()}
+                <div className="flex flex-col items-center px-5 py-5 border-b text-center relative" style={{ borderColor: theme.border }}>
+                  <input 
+                    type="file" 
+                    ref={fileInputRef} 
+                    className="hidden" 
+                    accept="image/jpeg, image/png, image/webp" 
+                    onChange={handleProfilePictureUpload} 
+                  />
+                  
+                  <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
+                    {user?.profilePictureUrl ? (
+                      <img
+                        src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${user.profilePictureUrl}`}
+                        alt={user?.username}
+                        className={`w-16 h-16 rounded-full object-cover mb-2.5 border-2 border-primary/20 ${uploadingAvatar ? 'opacity-50' : 'group-hover:opacity-80 transition-opacity'}`}
+                      />
+                    ) : (
+                      <div className={`w-16 h-16 rounded-full flex items-center justify-center text-white text-2xl font-bold mb-2.5 shadow-sm ${uploadingAvatar ? 'opacity-50' : 'group-hover:opacity-90 transition-opacity'}`} style={{ backgroundColor: theme.accent || "#135bec" }}>
+                        {(user?.username || user?.email || "U").charAt(0).toUpperCase()}
+                      </div>
+                    )}
+                    <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity mb-2.5">
+                      <MdPhotoCamera size={24} className="text-white" />
                     </div>
-                  )}
-                  <p className="text-sm font-bold text-gray-800 dark:text-gray-100 leading-tight">
+                  </div>
+
+                  <p className="text-base font-bold text-gray-800 dark:text-gray-100 leading-tight">
                     {user?.username || "User"}
                   </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400 mt-0.5 truncate max-w-full">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 truncate max-w-full">
                     {user?.email}
                   </p>
 
