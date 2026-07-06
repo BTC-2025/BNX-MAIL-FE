@@ -58,6 +58,11 @@ export const ThemeProvider = ({ children }) => {
   const [readingPaneMode, setReadingPaneMode] = useState("right");
   const [isLandscapeImage, setIsLandscapeImage] = useState(true);
   const [emailsPerPage, setEmailsPerPage] = useState(20);
+  
+  const defaultSidebarPrefs = {
+    Inbox: true, Starred: true, Snoozed: true, Sent: true, Draft: true, Trash: true
+  };
+  const [sidebarPreferences, setSidebarPreferencesState] = useState(defaultSidebarPrefs);
 
   // Load theme + background on first mount
   useEffect(() => {
@@ -76,6 +81,12 @@ export const ThemeProvider = ({ children }) => {
     const savedEmailsPerPage = localStorage.getItem("bnx_emails_per_page");
     if (savedEmailsPerPage) {
       setEmailsPerPage(parseInt(savedEmailsPerPage, 10));
+    }
+    const savedSidebarPrefs = localStorage.getItem("bnx_sidebar_prefs");
+    if (savedSidebarPrefs) {
+      try {
+        setSidebarPreferencesState(JSON.parse(savedSidebarPrefs));
+      } catch (e) {}
     }
   }, []);
 
@@ -153,6 +164,21 @@ export const ThemeProvider = ({ children }) => {
     localStorage.removeItem("bnx_bg_image");
   };
 
+  const setReadingPaneModeState = (mode) => {
+    setReadingPaneMode(mode);
+    localStorage.setItem("bnx_reading_pane", mode);
+  };
+
+  const setEmailsPerPageState = (count) => {
+    setEmailsPerPage(count);
+    localStorage.setItem("bnx_emails_per_page", count.toString());
+  };
+
+  const setSidebarPreferences = (prefs) => {
+    setSidebarPreferencesState(prefs);
+    localStorage.setItem("bnx_sidebar_prefs", JSON.stringify(prefs));
+  };
+
   // Merge dynamic text color into the current theme
   const activeTheme = { ...themes[currentThemeName] };
   // Removed dynamicTextColor override: with the new glassmorphism and opaque 
@@ -171,15 +197,11 @@ export const ThemeProvider = ({ children }) => {
         dynamicTextColor,
         isLandscapeImage,
         readingPaneMode,
-        setReadingPaneModeState: (mode) => {
-          setReadingPaneMode(mode);
-          localStorage.setItem("bnx_reading_pane", mode);
-        },
+        setReadingPaneModeState,
         emailsPerPage,
-        setEmailsPerPageState: (count) => {
-          setEmailsPerPage(count);
-          localStorage.setItem("bnx_emails_per_page", count.toString());
-        }
+        setEmailsPerPageState,
+        sidebarPreferences,
+        setSidebarPreferences
       }}
     >
       {children}

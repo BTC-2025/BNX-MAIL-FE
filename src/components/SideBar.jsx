@@ -8,7 +8,7 @@ import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess,
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { theme, backgroundImage } = useTheme();
+  const { theme, backgroundImage, sidebarPreferences } = useTheme();
   const { unreadCounts, labels, handleCreateLabel, handleUpdateLabel, handleDeleteLabel, openCompose } = useMail();
 
   const [isCreating, setIsCreating] = useState(false);
@@ -67,6 +67,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           {["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
             .filter(Boolean)
+            .filter(item => sidebarPreferences?.[item.name] !== false)
             .map((item) => {
               const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
               const count = unreadCounts[item.name.toLowerCase()] || 0;
@@ -105,61 +106,71 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
               );
             })}
 
-          {/* MORE / LESS BUTTON */}
-          <button
-            onClick={() => setIsMoreOpen(!isMoreOpen)}
-            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
-            style={{ color: "black", fontWeight: 500 }}
-          >
-            <span className="text-[18px]">
-              {isMoreOpen ? <MdExpandLess size={22} /> : <MdExpandMore size={22} />}
-            </span>
-            <span>{isMoreOpen ? "Less" : "More"}</span>
-          </button>
+          {/* COLLAPSIBLE MORE SECTION */}
+          {["Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
+            .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
+            .filter(Boolean)
+            .filter(item => sidebarPreferences?.[item.name] !== false)
+            .length > 0 && (
+            <div className="pt-1">
+              <button
+                onClick={() => setIsMoreOpen(!isMoreOpen)}
+                className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer group"
+                style={{ color: theme.sidebarText, fontWeight: 500 }}
+              >
+                <div className="flex items-center gap-3">
+                  <span className="text-[18px] transition-transform duration-200 group-hover:scale-105">
+                    {isMoreOpen ? <MdExpandLess /> : <MdExpandMore />}
+                  </span>
+                  <span className="text-sm tracking-wide">{isMoreOpen ? "Less" : "More"}</span>
+                </div>
+              </button>
 
-          {/* EXPANDABLE ITEMS */}
-          {isMoreOpen && (
-            <div className="space-y-0 animate-in slide-in-from-top-2 duration-200">
-              {["Scheduled", "Spam", "All Mail", "Templates", "Subscriptions"]
-                .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
-                .filter(Boolean)
-                .map((item) => {
-                  const isActive = location.pathname === item.path;
-                  const count = unreadCounts[item.name.toLowerCase()] || 0;
+              {isMoreOpen && (
+                <div className="mt-1 space-y-0 animate-fade-in origin-top">
+                  {["Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
+                    .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
+                    .filter(Boolean)
+                    .filter(item => sidebarPreferences?.[item.name] !== false)
+                    .map((item) => {
+                      const isActive = location.pathname === item.path;
+                      const count = unreadCounts[item.name.toLowerCase()] || 0;
 
-                  return (
-                    <button
-                      key={item.name}
-                      onClick={() => navigate(item.path)}
-                      className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer
+                      return (
+                        <button
+                          key={item.name}
+                          onClick={() => navigate(item.path)}
+                          className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer
                     ${isActive
-                          ? "bg-primary/10 dark:bg-primary/20"
-                          : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
-                        }
+                              ? "bg-primary/10 dark:bg-primary/20"
+                              : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                            }
                   `}
-                      style={{
-                        color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
-                        fontWeight: isActive ? 400 : 300,
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
-                          {item.icon}
-                        </span>
-                        <span className="text-sm tracking-wide">{item.name}</span>
-                      </div>
-
-                      {count > 0 && (
-                        <span
-                          className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
-                          style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                          style={{
+                            color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                            fontWeight: isActive ? 400 : 300,
+                          }}
                         >
-                          {count}
-                        </span>
-                      )}
-                    </button>
-                  );
-                })}
+                          <div className="flex items-center gap-3">
+                            <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                              {item.icon}
+                            </span>
+                            <span className="text-sm tracking-wide">{item.name}</span>
+                          </div>
+
+                          {count > 0 && (
+                            <span
+                              className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                              style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                            >
+                              {count}
+                            </span>
+                          )}
+                        </button>
+                      );
+                    })}
+                </div>
+              )}
             </div>
           )}
 
@@ -313,7 +324,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
         <div className="space-y-0 mb-6 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
           <button
-            onClick={() => alert("Help center opening...")}
+            onClick={() => navigate("/settings")}
             className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >

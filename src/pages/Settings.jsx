@@ -436,6 +436,7 @@ const Settings = () => {
     { id: "notifications", label: "Notifications & Quiet", icon: <MdNotifications size={20} /> },
     { id: "appearance", label: "Appearance & Layout", icon: <MdColorLens size={20} /> },
     { id: "security", label: "Security & Recovery", icon: <MdSecurity size={20} /> },
+    { id: "labels", label: "Labels & Sidebar", icon: <MdFormatPaint size={20} /> },
     { id: "sessions", label: "Active Sessions & Logs", icon: <MdDevices size={20} /> },
   ];
 
@@ -607,6 +608,34 @@ const Settings = () => {
                 Save Preferences
               </button>
             </form>
+          </Section>
+        )}
+
+        {/* Labels Tab */}
+        {activeTab === "labels" && (
+          <Section title="Sidebar Labels" theme={theme}>
+            <p className="text-sm text-gray-500 mb-6">Choose which labels are visible in the main sidebar.</p>
+            <div className="flex flex-col gap-3 max-w-lg">
+              {Object.keys(sidebarPreferences || {}).map((itemName) => (
+                <div key={itemName} className="flex items-center justify-between p-4 rounded-xl border bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
+                  <span className="font-medium text-sm" style={{ color: theme.text }}>{itemName}</span>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input 
+                      type="checkbox" 
+                      className="sr-only peer" 
+                      checked={sidebarPreferences[itemName]} 
+                      onChange={(e) => {
+                        const newPrefs = { ...sidebarPreferences, [itemName]: e.target.checked };
+                        if (setSidebarPreferences) {
+                          setSidebarPreferences(newPrefs);
+                        }
+                      }}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                  </label>
+                </div>
+              ))}
+            </div>
           </Section>
         )}
 
