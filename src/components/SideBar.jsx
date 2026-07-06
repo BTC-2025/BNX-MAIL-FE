@@ -52,7 +52,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         <div className="p-3 pl-3.5 pb-2">
           <button
             onClick={() => openCompose()}
-            className="flex items-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -62,7 +62,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </div>
 
         {/* NAVIGATION */}
-        <nav className="flex-1 pr-0 py-2 space-y-0 overflow-y-auto">
+        <nav className="flex-1 flex flex-col pr-0 py-2 space-y-0 overflow-y-auto">
           {/* TOP ITEMS */}
           {["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
@@ -310,7 +310,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           <div className="pt-2">
           </div>
 
-          <div className="space-y-0 mb-6" style={{ position: 'fixed', bottom: '30px' }}>
+          <div className="space-y-0 mb-6 mt-auto">
             <button
               onClick={() => alert("Help center opening...")}
               className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
