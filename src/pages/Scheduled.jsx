@@ -177,7 +177,7 @@ const Scheduled = ({ searchQuery }) => {
   );
 
   const listComponent = (
-    <div className="flex-1 flex flex-col overflow-hidden pb-12">
+    <div className="flex-1 flex flex-col overflow-hidden">
 {emails.length === 0 ? (
               <div className="flex flex-col items-center justify-center min-h-[50vh] text-center px-4">
                 <span className="text-5xl mb-3">📭</span>

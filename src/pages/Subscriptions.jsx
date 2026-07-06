@@ -196,7 +196,7 @@ const Subscriptions = () => {
       </div>
 
       {/* SENDERS LIST SECTION */}
-      <div className="flex-1 overflow-y-auto hidden-scrollbar p-4 pb-12">
+      <div className="flex-1 overflow-y-auto hidden-scrollbar p-4 ">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 text-gray-500">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" style={{ borderColor: theme.accent }}></div>
