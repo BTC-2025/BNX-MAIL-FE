@@ -46,7 +46,7 @@ const quillModules = {
 const Settings = () => {
   const navigate = useNavigate();
   const { user, getSessions, switchAccount } = useAuth();
-  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState } = useTheme();
+  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState, emailsPerPage, setEmailsPerPageState } = useTheme();
 
   const bgFileRef = useRef(null);
   const [customBgUrl, setCustomBgUrl] = useState("");
@@ -688,6 +688,24 @@ const Settings = () => {
                       style={density === d ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                     >
                       {d}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Emails Per Page */}
+              <div className="flex flex-col gap-3">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Emails Per Page</label>
+                <div className="grid grid-cols-4 gap-4">
+                  {[10, 20, 50, 100].map(count => (
+                    <button
+                      key={count}
+                      type="button"
+                      onClick={() => setEmailsPerPageState(count)}
+                      className={`p-3 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${emailsPerPage === count ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                      style={emailsPerPage === count ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
+                    >
+                      {count}
                     </button>
                   ))}
                 </div>

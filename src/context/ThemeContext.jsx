@@ -57,6 +57,7 @@ export const ThemeProvider = ({ children }) => {
   const [dynamicTextColor, setDynamicTextColor] = useState(null);
   const [readingPaneMode, setReadingPaneMode] = useState("right");
   const [isLandscapeImage, setIsLandscapeImage] = useState(true);
+  const [emailsPerPage, setEmailsPerPage] = useState(20);
 
   // Load theme + background on first mount
   useEffect(() => {
@@ -71,6 +72,10 @@ export const ThemeProvider = ({ children }) => {
     const savedReadingPane = localStorage.getItem("bnx_reading_pane");
     if (savedReadingPane) {
       setReadingPaneMode(savedReadingPane);
+    }
+    const savedEmailsPerPage = localStorage.getItem("bnx_emails_per_page");
+    if (savedEmailsPerPage) {
+      setEmailsPerPage(parseInt(savedEmailsPerPage, 10));
     }
   }, []);
 
@@ -169,6 +174,11 @@ export const ThemeProvider = ({ children }) => {
         setReadingPaneModeState: (mode) => {
           setReadingPaneMode(mode);
           localStorage.setItem("bnx_reading_pane", mode);
+        },
+        emailsPerPage,
+        setEmailsPerPageState: (count) => {
+          setEmailsPerPage(count);
+          localStorage.setItem("bnx_emails_per_page", count.toString());
         }
       }}
     >
