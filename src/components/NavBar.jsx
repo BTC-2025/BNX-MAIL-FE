@@ -42,10 +42,31 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
       const res = await userAPI.updateProfilePicture(formData);
       if (res.data?.success) {
         toast.success("Profile picture updated!");
-        // Update user session data
+        
+        // Update user session data in localStorage so the reload picks it up
+        const newUrl = res.data.data?.profilePictureUrl;
+        if (newUrl && user) {
+          const updatedUser = { ...user, profilePictureUrl: newUrl };
+          
+          // Update active profile
+          localStorage.setItem('userProfile', JSON.stringify(updatedUser));
+          
+          // Update in sessions list
+          try {
+            const sessionsStr = localStorage.getItem('bnx_sessions');
+            if (sessionsStr) {
+              const sessions = JSON.parse(sessionsStr);
+              if (user.email && sessions[user.email]) {
+                sessions[user.email].userProfile = updatedUser;
+                localStorage.setItem('bnx_sessions', JSON.stringify(sessions));
+              }
+            }
+          } catch (e) {
+            console.error("Failed to update sessions storage", e);
+          }
+        }
+        
         if (typeof switchAccount === "function") {
-          // Simply calling switchAccount with current email might force a refresh of the session data,
-          // or we might need a dedicated refresh method. Assuming a reload is simplest for now.
           window.location.reload();
         }
       }
