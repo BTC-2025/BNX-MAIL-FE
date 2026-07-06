@@ -46,7 +46,7 @@ const quillModules = {
 const Settings = () => {
   const navigate = useNavigate();
   const { user, getSessions, switchAccount } = useAuth();
-  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState, emailsPerPage, setEmailsPerPageState } = useTheme();
+  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState, emailsPerPage, setEmailsPerPageState, sidebarPreferences, setSidebarPreferences } = useTheme();
 
   const bgFileRef = useRef(null);
   const [customBgUrl, setCustomBgUrl] = useState("");
