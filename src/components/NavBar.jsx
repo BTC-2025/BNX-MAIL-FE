@@ -312,12 +312,12 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                     <MdPersonAdd size={18} className="text-gray-400" /> Add another account
                   </button>
 
-                  <button
+                  {/* <button
                     onClick={() => { setShowDropdown(false); navigate("/settings"); }}
                     className="w-full text-left px-3 py-2 text-xs rounded-lg hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors flex items-center gap-3 font-semibold text-gray-600 dark:text-gray-300"
                   >
                     <MdSettings size={18} className="text-gray-400" /> Settings
-                  </button>
+                  </button> */}
 
                   <button
                     onClick={() => {

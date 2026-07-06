@@ -104,8 +104,30 @@ const ChatRoom = () => {
       link.click();
       document.body.removeChild(link);
     } catch (e) {
-      console.error(e);
+      console.error("Error downloading attachment:", e);
       toast.error("Failed to download attachment");
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!window.confirm("Are you sure you want to leave this Colab?")) return;
+    try {
+      await chatAPI.leaveGroup(chatId);
+      toast.success("You left the Colab");
+      navigate("/colab");
+    } catch (error) {
+      toast.error("Failed to leave the group");
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!window.confirm("Are you sure you want to permanently delete this Colab? This action cannot be undone.")) return;
+    try {
+      await chatAPI.deleteGroup(chatId);
+      toast.success("Colab deleted successfully");
+      navigate("/colab");
+    } catch (error) {
+      toast.error("Failed to delete the Colab");
     }
   };
 
@@ -924,8 +946,13 @@ const ChatRoom = () => {
                           </span>
                         </div>
                         {isMe && (
+                          <span className="text-[9px] uppercase tracking-wide font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-600 dark:text-blue-400 border border-blue-500/20 shadow-sm mr-2">
+                            Me
+                          </span>
+                        )}
+                        {email === chat?.creatorEmail && (
                           <span className="text-[9px] uppercase tracking-wide font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 shadow-sm">
-                            Owner
+                            Creator
                           </span>
                         )}
                       </div>
@@ -933,6 +960,29 @@ const ChatRoom = () => {
                   })}
                 </div>
               </div>
+
+              {/* Danger Zone */}
+              {chat?.type === 'GROUP' && (
+                <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
+                  <h5 className="text-xs font-bold uppercase tracking-wider text-red-500 opacity-80 mb-2">
+                    Danger Zone
+                  </h5>
+                  <button
+                    onClick={handleLeaveGroup}
+                    className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-800/50"
+                  >
+                    Leave Colab
+                  </button>
+                  {chat?.creatorEmail === user.email && (
+                    <button
+                      onClick={handleDeleteGroup}
+                      className="w-full py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white text-sm font-semibold rounded-xl transition-colors shadow-sm"
+                    >
+                      Delete Colab
+                    </button>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>

@@ -221,7 +221,10 @@ export const chatAPI = {
     
     getInvitations: () => api.get('/api/chat/invitations'),
     acceptInvitation: (id) => api.post(`/api/chat/invitations/${id}/accept`),
-    rejectInvitation: (id) => api.post(`/api/chat/invitations/${id}/reject`)
+    rejectInvitation: (id) => api.post(`/api/chat/invitations/${id}/reject`),
+    
+    leaveGroup: (chatId) => api.post(`/api/chat/${chatId}/leave`),
+    deleteGroup: (chatId) => api.delete(`/api/chat/${chatId}`)
 };
 
 // Template APIs
