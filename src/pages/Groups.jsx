@@ -69,6 +69,9 @@ const Groups = () => {
             toast.success("Invitation accepted!");
             fetchInvitations();
             fetchChats();
+            if (pendingInvitations.length <= 1) {
+                setShowInvitationsModal(false);
+            }
         } catch (err) {
             toast.error("Failed to accept invitation");
         }
@@ -79,6 +82,9 @@ const Groups = () => {
             await chatAPI.rejectInvitation(id);
             toast.success("Invitation rejected");
             fetchInvitations();
+            if (pendingInvitations.length <= 1) {
+                setShowInvitationsModal(false);
+            }
         } catch (err) {
             toast.error("Failed to reject invitation");
         }
