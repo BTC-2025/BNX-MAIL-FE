@@ -314,7 +314,7 @@ const EmailList = ({
 
                     {/* Quick actions that fade-in on row hover */}
                     <div
-                      className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 bg-white dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100 z-50' : 'opacity-0 group-hover:opacity-100 z-10'}`}
+                      className={`absolute right-0 top-1/2 -translate-y-1/2 flex items-center gap-0.5 dark:bg-gray-900 dark:bg-slate-900 pl-2 transition-opacity duration-150 ${snoozeOpenUid === email.uid ? 'opacity-100 z-50' : 'opacity-0 group-hover:opacity-100 z-10'}`}
                       onClick={(e) => e.stopPropagation()}
                     >
                       <button

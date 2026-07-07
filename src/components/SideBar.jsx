@@ -119,10 +119,10 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 style={{ color: theme.sidebarText, fontWeight: 500 }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[18px] transition-transform duration-200 group-hover:scale-105">
+                  <span className="text-[18px] transition-transform duration-200 group-hover:scale-105 text-black">
                     {isMoreOpen ? <MdExpandLess /> : <MdExpandMore />}
                   </span>
-                  <span className="text-sm tracking-wide">{isMoreOpen ? "Less" : "More"}</span>
+                  <span className="text-sm tracking-wide text-black">{isMoreOpen ? "Less" : "More"}</span>
                 </div>
               </button>
 
