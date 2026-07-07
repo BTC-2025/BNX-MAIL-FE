@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu } from "react-icons/md";
 import { userAPI } from "../services/api";
 import toast from "react-hot-toast";
 // import logo from "../assets/bnx.jpeg";
@@ -116,7 +116,19 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
       <div className="flex items-center justify-between">
         {/* LEFT */}
         <div className="flex items-center flex-1">
-          <div className="w-[200px] shrink-0 flex items-center gap-2.5">
+          <div className="w-[240px] shrink-0 flex items-center gap-2">
+            <button
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  onOpenMenu();
+                } else {
+                  onToggleDesktopSidebar();
+                }
+              }}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer text-gray-600 dark:text-gray-300 -ml-2"
+            >
+              <MdMenu size={24} />
+            </button>
             <img
               src={logo}
               alt="BNX Mail"
