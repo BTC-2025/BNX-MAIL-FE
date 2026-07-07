@@ -42,9 +42,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
     <>
       <aside
         className={`
-        w-56 h-full overflow-y-auto flex flex-col transition-transform duration-300 shrink-0 border-r-0
-        ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden -translate-x-full"}
-        ${isDesktopOpen ? "md:flex md:relative md:translate-x-0" : "md:hidden"}
+        w-56 h-full overflow-y-auto flex flex-col transition-all duration-300 shrink-0 border-r-0 hover-scrollbar
+        ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden md:flex md:relative md:translate-x-0"}
+        ${!isDesktopOpen ? "sidebar-collapsed" : ""}
       `}
         style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
       >
@@ -52,12 +52,12 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         <div className="p-3 pl-3.5 pb-2">
           <button
             onClick={() => openCompose()}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200"
+            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200 btn-collapse"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
+            <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
-            <span className="text-[14px] font-medium" style={{ color: theme.text }}>Compose</span>
+            <span className="text-[14px] font-medium hide-on-collapse" style={{ color: theme.text }}>Compose</span>
           </button>
         </div>
 
@@ -76,7 +76,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 <button
                   key={item.name}
                   onClick={() => navigate(item.path)}
-                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer
+                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
                 ${isActive
                       ? "bg-primary/10 dark:bg-primary/20"
                       : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -91,12 +91,12 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                     <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
                       {item.icon}
                     </span>
-                    <span className="text-sm tracking-wide">{item.name}</span>
+                    <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
                   </div>
 
                   {count > 0 && (
                     <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
                       style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
                     >
                       {count}
@@ -115,14 +115,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <div className="pt-1">
               <button
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
-                className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer group"
+                className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer group btn-collapse"
                 style={{ color: theme.sidebarText, fontWeight: 500 }}
               >
                 <div className="flex items-center gap-3">
                   <span className="text-[18px] transition-transform duration-200 group-hover:scale-105 text-black">
                     {isMoreOpen ? <MdExpandLess /> : <MdExpandMore />}
                   </span>
-                  <span className="text-sm tracking-wide text-black">{isMoreOpen ? "Less" : "More"}</span>
+                  <span className="text-sm tracking-wide text-black hide-on-collapse">{isMoreOpen ? "Less" : "More"}</span>
                 </div>
               </button>
 
@@ -140,7 +140,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                         <button
                           key={item.name}
                           onClick={() => navigate(item.path)}
-                          className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer
+                          className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
                     ${isActive
                               ? "bg-primary/10 dark:bg-primary/20"
                               : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -155,12 +155,12 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                             <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
                               {item.icon}
                             </span>
-                            <span className="text-sm tracking-wide">{item.name}</span>
+                            <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
                           </div>
 
                           {count > 0 && (
                             <span
-                              className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                              className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
                               style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
                             >
                               {count}
@@ -180,7 +180,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           </div>
 
           <div className="mt-1">
-            <div className="pl-4 pr-3 flex items-center justify-between mb-1">
+            <div className="pl-4 pr-3 flex items-center justify-between mb-1 hide-on-collapse">
               <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
                 Chat
               </h3>
@@ -196,7 +196,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 <button
                   key={item.name}
                   onClick={() => navigate(item.path)}
-                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer
+                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
                   ${isActive
                       ? "bg-primary/10 dark:bg-primary/20"
                       : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -211,12 +211,12 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                     <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
                       {item.icon}
                     </span>
-                    <span className="text-sm tracking-wide">{item.name}</span>
+                    <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
                   </div>
 
                   {count > 0 && (
                     <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm"
+                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
                       style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
                     >
                       {count}
@@ -232,7 +232,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
           </div>
           <div className="mt-1">
-            <div className="pl-4 pr-3 flex items-center justify-between mb-1">
+            <div className="pl-4 pr-3 flex items-center justify-between mb-1 hide-on-collapse">
               <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
                 Labels
               </h3>
@@ -253,14 +253,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 return children.map(label => (
                   <div key={label.id} className="group">
                     <div
-                      className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer"
+                      className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer btn-collapse"
                       style={{ color: theme.sidebarText, paddingLeft: `${16 + (depth * 16)}px` }}
                     >
                       <div className="flex items-center gap-3 w-full" onClick={() => navigate(`/label/${label.id}`)}>
                         <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
-                        <span className="text-sm truncate">{label.name}</span>
+                        <span className="text-sm truncate hide-on-collapse">{label.name}</span>
                       </div>
-                      <div className="relative flex items-center h-full">
+                      <div className="relative flex items-center h-full hide-on-collapse">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
@@ -325,20 +325,20 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         <div className="space-y-0 mb-6 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
           <button
             onClick={() => navigate("/settings")}
-            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
+            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
             <span className="text-[18px]"><MdSettings size={22} /></span>
-            <span>Settings</span>
+            <span className="hide-on-collapse">Settings</span>
           </button>
 
           <button
             onClick={() => alert("Contacting support...")}
-            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide"
+            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
             <span className="text-[18px]"><MdHelpOutline size={22} /></span>
-            <span>Help & Support</span>
+            <span className="hide-on-collapse">Help & Support</span>
           </button>
         </div>
       </aside>
