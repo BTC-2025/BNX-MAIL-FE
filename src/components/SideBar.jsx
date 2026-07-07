@@ -42,9 +42,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
     <>
       <aside
         className={`
-        w-56 h-full overflow-y-auto flex flex-col transition-all duration-300 shrink-0 border-r-0 hover-scrollbar
-        ${isMobileOpen ? "fixed inset-y-0 left-0 z-[60] flex translate-x-0 bg-white dark:bg-gray-900 shadow-xl" : "hidden md:flex md:relative md:translate-x-0"}
-        ${!isDesktopOpen ? "sidebar-collapsed" : ""}
+        h-full overflow-y-auto flex flex-col transition-all duration-300 shrink-0 border-r-0 hover-scrollbar
+        flex relative translate-x-0 sidebar-wrapper
+        ${!isDesktopOpen ? "sidebar-collapsed" : "md:w-56"}
       `}
         style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
       >

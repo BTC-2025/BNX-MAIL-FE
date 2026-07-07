@@ -118,14 +118,8 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         <div className="flex items-center flex-1">
           <div className="w-[240px] shrink-0 flex items-center gap-2">
             <button
-              onClick={() => {
-                if (window.innerWidth < 768) {
-                  onOpenMenu();
-                } else {
-                  onToggleDesktopSidebar();
-                }
-              }}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer text-gray-600 dark:text-gray-300 -ml-2"
+              onClick={() => onToggleDesktopSidebar()}
+              className="hidden md:block p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer text-gray-600 dark:text-gray-300 -ml-2"
             >
               <MdMenu size={24} />
             </button>
