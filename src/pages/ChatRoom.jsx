@@ -44,6 +44,8 @@ const ChatRoom = () => {
   const [isChatPaneOpen, setIsChatPaneOpen] = useState(true);
   const [broadcastSubject, setBroadcastSubject] = useState("");
   const [broadcastBody, setBroadcastBody] = useState("");
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [editingName, setEditingName] = useState("");
   const [selectedAttachments, setSelectedAttachments] = useState([]);
   const fileInputRef = useRef(null);
 
@@ -132,9 +134,20 @@ const ChatRoom = () => {
     }
   };
 
-  // Email Templates State
   const [templates, setTemplates] = useState([]);
   const [selectedTemplate, setSelectedTemplate] = useState("");
+
+  const handleRenameGroup = async () => {
+    if (!editingName.trim()) return;
+    try {
+      const res = await chatAPI.renameGroup(chatId, editingName);
+      setChat(res.data);
+      setIsEditingName(false);
+      toast.success("Colab renamed successfully");
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to rename Colab");
+    }
+  };
 
   const scrollToBottom = () => {
     if (messagesContainerRef.current) {
@@ -890,7 +903,39 @@ const ChatRoom = () => {
             {/* Modal Scrollable Body */}
             <div className="flex-1 overflow-y-auto space-y-5 pr-1 hidden-scrollbar">
               <div>
-                <h4 className="font-bold text-base">{chat?.name || "Colab Group"}</h4>
+                {isEditingName ? (
+                  <div className="flex items-center gap-2 mb-1">
+                    <input
+                      type="text"
+                      value={editingName}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      className="flex-grow p-1.5 border rounded-lg text-sm bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:ring-1 focus:ring-primary/45"
+                      autoFocus
+                    />
+                    <button onClick={handleRenameGroup} className="p-1.5 bg-primary text-white rounded-lg hover:scale-105 transition-all">
+                      <MdCheck size={16} />
+                    </button>
+                    <button onClick={() => setIsEditingName(false)} className="p-1.5 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-200 rounded-lg hover:bg-gray-300 dark:hover:bg-gray-600 transition-all">
+                      <MdClose size={16} />
+                    </button>
+                  </div>
+                ) : (
+                  <h4 className="font-bold text-base flex items-center gap-2">
+                    {chat?.name || "Colab Group"}
+                    {chat?.creatorEmail === user.email && (
+                      <button 
+                        onClick={() => {
+                          setEditingName(chat?.name || "");
+                          setIsEditingName(true);
+                        }}
+                        className="text-gray-400 hover:text-primary transition-colors p-1"
+                        title="Rename Colab"
+                      >
+                        <MdEdit size={14} />
+                      </button>
+                    )}
+                  </h4>
+                )}
                 <p className="text-xs opacity-75 mt-1 leading-relaxed" style={{ color: theme.subText }}>
                   {chat?.description || "A collaboration channel for team messaging and email broadcasting."}
                 </p>
@@ -971,9 +1016,9 @@ const ChatRoom = () => {
               {/* Danger Zone */}
               {chat?.type === 'GROUP' && (
                 <div className="pt-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
-                  <h5 className="text-xs font-bold uppercase tracking-wider text-red-500 opacity-80 mb-2">
+                  {/* <h5 className="text-xs font-bold uppercase tracking-wider text-red-500 opacity-80 mb-2">
                     Danger Zone {chat?.creatorEmail ? `(Creator: ${chat.creatorEmail})` : '(No Creator)'}
-                  </h5>
+                  </h5> */}
                   <button
                     onClick={handleLeaveGroup}
                     className="w-full py-2.5 px-4 bg-gray-100 dark:bg-gray-800 hover:bg-red-50 dark:hover:bg-red-900/20 text-red-600 dark:text-red-400 text-sm font-semibold rounded-xl transition-colors border border-transparent hover:border-red-200 dark:hover:border-red-800/50"

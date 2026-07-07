@@ -224,7 +224,8 @@ export const chatAPI = {
     rejectInvitation: (id) => api.post(`/api/chat/invitations/${id}/reject`),
     
     leaveGroup: (chatId) => api.post(`/api/chat/${chatId}/leave`),
-    deleteGroup: (chatId) => api.delete(`/api/chat/${chatId}`)
+    deleteGroup: (chatId) => api.delete(`/api/chat/${chatId}`),
+    renameGroup: (chatId, name) => api.patch(`/api/chat/${chatId}/name`, { name })
 };
 
 // Template APIs
