@@ -12,6 +12,7 @@ import {
   MdPersonAdd,
   MdAssignment,
   MdClose,
+  MdCheck,
   MdKeyboardArrowRight,
   MdKeyboardArrowLeft,
   MdImage,
