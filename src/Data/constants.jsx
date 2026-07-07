@@ -89,12 +89,12 @@ export const SIDEBAR_ITEMS = [
     path: '/colab',
     count: 0
   },
-  {
-    name: 'Chat',
-    icon: <MdChat size={20} />,
-    path: '/chat',
-    count: 0
-  },
+  // {
+  //   name: 'Chat',
+  //   icon: <MdChat size={20} />,
+  //   path: '/chat',
+  //   count: 0
+  // },
   {
     name: 'Subscriptions',
     icon: <MdNotifications size={20} />,
