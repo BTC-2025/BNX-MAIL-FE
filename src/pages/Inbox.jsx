@@ -59,6 +59,11 @@ const Inbox = ({ searchQuery }) => {
     }
   };
 
+  const unreadPrimary = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'PRIMARY' && !e.isRead).length;
+  const unreadPromotions = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'PROMOTIONS' && !e.isRead).length;
+  const unreadSocial = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'SOCIAL' && !e.isRead).length;
+  const unreadUpdates = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'UPDATES' && !e.isRead).length;
+
 
   const listComponent = (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -115,6 +120,7 @@ const Inbox = ({ searchQuery }) => {
         >
           <MdInbox size={18} />
           Primary
+          {unreadPrimary > 0 && <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm" style={{ backgroundColor: theme.accent || "#135bec" }}>{unreadPrimary}</span>}
         </button>
         <button
           onClick={() => setActiveTab('PROMOTIONS')}
@@ -122,6 +128,7 @@ const Inbox = ({ searchQuery }) => {
         >
           <MdLocalOffer size={18} />
           Promotions
+          {unreadPromotions > 0 && <span className="text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadPromotions}</span>}
         </button>
         <button
           onClick={() => setActiveTab('SOCIAL')}
@@ -129,6 +136,7 @@ const Inbox = ({ searchQuery }) => {
         >
           <MdPeople size={18} />
           Social
+          {unreadSocial > 0 && <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadSocial}</span>}
         </button>
         <button
           onClick={() => setActiveTab('UPDATES')}
@@ -136,6 +144,7 @@ const Inbox = ({ searchQuery }) => {
         >
           <MdInfo size={18} />
           Updates
+          {unreadUpdates > 0 && <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadUpdates}</span>}
         </button>
       </div>
     </div>
