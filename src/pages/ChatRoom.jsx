@@ -15,6 +15,7 @@ import {
   MdKeyboardArrowRight,
   MdKeyboardArrowLeft,
   MdImage,
+  MdEdit,
   MdPictureAsPdf
 } from "react-icons/md";
 import { chatAPI, mailAPI, templateAPI } from "../services/api";
