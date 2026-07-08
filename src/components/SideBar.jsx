@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
@@ -16,6 +16,21 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const [activeLabelMenu, setActiveLabelMenu] = useState(null);
   const [newLabel, setNewLabel] = useState({ name: "", color: "#135bec", parentId: "" });
   const [editingLabel, setEditingLabel] = useState(null);
+  const labelMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (labelMenuRef.current && !labelMenuRef.current.contains(event.target)) {
+        setActiveLabelMenu(null);
+      }
+    };
+    if (activeLabelMenu) {
+      document.addEventListener("click", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("click", handleClickOutside);
+    };
+  }, [activeLabelMenu]);
 
   const COLORS = ["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899", "#64748b"];
 
@@ -273,12 +288,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                         </button>
 
                         {activeLabelMenu === label.id && (
-                          <>
                             <div
-                              className="fixed inset-0 z-40"
-                              onClick={(e) => { e.stopPropagation(); setActiveLabelMenu(null); }}
-                            />
-                            <div
+                              ref={activeLabelMenu === label.id ? labelMenuRef : null}
                               className="absolute right-0 top-full mt-1 w-32 py-1 rounded-xl shadow-lg border z-50 text-xs overflow-hidden"
                               style={{ backgroundColor: theme.cardBg, borderColor: theme.border, color: theme.text }}
                             >
@@ -305,7 +316,6 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                                 <MdDelete size={14} /> Delete
                               </button>
                             </div>
-                          </>
                         )}
                       </div>
                     </div>
