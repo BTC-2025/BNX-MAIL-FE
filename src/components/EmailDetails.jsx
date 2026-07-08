@@ -608,7 +608,7 @@ const EmailDetails = ({
             <div dangerouslySetInnerHTML={{ __html: email.htmlBody }} style={{ color: theme.text }} />
           ) : (
             <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200" style={{ color: theme.text }}>
-              {email.body}
+              {email.body || email.textPlain || "(No content available)"}
             </p>
           )}
         </div>

@@ -279,7 +279,7 @@ const EmailList = ({
                       {email.subject || "(No Subject)"}
                     </span>
                     <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
-                      — {email.body ? email.body.replace(/\s+/g, " ") : ""}
+                      — {email.body ? email.body.replace(/\s+/g, " ") : (email.textPlain ? email.textPlain.replace(/\s+/g, " ") : "")}
                     </span>
                   </div>
 
