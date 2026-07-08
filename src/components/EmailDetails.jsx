@@ -102,6 +102,11 @@ const EmailDetails = ({
         : email.from.trim())
     : "";
 
+  const isSystemEmail = cleanSenderEmail.toLowerCase().includes("mailer-daemon") || 
+                        cleanSenderEmail.toLowerCase().includes("postmaster") || 
+                        cleanSenderEmail.toLowerCase().includes("noreply") ||
+                        cleanSenderEmail.toLowerCase().includes("no-reply");
+
   const handleUnsubscribeClick = async () => {
     if (!cleanSenderEmail) return;
     const confirmUnsubscribe = window.confirm(`Are you sure you want to unsubscribe and block future emails from ${cleanSenderEmail}?`);
@@ -581,7 +586,7 @@ const EmailDetails = ({
                 ) : (
                   <span>{email.from}</span>
                 )}
-                {cleanSenderEmail && (
+                {cleanSenderEmail && !isSystemEmail && (
                   <button
                     onClick={handleUnsubscribeClick}
                     className="text-xs font-semibold text-red-500 hover:text-red-600 hover:underline cursor-pointer bg-red-500/10 dark:bg-red-500/20 px-2 py-0.5 rounded transition-all select-none"
