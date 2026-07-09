@@ -328,7 +328,7 @@ const EmailDetails = ({
     <div
       className={
         isFullscreen
-          ? "fixed inset-0 z-[100] flex flex-col overflow-hidden animate-fade-in"
+          ? "absolute inset-0 z-[100] flex flex-col overflow-hidden animate-fade-in"
           : "flex-1 flex flex-col overflow-hidden w-full h-full animate-fade-in"
       }
       style={{ backgroundColor: theme.cardBg }}

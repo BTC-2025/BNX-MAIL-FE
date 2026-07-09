@@ -66,7 +66,7 @@ const ReadingPaneLayout = ({
 
   return (
     <div 
-      className={`flex h-full w-full overflow-hidden bg-transparent ${isRight ? 'flex-row' : 'flex-col'}`}
+      className={`flex h-full w-full overflow-hidden bg-transparent relative ${isRight ? 'flex-row' : 'flex-col'}`}
       ref={containerRef}
     >
       {/* Master View (List) */}
