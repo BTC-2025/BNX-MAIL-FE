@@ -20,12 +20,19 @@ import {
   MdChevronLeft,
   MdChevronRight,
   MdOpenInFull,
-  MdCloseFullscreen
+  MdCloseFullscreen,
+  MdPrint,
+  MdMoreVert,
+  MdMarkEmailUnread,
+  MdBlock
 } from "react-icons/md";
 import { useMail } from "../context/MailContext";
+import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { mailAPI } from "../services/api";
 import toast from "react-hot-toast";
+import logo from "../assets/bnx-remove.png";
+import html2pdf from "html2pdf.js";
 
 const getMimeType = (fileName) => {
   const ext = fileName.split('.').pop().toLowerCase();
@@ -100,6 +107,7 @@ const EmailDetails = ({
   onNavigate,
 }) => {
   const { theme, readingPaneMode } = useTheme();
+  const { user } = useAuth();
   const { labels, handleRemoveLabel, fetchEmails, currentFolder } = useMail();
   const [isFullscreen, setIsFullscreen] = useState(false);
 
@@ -137,9 +145,121 @@ const EmailDetails = ({
   const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
   const [showLabels, setShowLabels] = useState(false);
   const [showSnooze, setShowSnooze] = useState(false);
+  const [showMoreOptions, setShowMoreOptions] = useState(false);
   const [customSnooze, setCustomSnooze] = useState(false);
   const [customDateTime, setCustomDateTime] = useState("");
   const [imagePreviews, setImagePreviews] = useState({});
+
+  const handlePrint = () => {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.width = '0';
+    iframe.style.height = '0';
+    iframe.style.border = 'none';
+    document.body.appendChild(iframe);
+
+    const doc = iframe.contentWindow.document;
+    doc.open();
+    doc.write('<html><head><title>Print Email</title>');
+    doc.write(`<base href="${window.location.origin}/" />`);
+    doc.write(`
+      <style>
+        body { font-family: sans-serif; padding: 20px; color: #000; background: #fff; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #ccc; padding-bottom: 15px; margin-bottom: 20px; }
+        .logo-container { display: flex; align-items: center; gap: 8px; font-size: 24px; font-weight: bold; color: #135bec; }
+        .logo-container img { height: 32px; }
+        .logo-text-dark { color: #333; }
+        .user-email { font-size: 14px; color: #555; font-weight: 500; }
+        h2 { margin-bottom: 5px; font-size: 22px; }
+        .meta { color: #555; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #eee; font-size: 14px; line-height: 1.5; }
+        .plaintext { white-space: pre-wrap; font-family: inherit; font-size: 14px; line-height: 1.5; }
+      </style>
+    `);
+    doc.write('</head><body>');
+    
+    doc.write(`
+      <div class="header">
+        <div class="logo-container">
+          <img src="${logo}" alt="BNX Mail Logo" />
+          <span>BNX<span class="logo-text-dark">mail</span></span>
+        </div>
+        <div class="user-email">${user?.email || ''}</div>
+      </div>
+    `);
+
+    doc.write(`<h2>${email.subject || "(No Subject)"}</h2>`);
+    const escapedFrom = email.from ? email.from.replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+    doc.write(`<div class="meta"><strong>From:</strong> ${escapedFrom}<br/><strong>Date:</strong> ${formatDate(email.date)}</div>`);
+    
+    if (email.htmlBody) {
+      doc.write(`<div>${email.htmlBody}</div>`);
+    } else {
+      const textContent = email.body || email.textPlain || "";
+      doc.write(`<div class="plaintext">${textContent}</div>`);
+    }
+    
+    doc.write('</body></html>');
+    doc.close();
+
+    setTimeout(() => {
+      iframe.contentWindow.focus();
+      iframe.contentWindow.print();
+      setTimeout(() => {
+        document.body.removeChild(iframe);
+      }, 1000);
+    }, 500);
+
+    setShowMoreOptions(false);
+  };
+
+  const handleDownloadMessage = () => {
+    toast.loading("Generating PDF...", { id: "pdf-download" });
+
+    const escapedFrom = email.from ? email.from.replace(/</g, "&lt;").replace(/>/g, "&gt;") : "";
+    
+    let bodyHtml = "";
+    if (email.htmlBody) {
+      bodyHtml = `<div>${email.htmlBody}</div>`;
+    } else {
+      const textContent = email.body || email.textPlain || "";
+      bodyHtml = `<div style="white-space:pre-wrap;font-family:inherit;font-size:14px;line-height:1.5;">${textContent}</div>`;
+    }
+
+    const fullHtml = `
+      <div style="padding:20px;font-family:sans-serif;color:#000;background:#fff;">
+        <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #ccc;padding-bottom:15px;margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:8px;font-size:24px;font-weight:bold;color:#135bec;">
+            <img src="${window.location.origin}${logo}" style="height:32px;" alt="BNX Mail Logo" />
+            <span>BNX<span style="color:#333;">mail</span></span>
+          </div>
+          <div style="font-size:14px;color:#555;font-weight:500;">${user?.email || ''}</div>
+        </div>
+        <h2 style="margin-bottom:5px;font-size:22px;">${email.subject || "(No Subject)"}</h2>
+        <div style="color:#555;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #eee;font-size:14px;line-height:1.5;">
+          <strong>From:</strong> ${escapedFrom}<br/>
+          <strong>Date:</strong> ${formatDate(email.date)}
+        </div>
+        ${bodyHtml}
+      </div>
+    `;
+
+    const opt = {
+      margin:       10,
+      filename:     `${(email.subject || 'message').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.pdf`,
+      image:        { type: 'jpeg', quality: 0.98 },
+      html2canvas:  { scale: 2, useCORS: true, allowTaint: true, logging: false },
+      jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+    };
+
+    html2pdf().set(opt).from(fullHtml).save().then(() => {
+      toast.success("PDF Downloaded!", { id: "pdf-download" });
+    }).catch(err => {
+      console.error(err);
+      toast.error("Failed to generate PDF", { id: "pdf-download" });
+    });
+
+    setShowMoreOptions(false);
+  };
 
   const getSnoozeOptions = () => {
     const now = new Date();
@@ -535,6 +655,98 @@ const EmailDetails = ({
         </div>
 
         <div className="flex items-center gap-2">
+          <button
+            onClick={handlePrint}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            title="Print"
+          >
+            <MdPrint size={20} />
+          </button>
+          
+          <div className="relative">
+            <button
+              onClick={() => { setShowMoreOptions(!showMoreOptions); setShowLabels(false); setShowSnooze(false); }}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              title="More"
+            >
+              <MdMoreVert size={20} />
+            </button>
+            {showMoreOptions && (
+              <div 
+                className="absolute right-0 mt-2 w-56 rounded-xl shadow-xl z-30 border bg-white dark:bg-neutral-900 border-gray-200 dark:border-neutral-800 overflow-hidden py-1.5"
+              >
+                <button
+                  onClick={() => { onReply?.(email); setShowMoreOptions(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdReply size={18} className="text-gray-500" />
+                  <span className="text-sm font-medium">Reply</span>
+                </button>
+                <button
+                  onClick={() => { setShowMoreOptions(false); /* onForward logic */ }}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdForward size={18} className="text-gray-500" />
+                  <span className="text-sm font-medium">Forward</span>
+                </button>
+                
+                <div className="border-t border-gray-100 dark:border-neutral-800 my-1"></div>
+                
+                <button
+                  onClick={() => { onDelete?.(email.uid); handleClose(); setShowMoreOptions(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-red-50 dark:hover:bg-red-900/10 flex items-center gap-3 cursor-pointer text-red-600 dark:text-red-400 transition-colors"
+                >
+                  <MdDelete size={18} />
+                  <span className="text-sm font-medium">Delete</span>
+                </button>
+                <button
+                  onClick={async () => {
+                    try {
+                      if (mailAPI.toggleRead) {
+                        await mailAPI.toggleRead(email.uid, false);
+                        if (fetchEmails) fetchEmails(currentFolder || "inbox");
+                      }
+                      toast.success("Marked as unread");
+                      handleClose();
+                    } catch (err) {
+                      console.error(err);
+                      toast.error("Failed to mark unread");
+                    }
+                    setShowMoreOptions(false);
+                  }}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdMarkEmailUnread size={18} className="text-gray-500" />
+                  <span className="text-sm font-medium">Mark as unread</span>
+                </button>
+                
+                <div className="border-t border-gray-100 dark:border-neutral-800 my-1"></div>
+                
+                <button
+                  onClick={() => { handleUnsubscribeClick(); setShowMoreOptions(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdBlock size={18} className="text-gray-500 shrink-0" />
+                  <span className="text-sm font-medium truncate">Unsubscribe from {cleanSenderEmail || "sender"}</span>
+                </button>
+                <button
+                  onClick={handlePrint}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdPrint size={18} className="text-gray-500" />
+                  <span className="text-sm font-medium">Print</span>
+                </button>
+                <button
+                  onClick={handleDownloadMessage}
+                  className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
+                >
+                  <MdFileDownload size={18} className="text-gray-500" />
+                  <span className="text-sm font-medium">Download message</span>
+                </button>
+              </div>
+            )}
+          </div>
+
           <button
             onClick={() => onStar?.(email.uid)}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer group"

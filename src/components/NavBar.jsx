@@ -116,7 +116,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
       <div className="flex items-center justify-between">
         {/* LEFT */}
         <div className="flex items-center flex-1">
-          <div className="w-[240px] shrink-0 flex items-center gap-2">
+          <div className="w-[240px] shrink-0 flex items-center gap-1.1">
             <img
               src={logo}
               alt="BNX Mail"
@@ -139,7 +139,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search mail"
-                className="w-full px-5 py-2.5 pl-12 pr-12 rounded-full text-[14px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-[#eaf1fb] dark:bg-white/[0.09] focus:bg-white dark:focus:bg-[#303134] focus:shadow-md border border-transparent outline-none transition-all duration-200"
+                className="w-full px-1 py-2.5 pl-12 pr-12 rounded-full text-[14px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-white dark:bg-white/[0.09] focus:bg-white dark:focus:bg-[#303134] focus:shadow-md border border-transparent outline-none transition-all duration-200"
                 style={{ color: theme.text }}
               />
               <svg
