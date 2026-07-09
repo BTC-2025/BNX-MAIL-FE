@@ -18,7 +18,9 @@ import {
   MdUpdate, 
   MdDateRange,
   MdChevronLeft,
-  MdChevronRight
+  MdChevronRight,
+  MdOpenInFull,
+  MdCloseFullscreen
 } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
@@ -99,6 +101,7 @@ const EmailDetails = ({
 }) => {
   const { theme } = useTheme();
   const { labels, handleRemoveLabel, fetchEmails, currentFolder } = useMail();
+  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const cleanSenderEmail = email?.from
     ? (email.from.includes("<")
@@ -323,7 +326,11 @@ const EmailDetails = ({
 
   return (
     <div
-      className="flex-1 flex flex-col overflow-hidden w-full h-full animate-fade-in"
+      className={
+        isFullscreen
+          ? "fixed inset-0 z-[100] flex flex-col overflow-hidden animate-fade-in"
+          : "flex-1 flex flex-col overflow-hidden w-full h-full animate-fade-in"
+      }
       style={{ backgroundColor: theme.cardBg }}
     >
       {/* HEADER ACTION TOOLBAR */}
@@ -340,6 +347,14 @@ const EmailDetails = ({
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
+          </button>
+
+          <button
+            onClick={() => setIsFullscreen(!isFullscreen)}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center text-gray-500 hover:text-blue-500 cursor-pointer"
+            title={isFullscreen ? "Exit Fullscreen" : "Fullscreen"}
+          >
+            {isFullscreen ? <MdCloseFullscreen size={18} /> : <MdOpenInFull size={18} />}
           </button>
 
           <div className="h-5 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1" />
