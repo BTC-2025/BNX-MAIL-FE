@@ -131,6 +131,8 @@ const Outbox = ({ searchQuery }) => {
   
   const detailsComponent = selectedEmail ? (
 <EmailDetails
+      emailList={visibleEmails}
+      onNavigate={(email) => setSelectedEmail(email)}
           email={selectedEmail}
           onClose={() => setSelectedEmail(null)}
           onDelete={handleDelete}

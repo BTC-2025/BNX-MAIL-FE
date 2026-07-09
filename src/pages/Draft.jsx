@@ -75,6 +75,8 @@ const Draft = ({ searchQuery }) => {
   
   const detailsComponent = selectedEmail ? (
 <EmailDetails
+      emailList={visibleEmails}
+      onNavigate={(email) => setSelectedEmailUid(email.uid)}
           email={selectedEmail}
           onBack={() => setSelectedEmailUid(null)}
           onClose={() => setSelectedEmailUid(null)}

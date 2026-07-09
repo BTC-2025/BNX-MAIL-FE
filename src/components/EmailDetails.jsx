@@ -16,7 +16,9 @@ import {
   MdToday, 
   MdEvent, 
   MdUpdate, 
-  MdDateRange
+  MdDateRange,
+  MdChevronLeft,
+  MdChevronRight
 } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useTheme } from "../context/ThemeContext";
@@ -92,6 +94,8 @@ const EmailDetails = ({
   onApplyLabel,
   onClose,
   isArchiveFolder = false,
+  emailList = [],
+  onNavigate,
 }) => {
   const { theme } = useTheme();
   const { labels, handleRemoveLabel, fetchEmails, currentFolder } = useMail();
@@ -514,6 +518,35 @@ const EmailDetails = ({
         </div>
 
         <div className="flex items-center gap-2">
+          {emailList && emailList.length > 0 && (
+            <div className="flex items-center gap-3 mr-2 text-sm text-gray-500">
+              <span className="font-medium">
+                {emailList.findIndex(e => e.uid === email.uid) + 1} of {emailList.length}
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => {
+                    const idx = emailList.findIndex(e => e.uid === email.uid);
+                    if (idx > 0) onNavigate?.(emailList[idx - 1]);
+                  }}
+                  disabled={emailList.findIndex(e => e.uid === email.uid) <= 0}
+                  className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <MdChevronLeft size={20} />
+                </button>
+                <button
+                  onClick={() => {
+                    const idx = emailList.findIndex(e => e.uid === email.uid);
+                    if (idx < emailList.length - 1 && idx !== -1) onNavigate?.(emailList[idx + 1]);
+                  }}
+                  disabled={emailList.findIndex(e => e.uid === email.uid) >= emailList.length - 1 || emailList.findIndex(e => e.uid === email.uid) === -1}
+                  className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                >
+                  <MdChevronRight size={20} />
+                </button>
+              </div>
+            </div>
+          )}
           <button
             onClick={() => onStar?.(email.uid)}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer group"

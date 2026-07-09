@@ -101,6 +101,8 @@ const Trash = ({ searchQuery }) => {
           </div>
           <div className="flex-1 overflow-hidden">
             <EmailDetails
+      emailList={visibleEmails}
+      onNavigate={(email) => setSelectedEmail(email)}
               email={selectedEmail}
               onBack={() => setSelectedEmail(null)}
               onDelete={handlePermanentDelete}
