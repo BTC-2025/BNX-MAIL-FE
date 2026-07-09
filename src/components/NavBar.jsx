@@ -117,20 +117,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         {/* LEFT */}
         <div className="flex items-center flex-1">
           <div className="w-[240px] shrink-0 flex items-center gap-2">
-            <button
-              onClick={() => onToggleDesktopSidebar()}
-              className="hidden md:block p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 transition-colors cursor-pointer text-gray-600 dark:text-gray-300 -ml-2"
-            >
-              <MdMenu size={24} />
-            </button>
             <img
               src={logo}
               alt="BNX Mail"
               className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
-              onClick={() => navigate("/inbox")}
+              onClick={() => onToggleDesktopSidebar()}
             />
             <span
-              onClick={() => navigate("/inbox")}
+              onClick={() => onToggleDesktopSidebar()}
               className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
               style={{ color: "#135bec" }}
             >
