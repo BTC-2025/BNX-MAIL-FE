@@ -518,35 +518,6 @@ const EmailDetails = ({
         </div>
 
         <div className="flex items-center gap-2">
-          {emailList && emailList.length > 0 && (
-            <div className="flex items-center gap-3 mr-2 text-sm text-gray-500">
-              <span className="font-medium">
-                {emailList.findIndex(e => e.uid === email.uid) + 1} of {emailList.length}
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={() => {
-                    const idx = emailList.findIndex(e => e.uid === email.uid);
-                    if (idx > 0) onNavigate?.(emailList[idx - 1]);
-                  }}
-                  disabled={emailList.findIndex(e => e.uid === email.uid) <= 0}
-                  className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <MdChevronLeft size={20} />
-                </button>
-                <button
-                  onClick={() => {
-                    const idx = emailList.findIndex(e => e.uid === email.uid);
-                    if (idx < emailList.length - 1 && idx !== -1) onNavigate?.(emailList[idx + 1]);
-                  }}
-                  disabled={emailList.findIndex(e => e.uid === email.uid) >= emailList.length - 1 || emailList.findIndex(e => e.uid === email.uid) === -1}
-                  className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <MdChevronRight size={20} />
-                </button>
-              </div>
-            </div>
-          )}
           <button
             onClick={() => onStar?.(email.uid)}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer group"
@@ -732,23 +703,55 @@ const EmailDetails = ({
 
       {/* FOOTER ACTIONS */}
       <div
-        className="flex gap-3 p-4 bg-black/[0.02] dark:bg-white/[0.02] border-t shrink-0"
+        className="flex items-center justify-between p-4 bg-black/[0.02] dark:bg-white/[0.02] border-t shrink-0"
         style={{ borderColor: theme.border }}
       >
-        <button
-          onClick={() => onReply?.(email)}
-          className="flex items-center justify-center gap-2 px-5 py-2 rounded-full text-white font-medium shadow-sm hover:shadow hover:-translate-y-0.5 transition-all w-28 text-sm cursor-pointer"
-          style={{ background: theme.accent || "#135bec" }}
-        >
-          <MdReply size={18} /> Reply
-        </button>
+        <div className="flex gap-3">
+          <button
+            onClick={() => onReply?.(email)}
+            className="flex items-center justify-center gap-2 px-5 py-2 rounded-full text-white font-medium shadow-sm hover:shadow hover:-translate-y-0.5 transition-all w-28 text-sm cursor-pointer"
+            style={{ background: theme.accent || "#135bec" }}
+          >
+            <MdReply size={18} /> Reply
+          </button>
 
-        <button
-          className="flex items-center justify-center gap-2 px-5 py-2 rounded-full font-medium border hover:bg-black/5 dark:hover:bg-white/5 hover:shadow-sm transition-all text-sm w-28 cursor-pointer text-gray-700 dark:text-gray-200"
-          style={{ borderColor: theme.border }}
-        >
-          <MdForward size={18} /> Forward
-        </button>
+          <button
+            className="flex items-center justify-center gap-2 px-5 py-2 rounded-full font-medium border hover:bg-black/5 dark:hover:bg-white/5 hover:shadow-sm transition-all text-sm w-28 cursor-pointer text-gray-700 dark:text-gray-200"
+            style={{ borderColor: theme.border }}
+          >
+            <MdForward size={18} /> Forward
+          </button>
+        </div>
+
+        {emailList && emailList.length > 0 && (
+          <div className="flex items-center gap-3 text-sm text-gray-500 dark:text-gray-400">
+            <span className="font-medium">
+              {emailList.findIndex(e => e.uid === email.uid) + 1} of {emailList.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <button
+                onClick={() => {
+                  const idx = emailList.findIndex(e => e.uid === email.uid);
+                  if (idx > 0) onNavigate?.(emailList[idx - 1]);
+                }}
+                disabled={emailList.findIndex(e => e.uid === email.uid) <= 0}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                <MdChevronLeft size={20} />
+              </button>
+              <button
+                onClick={() => {
+                  const idx = emailList.findIndex(e => e.uid === email.uid);
+                  if (idx < emailList.length - 1 && idx !== -1) onNavigate?.(emailList[idx + 1]);
+                }}
+                disabled={emailList.findIndex(e => e.uid === email.uid) >= emailList.length - 1 || emailList.findIndex(e => e.uid === email.uid) === -1}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
+              >
+                <MdChevronRight size={20} />
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* INLINE PREVIEW OVERLAY */}
