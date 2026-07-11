@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu } from "react-icons/md";
@@ -12,9 +12,12 @@ import bitToolLogo from "../assets/BIT-TOOL-2.png";
 
 const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
   const { theme, currentThemeName, changeTheme, backgroundImage } = useTheme();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
+  
+  const isChat = location.pathname.startsWith('/colab');
 
   const allSessions = getSessions();
   const otherSessions = allSessions.filter(sess => sess.email !== user?.email);
@@ -73,30 +76,12 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
     } catch (error) {
       console.error(error);
       toast.error("Failed to update profile picture");
+      console.error("Profile picture upload error:", error);
+      toast.error(error.response?.data?.message || "Failed to upload picture", { id: toastId });
     } finally {
       setUploadingAvatar(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     }
-  };
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowDropdown(false);
-      }
-    };
-
-    if (showDropdown) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [showDropdown]);
-
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
   };
 
   const handleThemeToggle = () => {
@@ -113,74 +98,71 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0"
       style={{ backgroundColor: backgroundImage ? "transparent" : theme.bg }}
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
-        <div className="flex items-center flex-1">
-          <div className="w-[240px] shrink-0 flex items-center gap-1.1">
-            <img
-              src={logo}
-              alt="BNX Mail"
-              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
-              onClick={() => onToggleDesktopSidebar()}
-            />
-            <span
-              onClick={() => onToggleDesktopSidebar()}
-              className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: "#135bec" }}
-            >
-              BNX<span style={{ color: theme.text }}>mail</span>
-            </span>
-          </div>
+        <div className="w-[240px] shrink-0 flex items-center gap-1.5">
+          <img
+            src={logo}
+            alt="BNX Mail"
+            className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
+            onClick={() => onToggleDesktopSidebar()}
+          />
+          <span
+            onClick={() => onToggleDesktopSidebar()}
+            className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
+            style={{ color: "#135bec" }}
+          >
+            BNX<span style={{ color: theme.text }}>mail</span>
+          </span>
+        </div>
 
-          <form onSubmit={handleSearch} className="flex-1 max-w-3xl hidden md:block">
-            <div className="relative group">
+        {/* CENTER: SEGMENTED CONTROL */}
+        <div className="flex absolute left-1/2 -translate-x-1/2 items-center bg-black/5 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5">
+          <button 
+            onClick={() => navigate('/inbox')}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${!isChat ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`} 
+            style={{ color: !isChat ? theme.text : undefined }}
+          >
+            Mail
+          </button>
+          <button 
+            onClick={() => navigate('/colab')}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${isChat ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+            style={{ color: isChat ? theme.text : undefined }}
+          >
+            Chat
+          </button>
+        </div>
+
+        {/* RIGHT */}
+        <div className="flex items-center justify-end gap-2 sm:gap-3 flex-1">
+          {/* SEARCH */}
+          <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-[260px] mr-2">
+            <div className="relative group w-full">
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search mail"
-                className="w-full px-1 py-2.5 pl-12 pr-12 rounded-full text-[14px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-white dark:bg-white/[0.09] focus:bg-white dark:focus:bg-[#303134] focus:shadow-md border border-transparent outline-none transition-all duration-200"
+                placeholder="Search..."
+                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-black/5 dark:bg-white/5 focus:bg-white dark:focus:bg-[#303134] focus:shadow-sm border border-transparent focus:border-gray-200 dark:focus:border-gray-700 outline-none transition-all duration-200 bg-white"
                 style={{ color: theme.text }}
               />
               <svg
-                className="absolute left-4 top-3.5 h-4 w-4 transition-colors text-gray-500 dark:text-gray-400 group-focus-within:text-primary"
+                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-gray-500 dark:text-gray-400 group-focus-within:text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
             </div>
           </form>
-        </div>
-
-        {/* RIGHT */}
-        <div className="flex items-center gap-3 sm:gap-5">
-          {/* THEME TOGGLE */}
-          {/* <button
-            onClick={handleThemeToggle}
-            className="p-2.5 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors tooltip-trigger flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100"
-            title="Toggle theme"
-          >
-            {currentThemeName === "Dark" ? <MdLightMode size={22} className="text-yellow-400" /> : <MdDarkMode size={22} className="text-blue-600" />}
-          </button> */}
-
-          {/* NOTIFICATION */}
-          {/* <button className="p-2.5 rounded-full relative hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-gray-100 flex items-center justify-center">
-            <MdNotifications size={24} />
-            <span className="absolute top-2 right-2.5 h-2 w-2 bg-red-500 rounded-full border-2 border-white dark:border-gray-900" />
-          </button> */}
 
           {/* USER */}
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-3 p-1.5 pr-3 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+              className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             >
               {user?.profilePictureUrl ? (
                 <img
@@ -190,7 +172,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 />
               ) : (
                 <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0"
+                  className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-sm"
                   style={{ backgroundColor: theme.accent || "#135bec" }}
                 >
                   {user?.email?.[0]?.toUpperCase() || "U"}
@@ -198,28 +180,23 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               )}
               <div className="hidden md:flex items-center gap-1.5">
                 <span
-                  className="text-sm font-medium"
+                  className="text-[13px] font-medium truncate max-w-[100px]"
                   style={{ color: theme.text }}
                 >
-                  {user?.email || "User"}
+                  {user?.email?.split('@')[0] || "User"}
                 </span>
                 {isPrimary && (
-                  <MdCheckCircle className="text-green-500 shrink-0" size={14} title="Primary Account" />
+                  <MdCheckCircle className="text-green-500 shrink-0" size={13} title="Primary Account" />
                 )}
               </div>
               <svg
-                className="h-4 w-4 hidden md:block"
+                className="h-3.5 w-3.5 hidden md:block opacity-60"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: theme.subText }}
+                style={{ color: theme.text }}
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </button>
 
@@ -370,13 +347,13 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
           <button
             onClick={onToggleBitToolSidebar}
-            className="p-1 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors flex items-center justify-center shrink-0 ml-2"
+            className="h-9 px-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 ml-1 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             title="Toggle BIT Tools"
           >
             <img
               src={bitToolLogo}
               alt="BIT Tool"
-              className="h-8 object-contain"
+              className="h-5 object-contain opacity-80 group-hover:opacity-100"
             />
           </button>
         </div>

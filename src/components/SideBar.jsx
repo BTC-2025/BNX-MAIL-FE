@@ -189,58 +189,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             </div>
           )}
 
-          {/* SEPARATOR AND GROUPS / CHAT */}
-          <div className="pt-3 pb-2">
-            <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
-          </div>
 
-          <div className="mt-1">
-            <div className="pl-4 pr-3 flex items-center justify-between mb-1 hide-on-collapse">
-              <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
-                Chat
-              </h3>
-            </div>
-          </div>
-
-          <div className="space-y-0">
-            {SIDEBAR_ITEMS.filter(item => ["Colab"].includes(item.name)).map((item) => {
-              const isActive = location.pathname === item.path;
-              const count = unreadCounts[item.name.toLowerCase()] || 0;
-
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => navigate(item.path)}
-                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
-                  ${isActive
-                      ? "bg-primary/10 dark:bg-primary/20"
-                      : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
-                    }
-                `}
-                  style={{
-                    color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
-                    fontWeight: isActive ? 400 : 300,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
-                      {item.icon}
-                    </span>
-                    <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
-                  </div>
-
-                  {count > 0 && (
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
-                      style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
-          </div>
 
           {/* CUSTOM LABELS */}
           <div className="pt-3 pb-2">
