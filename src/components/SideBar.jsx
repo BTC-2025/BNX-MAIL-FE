@@ -63,21 +63,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
       `}
         style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
       >
-        {/* COMPOSE */}
-        <div className="p-3 pl-3.5 pb-2">
-          <button
-            onClick={() => openCompose()}
-            className="w-full flex items-center justify-center gap-3 px-5 py-3 rounded-2xl font-semibold transition-all duration-200 shadow-sm hover:shadow-md hover:scale-[1.02] cursor-pointer bg-white dark:bg-gray-800 border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200 btn-collapse"
-          >
-            <svg className="h-5 w-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-            </svg>
-            <span className="text-[14px] font-medium hide-on-collapse" style={{ color: theme.text }}>Compose</span>
-          </button>
-        </div>
 
         {/* NAVIGATION */}
-        <nav className="flex-1 flex flex-col pr-0 py-2 space-y-0 overflow-y-auto hover-scrollbar">
+        <nav className="flex-1 flex flex-col pr-0 pt-6 pb-2 space-y-0 overflow-y-auto hover-scrollbar">
           {/* TOP ITEMS */}
           {["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))

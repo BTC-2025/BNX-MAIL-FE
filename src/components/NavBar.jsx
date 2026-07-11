@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu } from "react-icons/md";
+import { useMail } from "../context/MailContext";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu, MdAdd } from "react-icons/md";
 import { userAPI } from "../services/api";
 import toast from "react-hot-toast";
 // import logo from "../assets/bnx.jpeg";
@@ -15,6 +16,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   const location = useLocation();
   const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
   const { theme, currentThemeName, changeTheme, backgroundImage } = useTheme();
+  const { openCompose } = useMail();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
   
   const isChat = location.pathname.startsWith('/colab');
@@ -100,24 +102,37 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
-        <div className="w-[240px] shrink-0 flex items-center gap-1.5">
-          <img
-            src={logo}
-            alt="BNX Mail"
-            className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
-            onClick={() => onToggleDesktopSidebar()}
-          />
-          <span
-            onClick={() => onToggleDesktopSidebar()}
-            className="text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-            style={{ color: "#135bec" }}
+        <div className="flex items-center gap-2 sm:gap-12 shrink-0">
+          <div className="flex items-center gap-1.5">
+            <img
+              src={logo}
+              alt="BNX Mail"
+              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
+              onClick={() => onToggleDesktopSidebar()}
+            />
+            <span
+              onClick={() => onToggleDesktopSidebar()}
+              className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
+              style={{ color: "#135bec" }}
+            >
+              BNX<span style={{ color: theme.text }}>mail</span>
+            </span>
+          </div>
+
+          {/* COMPOSE */}
+          <button
+            onClick={() => openCompose()}
+            className="flex items-center gap-2.5 px-3 sm:px-5 py-2 rounded-full font-semibold shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98] bg-white dark:bg-[#303134] border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200 ml-1 sm:ml-12"
           >
-            BNX<span style={{ color: theme.text }}>mail</span>
-          </span>
+            <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+            </svg>
+            <span className="hidden sm:inline text-[14px]" style={{ color: theme.text }}>Compose</span>
+          </button>
         </div>
 
         {/* CENTER: SEGMENTED CONTROL */}
-        <div className="flex absolute left-1/2 -translate-x-1/2 items-center bg-black/5 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5">
+        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-black/5 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5 mx-auto md:mx-0 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
             className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${!isChat ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`} 
@@ -136,6 +151,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
         {/* RIGHT */}
         <div className="flex items-center justify-end gap-2 sm:gap-3 flex-1">
+
           {/* SEARCH */}
           <form onSubmit={handleSearch} className="hidden lg:flex flex-1 max-w-[260px] mr-2">
             <div className="relative group w-full">

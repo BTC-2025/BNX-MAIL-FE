@@ -51,13 +51,12 @@ const ReadingPaneLayout = ({
 
   if (mode === 'no_split' || !hasSelection) {
     return (
-      <div className="flex flex-col h-full overflow-hidden bg-transparent">
-        {hasSelection ? detailsComponent : (
-          <>
-            {headerComponent}
-            {listComponent}
-          </>
-        )}
+      <div className="flex flex-col h-full overflow-hidden bg-transparent relative">
+        <div className={`flex flex-col h-full overflow-hidden ${hasSelection && mode === 'no_split' ? 'hidden' : 'flex'}`}>
+          {headerComponent}
+          {listComponent}
+        </div>
+        {hasSelection && mode === 'no_split' && detailsComponent}
       </div>
     );
   }
