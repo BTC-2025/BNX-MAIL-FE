@@ -100,7 +100,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0 shadow-md"
-      style={{ backgroundColor: backgroundImage ? "transparent" : "#135bec" }}
+      style={{ backgroundColor: backgroundImage ? "transparent" : "#99C2FF" }}
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
@@ -115,9 +115,9 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <span
               onClick={() => onToggleDesktopSidebar()}
               className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: "#ffffff" }}
+              style={{ color: "#1e3a8a" }}
             >
-              BNX<span style={{ color: "#ffffff", fontWeight: "normal" }}>mail</span>
+              BNX<span style={{ color: "#1e3a8a", fontWeight: "normal" }}>mail</span>
             </span>
           </div>
 
@@ -134,22 +134,22 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         </div>
 
         {/* CENTER: SEGMENTED CONTROL */}
-        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-white/10 rounded-full p-1 border border-white/5 mx-auto md:mx-0 shrink-0">
+        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-black/10 rounded-full p-1 border border-black/5 mx-auto md:mx-0 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`} 
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`} 
           >
             Mail
           </button>
           <button 
             onClick={() => navigate('/vault')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`}
           >
             Vault
           </button>
           <button 
             onClick={() => navigate('/colab')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`}
           >
             Chat
           </button>
@@ -166,10 +166,10 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-gray-400 bg-white/10 focus:bg-white focus:text-gray-900 text-white focus:shadow-sm border border-transparent focus:border-gray-200 outline-none transition-all duration-200"
+                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-blue-900/50 bg-black/10 focus:bg-white focus:text-gray-900 text-blue-900 focus:shadow-sm border border-transparent focus:border-gray-200 outline-none transition-all duration-200"
               />
               <svg
-                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-gray-400 group-focus-within:text-blue-500"
+                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-blue-900/60 group-focus-within:text-blue-600"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -201,7 +201,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               )}
               <div className="hidden md:flex items-center gap-1.5">
                 <span
-                  className="text-[13px] font-medium truncate max-w-[100px] text-white"
+                  className="text-[13px] font-medium truncate max-w-[100px] text-blue-900"
                 >
                   {user?.email?.split('@')[0] || "User"}
                 </span>
@@ -210,7 +210,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 )}
               </div>
               <svg
-                className="h-3.5 w-3.5 hidden md:block opacity-60 text-white"
+                className="h-3.5 w-3.5 hidden md:block opacity-60 text-blue-900"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
