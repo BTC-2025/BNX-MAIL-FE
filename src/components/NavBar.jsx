@@ -100,7 +100,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0"
-      style={{ backgroundColor: backgroundImage ? "transparent" : theme.bg }}
+      style={{ backgroundColor: backgroundImage ? "transparent" : "#0f172a" }}
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
@@ -115,9 +115,9 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <span
               onClick={() => onToggleDesktopSidebar()}
               className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: "#135bec" }}
+              style={{ color: "#3b82f6" }}
             >
-              BNX<span style={{ color: theme.text }}>mail</span>
+              BNX<span style={{ color: "#ffffff" }}>mail</span>
             </span>
           </div>
 
@@ -129,30 +129,27 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
             </svg>
-            <span className="hidden sm:inline text-[14px]" style={{ color: theme.text }}>Compose</span>
+            <span className="hidden sm:inline text-[14px]">Compose</span>
           </button>
         </div>
 
         {/* CENTER: SEGMENTED CONTROL */}
-        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-black/5 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5 mx-auto md:mx-0 shrink-0">
+        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-white/10 rounded-full p-1 border border-white/5 mx-auto md:mx-0 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`} 
-            style={{ color: currentTab === 'mail' ? theme.text : undefined }}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`} 
           >
             Mail
           </button>
           <button 
             onClick={() => navigate('/vault')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
-            style={{ color: currentTab === 'vault' ? theme.text : undefined }}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`}
           >
             Vault
           </button>
           <button 
             onClick={() => navigate('/colab')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
-            style={{ color: currentTab === 'chat' ? theme.text : undefined }}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-300 hover:text-white'}`}
           >
             Chat
           </button>
@@ -169,11 +166,10 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-gray-500 dark:placeholder:text-gray-400 bg-black/5 dark:bg-white/5 focus:bg-white dark:focus:bg-[#303134] focus:shadow-sm border border-transparent focus:border-gray-200 dark:focus:border-gray-700 outline-none transition-all duration-200 bg-white"
-                style={{ color: theme.text }}
+                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-gray-400 bg-white/10 focus:bg-white focus:text-gray-900 text-white focus:shadow-sm border border-transparent focus:border-gray-200 outline-none transition-all duration-200"
               />
               <svg
-                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-gray-500 dark:text-gray-400 group-focus-within:text-primary"
+                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-gray-400 group-focus-within:text-blue-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -205,8 +201,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               )}
               <div className="hidden md:flex items-center gap-1.5">
                 <span
-                  className="text-[13px] font-medium truncate max-w-[100px]"
-                  style={{ color: theme.text }}
+                  className="text-[13px] font-medium truncate max-w-[100px] text-white"
                 >
                   {user?.email?.split('@')[0] || "User"}
                 </span>
@@ -215,11 +210,10 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 )}
               </div>
               <svg
-                className="h-3.5 w-3.5 hidden md:block opacity-60"
+                className="h-3.5 w-3.5 hidden md:block opacity-60 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
-                style={{ color: theme.text }}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
