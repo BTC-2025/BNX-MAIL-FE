@@ -235,3 +235,12 @@ export const templateAPI = {
     updateTemplate: (id, data, userEmail) => api.put(`/api/templates/${id}${userEmail ? `?userEmail=${encodeURIComponent(userEmail)}` : ''}`, data),
     deleteTemplate: (id, userEmail) => api.delete(`/api/templates/${id}${userEmail ? `?userEmail=${encodeURIComponent(userEmail)}` : ''}`),
 };
+
+export const vaultAPI = {
+    uploadFile: (formData) => api.post('/api/vault/upload', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+    }),
+    getUserFiles: () => api.get('/api/vault'),
+    downloadFile: (id) => api.get(`/api/vault/${id}/download`, { responseType: 'blob' }),
+    deleteFile: (id) => api.delete(`/api/vault/${id}`)
+};

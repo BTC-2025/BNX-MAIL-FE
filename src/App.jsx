@@ -38,6 +38,7 @@ import VerifyDomain from "./pages/VerifyDomain";
 import Templates from "./pages/Templates";
 import Snoozed from "./pages/Snoozed";
 import Subscriptions from "./pages/Subscriptions";
+import Vault from "./pages/Vault";
 
 
 /* ---------------- PROTECTED ROUTE ---------------- */
@@ -196,6 +197,7 @@ const AppContent = () => {
               <Route path="/chat/:chatId" element={<ChatRoom />} />
               <Route path="/label/:labelId" element={<AllMail searchQuery={searchQuery} />} />
               <Route path="/subscriptions" element={<Subscriptions searchQuery={searchQuery} />} />
+              <Route path="/vault" element={<Vault />} />
             </Routes>
           </main>
 

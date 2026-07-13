@@ -19,7 +19,9 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   const { openCompose } = useMail();
   const isPrimary = user?.isPrimary || user?.mailboxes?.find(m => m.email === user.email)?.isPrimary;
   
-  const isChat = location.pathname.startsWith('/colab');
+  const currentTab = location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? 'chat' 
+                   : location.pathname.startsWith('/vault') ? 'vault' 
+                   : 'mail';
 
   const allSessions = getSessions();
   const otherSessions = allSessions.filter(sess => sess.email !== user?.email);
@@ -135,15 +137,22 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-black/5 dark:bg-white/5 rounded-full p-1 border border-black/5 dark:border-white/5 mx-auto md:mx-0 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${!isChat ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`} 
-            style={{ color: !isChat ? theme.text : undefined }}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`} 
+            style={{ color: currentTab === 'mail' ? theme.text : undefined }}
           >
             Mail
           </button>
           <button 
+            onClick={() => navigate('/vault')}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+            style={{ color: currentTab === 'vault' ? theme.text : undefined }}
+          >
+            Vault
+          </button>
+          <button 
             onClick={() => navigate('/colab')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${isChat ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
-            style={{ color: isChat ? theme.text : undefined }}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white dark:bg-[#303134] shadow-sm' : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'}`}
+            style={{ color: currentTab === 'chat' ? theme.text : undefined }}
           >
             Chat
           </button>

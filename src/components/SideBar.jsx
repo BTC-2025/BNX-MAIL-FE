@@ -3,13 +3,39 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { SIDEBAR_ITEMS } from "../Data/constants";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit } from "react-icons/md";
+import { useAuth } from "../context/AuthContext";
+import { chatAPI } from "../services/api";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit, MdGroup, MdChat, MdCloudUpload } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, backgroundImage, sidebarPreferences } = useTheme();
   const { unreadCounts, labels, handleCreateLabel, handleUpdateLabel, handleDeleteLabel, openCompose } = useMail();
+  const { user } = useAuth();
+
+  const isChatMode = location.pathname.startsWith("/colab") || location.pathname.startsWith("/chat");
+  const isVaultMode = location.pathname.startsWith("/vault");
+
+  const [chats, setChats] = useState([]);
+  const [chatsLoading, setChatsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isChatMode && user?.email) {
+      setChatsLoading(true);
+      chatAPI.getUserChats(user.email)
+        .then(res => {
+          if (res.data) {
+            setChats(Array.isArray(res.data) ? res.data : (res.data.data || []));
+          }
+        })
+        .catch(err => console.error("Failed to load chats in sidebar:", err))
+        .finally(() => setChatsLoading(false));
+    }
+  }, [isChatMode, user?.email]);
+
+  const colabGroups = chats.filter(c => c.type === 'GROUP');
+  const directMessages = chats.filter(c => c.type === 'DIRECT');
 
   const [isCreating, setIsCreating] = useState(false);
   const [isMoreOpen, setIsMoreOpen] = useState(false);
@@ -67,50 +93,94 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         {/* NAVIGATION */}
         <nav className="flex-1 flex flex-col pr-0 pt-6 pb-2 space-y-0 overflow-y-auto hover-scrollbar">
           {/* TOP ITEMS */}
-          {["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
-            .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
-            .filter(Boolean)
-            .filter(item => sidebarPreferences?.[item.name] !== false)
-            .map((item) => {
-              const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
-              const count = unreadCounts[item.name.toLowerCase()] || 0;
+          {isVaultMode ? (
+            <div className="flex flex-col px-2 mt-2">
+               <button
+                  onClick={() => navigate('/vault')}
+                  className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse bg-primary/10 dark:bg-primary/20`}
+                  style={{ color: theme.accent || "#135bec" }}
+               >
+                 <MdCloudUpload size={18} className="shrink-0" />
+                 <span className="text-sm font-medium hide-on-collapse">My Vault</span>
+               </button>
+            </div>
+          ) : !isChatMode ? (
+            ["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
+              .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
+              .filter(Boolean)
+              .filter(item => sidebarPreferences?.[item.name] !== false)
+              .map((item) => {
+                const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
+                const count = unreadCounts[item.name.toLowerCase()] || 0;
 
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => navigate(item.path)}
-                  className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
-                ${isActive
-                      ? "bg-primary/10 dark:bg-primary/20"
-                      : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
-                    }
-              `}
-                  style={{
-                    color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
-                    fontWeight: isActive ? 400 : 300,
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
-                      {item.icon}
-                    </span>
-                    <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
-                  </div>
+                return (
+                  <button
+                    key={item.name}
+                    onClick={() => navigate(item.path)}
+                    className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
+                  ${isActive
+                        ? "bg-primary/10 dark:bg-primary/20"
+                        : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                      }
+                `}
+                    style={{
+                      color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                      fontWeight: isActive ? 400 : 300,
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                        {item.icon}
+                      </span>
+                      <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
+                    </div>
 
-                  {count > 0 && (
-                    <span
-                      className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
-                      style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
-                    >
-                      {count}
-                    </span>
-                  )}
-                </button>
-              );
-            })}
+                    {count > 0 && (
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
+                        style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                      >
+                        {count}
+                      </span>
+                    )}
+                  </button>
+                );
+              })
+          ) : (
+            <div className="flex flex-col px-2 mt-2">
+              {/* Colab Groups */}
+              <div className="mb-6">
+                <div className="flex items-center justify-between px-3 mb-2 hide-on-collapse">
+                  <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>Colab Groups</h3>
+                  <button onClick={() => navigate('/colab')} className="p-1 rounded-md hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-colors" style={{ color: theme.accent }}><MdAdd size={16} /></button>
+                </div>
+                {chatsLoading ? (
+                   <div className="px-3 text-xs opacity-50 hide-on-collapse">Loading...</div>
+                ) : colabGroups.length === 0 ? (
+                   <div className="px-3 text-xs opacity-50 hide-on-collapse">No groups</div>
+                ) : (
+                   colabGroups.map(chat => (
+                     <button
+                        key={chat.id}
+                        onClick={() => navigate(`/chat/${chat.id}`, { state: { chat } })}
+                        className={`w-full flex items-center gap-3 px-3 py-1.5 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
+                          ${location.pathname === `/chat/${chat.id}` ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
+                        `}
+                        style={{ color: location.pathname === `/chat/${chat.id}` ? (theme.accent || "#135bec") : theme.sidebarText }}
+                     >
+                       <MdGroup size={18} className="shrink-0" />
+                       <span className="text-sm truncate hide-on-collapse text-left flex-1">{chat.name || 'Unnamed Group'}</span>
+                     </button>
+                   ))
+                )}
+              </div>
+
+
+            </div>
+          )}
 
           {/* COLLAPSIBLE MORE SECTION */}
-          {["Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
+          {!isChatMode && !isVaultMode && ["Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
             .filter(Boolean)
             .filter(item => sidebarPreferences?.[item.name] !== false)
@@ -180,9 +250,11 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
 
           {/* CUSTOM LABELS */}
-          <div className="pt-3 pb-2">
-            <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
-          </div>
+          {!isChatMode && !isVaultMode && (
+            <>
+              <div className="pt-3 pb-2">
+                <hr className="border-gray-200 dark:border-gray-700/50 mx-4" />
+              </div>
           <div className="mt-1">
             <div className="pl-4 pr-3 flex items-center justify-between mb-1 hide-on-collapse">
               <h3 className="text-xs font-bold uppercase tracking-widest opacity-50" style={{ color: theme.sidebarText }}>
@@ -264,7 +336,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             })()}
           </div>
 
-          {/* HELP & SUPPORT (Removed HR above it) */}
+            {/* HELP & SUPPORT (Removed HR above it) */}
+            </>
+          )}
           <div className="pt-2">
           </div>
         </nav>
