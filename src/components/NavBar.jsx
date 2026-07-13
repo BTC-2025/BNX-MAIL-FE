@@ -99,8 +99,8 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
   return (
     <nav
-      className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0"
-      style={{ backgroundColor: backgroundImage ? "transparent" : "#0f172a" }}
+      className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0 shadow-md"
+      style={{ backgroundColor: backgroundImage ? "transparent" : "#135bec" }}
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
@@ -115,9 +115,9 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <span
               onClick={() => onToggleDesktopSidebar()}
               className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: "#3b82f6" }}
+              style={{ color: "#ffffff" }}
             >
-              BNX<span style={{ color: "#ffffff" }}>mail</span>
+              BNX<span style={{ color: "#ffffff", fontWeight: "normal" }}>mail</span>
             </span>
           </div>
 
