@@ -93,9 +93,11 @@ const Casbox = () => {
 
   
   const getStatusIcon = (status) => {
-    if (status === "sent") return <MdCheck size={16} className="text-gray-400" title="Sent" />;
-    if (status === "delivered") return <MdDoneAll size={16} className="text-gray-400" title="Delivered" />;
-    if (status === "seen") return <MdDoneAll size={16} className="text-blue-500" title="Seen" />;
+    if (!status) return null;
+    const lowerStatus = status.toLowerCase();
+    if (lowerStatus === "sent") return <MdCheck size={16} className="text-gray-400" title="Sent" />;
+    if (lowerStatus === "delivered") return <MdDoneAll size={16} className="text-gray-400" title="Delivered" />;
+    if (lowerStatus === "seen") return <MdDoneAll size={16} className="text-blue-500" title="Seen" />;
     return null;
   };
 
