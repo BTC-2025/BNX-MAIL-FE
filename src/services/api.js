@@ -244,3 +244,12 @@ export const vaultAPI = {
     downloadFile: (id) => api.get(`/api/vault/${id}/download`, { responseType: 'blob' }),
     deleteFile: (id) => api.delete(`/api/vault/${id}`)
 };
+
+// Casbox APIs
+export const casboxAPI = {
+    getAllMessages: () => api.get('/api/casbox'),
+    getThread: (contactEmail) => api.get(`/api/casbox/thread/${encodeURIComponent(contactEmail)}`),
+    sendMessage: (data) => api.post('/api/casbox/send', data),
+    updateStatus: (data) => api.patch('/api/casbox/status', data),
+    markAsDelivered: () => api.post('/api/casbox/delivered'),
+};
