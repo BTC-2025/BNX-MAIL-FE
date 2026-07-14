@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
+import { useMail } from "../context/MailContext";
 import { casboxAPI } from "../services/api";
 import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose } from "react-icons/md";
 import toast from "react-hot-toast";
@@ -11,12 +12,9 @@ const Casbox = () => {
   const { theme, readingPaneMode } = useTheme();
   const { user } = useAuth();
   const { stompClient, isConnected } = useSocket();
+  const { openCompose } = useMail();
   
   const [messages, setMessages] = useState([]);
-  const [composeTo, setComposeTo] = useState("");
-  const [composeSubject, setComposeSubject] = useState("");
-  const [composeBody, setComposeBody] = useState("");
-  const [isComposing, setIsComposing] = useState(false);
   const [loading, setLoading] = useState(true);
   
   const [selectedMessage, setSelectedMessage] = useState(null);
@@ -57,27 +55,6 @@ const Casbox = () => {
         setLoading(false);
     }
   };
-
-  const handleSend = async () => {
-      if (!composeTo || !composeBody) {
-          toast.error("Please enter a receiver email and message body.");
-          return;
-      }
-      try {
-          const res = await casboxAPI.sendMessage({
-              receiverEmail: composeTo,
-              subject: composeSubject,
-              body: composeBody
-          });
-          setMessages(prev => [res.data, ...prev]);
-          setComposeTo("");
-          setComposeSubject("");
-          setComposeBody("");
-          setIsComposing(false);
-      } catch (err) {
-          toast.error("Failed to send message");
-      }
-  };
   
   const handleSelectMessage = async (msg) => {
       setSelectedMessage(msg);
@@ -114,11 +91,11 @@ const Casbox = () => {
         </span>
         <div className="flex-1"></div>
         <button 
-          onClick={() => setIsComposing(!isComposing)}
+          onClick={() => openCompose({ mode: 'casbox' })}
           className="px-3 py-1.5 rounded-full text-sm font-bold text-white transition-transform active:scale-95"
           style={{ backgroundColor: theme.accent || "#135bec" }}
         >
-          {isComposing ? "Cancel" : "Compose"}
+          Compose
         </button>
         <button 
           onClick={fetchMessages}
@@ -127,44 +104,6 @@ const Casbox = () => {
           <MdRefresh size={18} className={loading ? "animate-spin" : ""} />
         </button>
       </div>
-
-      {isComposing && (
-        <div className="px-4 sm:px-6 py-4 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-gray-800/30 flex flex-col gap-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-                <input 
-                    type="email" 
-                    placeholder="To: (Email address)" 
-                    className="w-full sm:w-1/3 px-3 py-2 rounded-lg text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 outline-none focus:border-blue-500 dark:text-gray-200"
-                    value={composeTo}
-                    onChange={e => setComposeTo(e.target.value)}
-                />
-                <input 
-                    type="text" 
-                    placeholder="Subject (Optional)" 
-                    className="w-full sm:w-2/3 px-3 py-2 rounded-lg text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 outline-none focus:border-blue-500 dark:text-gray-200"
-                    value={composeSubject}
-                    onChange={e => setComposeSubject(e.target.value)}
-                />
-            </div>
-            <div className="flex items-end gap-3">
-                <input 
-                    type="text" 
-                    placeholder="Type your message..." 
-                    className="flex-1 px-3 py-2 rounded-lg text-sm bg-white dark:bg-[#1e1e1e] border border-gray-200 dark:border-gray-700 outline-none focus:border-blue-500 dark:text-gray-200"
-                    value={composeBody}
-                    onChange={e => setComposeBody(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && handleSend()}
-                />
-                <button 
-                    onClick={handleSend}
-                    className="p-2.5 rounded-lg text-white shadow-sm hover:scale-105 active:scale-95 transition shrink-0"
-                    style={{ backgroundColor: theme.accent || "#135bec" }}
-                >
-                    <MdSend size={18} />
-                </button>
-            </div>
-        </div>
-      )}
     </div>
   );
 

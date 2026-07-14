@@ -11,7 +11,7 @@ import {
   MdCloseFullscreen,
   MdEditDocument
 } from "react-icons/md";
-import { mailAPI, api, userAPI, signatureAPI } from "../services/api";
+import { mailAPI, api, userAPI, signatureAPI, casboxAPI } from "../services/api";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
@@ -55,6 +55,17 @@ const FloatingCompose = () => {
   } = useMail();
 
   const fileInputRef = useRef(null);
+
+  const [composeMode, setComposeMode] = useState("email"); // "email" or "casbox"
+
+  // Sync mode if opened with data
+  useEffect(() => {
+      if (composeData?.mode) {
+          setComposeMode(composeData.mode);
+      } else {
+          setComposeMode("email");
+      }
+  }, [composeData, isComposeOpen]);
 
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
@@ -367,6 +378,34 @@ const FloatingCompose = () => {
       return;
     }
 
+    if (composeMode === "casbox") {
+        if (!formData.body) {
+           setError("Message body is required");
+           return;
+        }
+        setSending(true);
+        try {
+            // Strip HTML for casbox
+            const tempDiv = document.createElement("div");
+            tempDiv.innerHTML = formData.body;
+            const plainText = tempDiv.textContent || tempDiv.innerText || "";
+            
+            await casboxAPI.sendMessage({
+                receiverEmail: formData.to,
+                subject: formData.subject,
+                body: plainText
+            });
+            toast.success("Casbox Message sent.");
+            closeCompose();
+        } catch(err) {
+            setError(err.response?.data?.message || "Failed to send casbox message");
+            toast.error("Failed to send message");
+        } finally {
+            setSending(false);
+        }
+        return;
+    }
+
     if (!formData.subject) {
       setError("Subject is required");
       return;
@@ -560,7 +599,7 @@ const FloatingCompose = () => {
 
   const handleClose = () => {
     const hasContent = formData.to.trim() || formData.subject.trim() || formData.body.trim() || formData.cc.trim() || formData.bcc.trim();
-    if (hasContent) {
+    if (hasContent && composeMode === "email") {
       const payload = {
         to: formData.to,
         subject: formData.subject || "(No Subject)",
@@ -598,9 +637,8 @@ const FloatingCompose = () => {
       <div
         className={`${isMobile ? "" : "compose-drag-handle"} flex items-center justify-between px-4 py-2 cursor-move shrink-0 border-b select-none`}
         style={{ 
-          backgroundColor: theme.accent || "#135bec",
-          color: "#ffffff",
-          borderColor: theme.border
+          backgroundColor: theme.primary || "#f2f6fc",
+          borderColor: theme.border || "rgba(0,0,0,0.1)"
         }}
         onClick={() => {
           if (isMobile && isComposeMinimized) {
@@ -608,9 +646,17 @@ const FloatingCompose = () => {
           }
         }}
       >
-        <span className="text-sm font-semibold truncate">
-          {composeData?.draft ? "Edit Draft" : "New Message"}
-        </span>
+        <div className="flex items-center gap-2">
+           <select 
+             value={composeMode} 
+             onChange={(e) => setComposeMode(e.target.value)} 
+             className="text-sm font-semibold bg-transparent border-none outline-none cursor-pointer text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+             onClick={e => e.stopPropagation()}
+           >
+              <option value="email">New Message</option>
+              <option value="casbox">Casbox Message</option>
+           </select>
+        </div>
 
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
@@ -656,38 +702,44 @@ const FloatingCompose = () => {
 
           {/* FIELDS */}
           <div className="flex-1 flex flex-col gap-0.5 overflow-y-auto hidden-scrollbar min-h-0 pr-1">
-            {/* TO */}
-            <div className="flex items-center gap-2 border-b py-1.5 shrink-0" style={{ borderColor: theme.border }}>
-              <span className="text-xs font-semibold w-10 text-gray-500">To:</span>
-              <input
-                name="to"
-                value={formData.to}
-                onChange={handleChange}
-                className="flex-1 bg-transparent text-sm outline-none border-none"
-                style={{ color: theme.text }}
-                placeholder="recipients@example.com"
-                spellCheck="false"
-              />
-              <div className="flex gap-2 text-xs">
-                <button
-                  type="button"
-                  onClick={() => setShowCc((v) => !v)}
-                  className="font-medium hover:underline text-gray-500"
-                >
-                  Cc
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowBcc((v) => !v)}
-                  className="font-medium hover:underline text-gray-500"
-                >
-                  Bcc
-                </button>
-              </div>
-            </div>
+            {/* Cc & Bcc toggles */}
+            {composeMode === "email" && (
+                <div className="flex px-4 py-2 border-b items-center text-sm dark:border-gray-800 shrink-0">
+                  <div className="text-gray-400 dark:text-gray-500 w-10">To</div>
+                  <input
+                    type="text"
+                    autoFocus
+                    className="flex-1 outline-none bg-transparent dark:text-gray-100 placeholder-gray-400"
+                    placeholder="Recipients"
+                    value={formData.to}
+                    onChange={(e) => setFormData({ ...formData, to: e.target.value })}
+                  />
+                  <div className="flex gap-2 text-gray-500 font-medium">
+                    <button type="button" onClick={() => setShowCc(!showCc)} className="hover:underline">
+                      Cc
+                    </button>
+                    <button type="button" onClick={() => setShowBcc(!showBcc)} className="hover:underline">
+                      Bcc
+                    </button>
+                  </div>
+                </div>
+            )}
+            {composeMode === "casbox" && (
+                <div className="flex px-4 py-2 border-b items-center text-sm dark:border-gray-800 shrink-0">
+                  <div className="text-gray-400 dark:text-gray-500 w-10">To</div>
+                  <input
+                    type="text"
+                    autoFocus
+                    className="flex-1 outline-none bg-transparent dark:text-gray-100 placeholder-gray-400"
+                    placeholder="Casbox Contact Email"
+                    value={formData.to}
+                    onChange={(e) => setFormData({ ...formData, to: e.target.value })}
+                  />
+                </div>
+            )}
 
             {/* CC */}
-            {showCc && (
+            {showCc && composeMode === "email" && (
               <div className="flex items-center gap-2 border-b py-1.5 shrink-0 animate-fade-in" style={{ borderColor: theme.border }}>
                 <span className="text-xs font-semibold w-10 text-gray-500">Cc:</span>
                 <input
@@ -703,7 +755,7 @@ const FloatingCompose = () => {
             )}
 
             {/* BCC */}
-            {showBcc && (
+            {showBcc && composeMode === "email" && (
               <div className="flex items-center gap-2 border-b py-1.5 shrink-0 animate-fade-in" style={{ borderColor: theme.border }}>
                 <span className="text-xs font-semibold w-10 text-gray-500">Bcc:</span>
                 <input
@@ -791,21 +843,23 @@ const FloatingCompose = () => {
                   {sending ? "Sending…" : "Send"}
                   {!sending && <MdSend size={14} />}
                 </button>
-                <button
-                  type="button"
-                  disabled={sending || uploading}
-                  onClick={() => {
-                    setShowScheduleMenu(!showScheduleMenu);
-                    setShowCustomSchedule(false);
-                  }}
-                  className="px-2 py-2 rounded-r-full text-white text-xs font-semibold disabled:opacity-60 cursor-pointer flex items-center justify-center hover:bg-white/10"
-                  style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
-                  title="Schedule send"
-                >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
-                    <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                  </svg>
-                </button>
+                {composeMode === "email" && (
+                  <button
+                    type="button"
+                    disabled={sending || uploading}
+                    onClick={() => {
+                      setShowScheduleMenu(!showScheduleMenu);
+                      setShowCustomSchedule(false);
+                    }}
+                    className="px-2 py-2 rounded-r-full text-white text-xs font-semibold disabled:opacity-60 cursor-pointer flex items-center justify-center hover:bg-white/10"
+                    style={{ background: `linear-gradient(135deg, ${theme.accent || '#135bec'} 0%, #3b82f6 100%)` }}
+                    title="Schedule send"
+                  >
+                    <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 20 20">
+                      <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                    </svg>
+                  </button>
+                )}
               </div>
 
               {/* Schedule Send Dropdown Menu */}
@@ -905,111 +959,115 @@ const FloatingCompose = () => {
               </button>
 
               {/* Signatures quick selector */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowSignaturesMenu(!showSignaturesMenu)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
-                  title="Insert Signature"
-                >
-                  <MdEditDocument size={16} />
-                  <span className="hidden sm:inline">Signature</span>
-                </button>
-
-                {showSignaturesMenu && (
-                  <div
-                    className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
-                    style={{
-                      backgroundColor: theme.cardBg,
-                      borderColor: theme.border,
-                      color: theme.text,
-                    }}
+              {composeMode === "email" && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowSignaturesMenu(!showSignaturesMenu)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
+                    title="Insert Signature"
                   >
-                    <div className="flex items-center justify-between p-1.5 mb-1 border-b" style={{ borderColor: theme.border }}>
-                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Signatures</span>
-                      <button
-                        type="button"
-                        onClick={() => setShowSignaturesMenu(false)}
-                        className="text-xs p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
-                      >
-                        <MdClose size={12} />
-                      </button>
-                    </div>
-                    {signatures.length === 0 ? (
-                      <p className="text-[10px] text-center p-2 opacity-60">No signatures configured</p>
-                    ) : (
-                      <div className="flex flex-col gap-0.5">
-                        {signatures.map((s) => (
-                          <button
-                            key={s.id}
-                            type="button"
-                            onClick={() => {
-                              setFormData(prev => ({ ...prev, body: prev.body + `<br/><br/>${s.content}` }));
-                              setShowSignaturesMenu(false);
-                            }}
-                            className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer flex justify-between items-center"
-                          >
-                            <span className="font-semibold truncate">{s.name}</span>
-                            {s.isDefault && <span className="text-[10px] text-green-600 bg-green-100 dark:bg-green-900/30 px-1.5 rounded">Default</span>}
-                          </button>
-                        ))}
+                    <MdEditDocument size={16} />
+                    <span className="hidden sm:inline">Signature</span>
+                  </button>
+
+                  {showSignaturesMenu && (
+                    <div
+                      className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
+                      style={{
+                        backgroundColor: theme.cardBg,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }}
+                    >
+                      <div className="flex items-center justify-between p-1.5 mb-1 border-b" style={{ borderColor: theme.border }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Signatures</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowSignaturesMenu(false)}
+                          className="text-xs p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
+                        >
+                          <MdClose size={12} />
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      {signatures.length === 0 ? (
+                        <p className="text-[10px] text-center p-2 opacity-60">No signatures configured</p>
+                      ) : (
+                        <div className="flex flex-col gap-0.5">
+                          {signatures.map((s) => (
+                            <button
+                              key={s.id}
+                              type="button"
+                              onClick={() => {
+                                setFormData(prev => ({ ...prev, body: prev.body + `<br/><br/>${s.content}` }));
+                                setShowSignaturesMenu(false);
+                              }}
+                              className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer flex justify-between items-center"
+                            >
+                              <span className="font-semibold truncate">{s.name}</span>
+                              {s.isDefault && <span className="text-[10px] text-green-600 bg-green-100 dark:bg-green-900/30 px-1.5 rounded">Default</span>}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Inline Templates quick selector */}
-              <div className="relative">
-                <button
-                  type="button"
-                  onClick={() => setShowTemplates(!showTemplates)}
-                  className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
-                  title="Insert Template"
-                >
-                  <MdAssignment size={16} />
-                  <span className="hidden sm:inline">Templates</span>
-                </button>
-
-                {showTemplates && (
-                  <div
-                    className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
-                    style={{
-                      backgroundColor: theme.cardBg,
-                      borderColor: theme.border,
-                      color: theme.text,
-                    }}
+              {composeMode === "email" && (
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setShowTemplates(!showTemplates)}
+                    className="flex items-center gap-1 px-3 py-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
+                    title="Insert Template"
                   >
-                    <div className="flex items-center justify-between p-1.5 mb-1 border-b" style={{ borderColor: theme.border }}>
-                      <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Templates</span>
-                      <button
-                        type="button"
-                        onClick={() => setShowTemplates(false)}
-                        className="text-xs p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
-                      >
-                        <MdClose size={12} />
-                      </button>
-                    </div>
-                    {allTemplates.length === 0 ? (
-                      <p className="text-[10px] text-center p-2 opacity-60">No templates found</p>
-                    ) : (
-                      <div className="flex flex-col gap-0.5">
-                        {allTemplates.map((t) => (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => handleApplyTemplate(t)}
-                            className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer"
-                          >
-                            <div className="font-semibold truncate">{t.title}</div>
-                            <div className="text-[10px] opacity-60 truncate">{t.subject}</div>
-                          </button>
-                        ))}
+                    <MdAssignment size={16} />
+                    <span className="hidden sm:inline">Templates</span>
+                  </button>
+
+                  {showTemplates && (
+                    <div
+                      className="absolute bottom-10 right-0 md:right-auto md:left-0 w-56 max-h-48 overflow-y-auto rounded-xl border shadow-xl z-50 p-1.5 glass"
+                      style={{
+                        backgroundColor: theme.cardBg,
+                        borderColor: theme.border,
+                        color: theme.text,
+                      }}
+                    >
+                      <div className="flex items-center justify-between p-1.5 mb-1 border-b" style={{ borderColor: theme.border }}>
+                        <span className="text-[10px] font-bold uppercase tracking-wider opacity-60">Templates</span>
+                        <button
+                          type="button"
+                          onClick={() => setShowTemplates(false)}
+                          className="text-xs p-0.5 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500"
+                        >
+                          <MdClose size={12} />
+                        </button>
                       </div>
-                    )}
-                  </div>
-                )}
-              </div>
+                      {allTemplates.length === 0 ? (
+                        <p className="text-[10px] text-center p-2 opacity-60">No templates found</p>
+                      ) : (
+                        <div className="flex flex-col gap-0.5">
+                          {allTemplates.map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => handleApplyTemplate(t)}
+                              className="w-full text-left px-2.5 py-1.5 text-xs rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors truncate text-gray-800 dark:text-gray-200 cursor-pointer"
+                            >
+                              <div className="font-semibold truncate">{t.title}</div>
+                              <div className="text-[10px] opacity-60 truncate">{t.subject}</div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <button
