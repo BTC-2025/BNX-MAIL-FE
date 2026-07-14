@@ -21,6 +21,15 @@ const Casbox = () => {
 
   useEffect(() => {
     fetchMessages();
+
+    // Background auto-polling for new casbox messages every 30 seconds
+    const interval = setInterval(() => {
+        if (!document.hidden) {
+            fetchMessages(true);
+        }
+    }, 10000);
+
+    return () => clearInterval(interval);
   }, []);
 
   useEffect(() => {
@@ -44,15 +53,15 @@ const Casbox = () => {
     };
   }, [stompClient, isConnected]);
 
-  const fetchMessages = async () => {
+  const fetchMessages = async (background = false) => {
     try {
-        setLoading(true);
+        if (!background) setLoading(true);
         const res = await casboxAPI.getAllMessages();
         setMessages(res.data);
     } catch (err) {
-        toast.error("Failed to fetch messages");
+        if (!background) toast.error("Failed to fetch messages");
     } finally {
-        setLoading(false);
+        if (!background) setLoading(false);
     }
   };
   

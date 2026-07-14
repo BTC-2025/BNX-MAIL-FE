@@ -29,7 +29,7 @@ export const SocketProvider = ({ children }) => {
         const token = localStorage.getItem('accessToken');
         if (!token) return;
 
-        console.log('🔄 Attempting standard WebSocket connection to:', WS_URL);
+        // console.log('🔄 Attempting standard WebSocket connection to:', WS_URL);
 
         const client = new Client({
             brokerURL: WS_URL,
@@ -37,7 +37,7 @@ export const SocketProvider = ({ children }) => {
                 Authorization: `Bearer ${token}`
             },
             debug: function (str) {
-                console.log('STOMP:', str);
+                // console.log('STOMP:', str);
             },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
@@ -47,7 +47,7 @@ export const SocketProvider = ({ children }) => {
         });
 
         client.onConnect = (frame) => {
-            console.log('🔌 Connected to BNX STOMP Broker');
+            // console.log('🔌 Connected to BNX STOMP Broker');
             setIsConnected(true);
 
             // Subscribe to personal notifications
@@ -67,7 +67,7 @@ export const SocketProvider = ({ children }) => {
         };
 
         client.onDisconnect = () => {
-            console.log('🔌 Disconnected from STOMP');
+            // console.log('🔌 Disconnected from STOMP');
             setIsConnected(false);
         };
 
@@ -80,7 +80,7 @@ export const SocketProvider = ({ children }) => {
     }, [isAuthenticated]);
 
     const handlePersonalNotification = (data) => {
-        console.log('📩 Personal Notification:', data);
+        // console.log('📩 Personal Notification:', data);
         switch (data.type) {
             case 'new_email':
                 toast('New email received!', { icon: '📧' });
@@ -101,7 +101,7 @@ export const SocketProvider = ({ children }) => {
 
     const subscribeToChat = (chatId, callback) => {
         if (!stompClient || !isConnected) return null;
-        console.log(`📡 Subscribing to /topic/chat/${chatId}`);
+        // console.log(`📡 Subscribing to /topic/chat/${chatId}`);
         return stompClient.subscribe(`/topic/chat/${chatId}`, (message) => {
             const data = JSON.parse(message.body);
             callback(data);
