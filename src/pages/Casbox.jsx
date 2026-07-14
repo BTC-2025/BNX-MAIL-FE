@@ -89,6 +89,19 @@ const Casbox = () => {
     return null;
   };
 
+  const parseTimestamp = (ts) => {
+    if (!ts) return new Date();
+    if (Array.isArray(ts)) {
+      const [year, month, day, hour = 0, minute = 0, second = 0] = ts;
+      return new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+    }
+    if (typeof ts === 'string') {
+      const str = ts.endsWith('Z') || ts.includes('+') ? ts : ts + 'Z';
+      return new Date(str);
+    }
+    return new Date(ts);
+  };
+
   const headerComponent = (
     <div className="flex flex-col shrink-0">
       <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex items-center gap-3 shrink-0 bg-transparent">
@@ -162,7 +175,7 @@ const Casbox = () => {
 
           <div className="shrink-0 w-20 sm:w-24 text-right">
             <span className={`text-xs sm:text-sm ${!isMe && msg.status !== 'SEEN' ? 'font-bold text-gray-900 dark:text-white' : 'font-medium text-gray-500 dark:text-gray-400'}`}>
-              {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
             </span>
           </div>
           
@@ -215,7 +228,7 @@ const Casbox = () => {
                </div>
            </div>
            <div className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-               {new Date(selectedMessage.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+               {parseTimestamp(selectedMessage.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
            </div>
        </div>
        <div className="text-[15px] leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
