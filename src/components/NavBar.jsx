@@ -100,24 +100,23 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
   return (
     <nav
       className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0 shadow-md"
-      style={{ backgroundColor: backgroundImage ? "transparent" : "#99C2FF" }}
+      style={{ backgroundColor: backgroundImage ? "transparent" : "#1e3a8a" }}
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
         <div className="flex items-center gap-2 sm:gap-12 shrink-0">
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             <img
               src={logo}
               alt="BNX Mail"
-              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105"
+              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105 bg-white p-1 rounded-lg"
               onClick={() => onToggleDesktopSidebar()}
             />
             <span
               onClick={() => onToggleDesktopSidebar()}
-              className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity"
-              style={{ color: "#1e3a8a" }}
+              className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity text-white"
             >
-              BNX<span style={{ color: "#1e3a8a", fontWeight: "normal" }}>mail</span>
+              BNX<span className="font-normal text-white/90">mail</span>
             </span>
           </div>
 
@@ -134,22 +133,22 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         </div>
 
         {/* CENTER: SEGMENTED CONTROL */}
-        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-black/10 rounded-full p-1 border border-black/5 mx-auto md:mx-0 shrink-0">
+        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-white/10 backdrop-blur-sm shadow-sm rounded-full p-1 border border-white/10 mx-auto md:mx-0 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`} 
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`} 
           >
             Mail
           </button>
           <button 
             onClick={() => navigate('/vault')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
           >
             Vault
           </button>
           <button 
             onClick={() => navigate('/colab')}
-            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`}
+            className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
           >
             Chat
           </button>
@@ -166,10 +165,10 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search..."
-                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-blue-900/50 bg-black/10 focus:bg-white focus:text-gray-900 text-blue-900 focus:shadow-sm border border-transparent focus:border-gray-200 outline-none transition-all duration-200"
+                className="w-full px-4 py-2 pl-10 rounded-full text-[13px] placeholder:text-white/60 bg-white/10 hover:bg-white/20 focus:bg-white focus:text-gray-900 text-white focus:shadow-sm border border-transparent outline-none transition-all duration-200"
               />
               <svg
-                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-blue-900/60 group-focus-within:text-blue-600"
+                className="absolute left-3.5 top-2.5 h-4 w-4 transition-colors text-white/60 group-focus-within:text-gray-500"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -183,34 +182,33 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-all border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+              className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-white/10 transition-all border border-transparent hover:border-white/20"
             >
               {user?.profilePictureUrl ? (
                 <img
                   src={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${user.profilePictureUrl}`}
                   alt="Profile"
-                  className="h-8 w-8 rounded-full object-cover shadow-sm border border-white dark:border-gray-700 shrink-0"
+                  className="h-8 w-8 rounded-full object-cover shadow-sm border border-white/20 shrink-0"
                 />
               ) : (
                 <div
-                  className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-sm"
-                  style={{ backgroundColor: theme.accent || "#135bec" }}
+                  className="h-8 w-8 rounded-full flex items-center justify-center text-white font-semibold shadow-sm shrink-0 text-sm bg-[#135bec]"
                 >
                   {user?.email?.[0]?.toUpperCase() || "U"}
                 </div>
               )}
               <div className="hidden md:flex items-center gap-1.5">
                 <span
-                  className="text-[13px] font-medium truncate max-w-[100px] text-blue-900"
+                  className="text-[13px] font-medium truncate max-w-[100px] text-white"
                 >
                   {user?.email?.split('@')[0] || "User"}
                 </span>
                 {isPrimary && (
-                  <MdCheckCircle className="text-green-500 shrink-0" size={13} title="Primary Account" />
+                  <MdCheckCircle className="text-white shrink-0" size={13} title="Primary Account" />
                 )}
               </div>
               <svg
-                className="h-3.5 w-3.5 hidden md:block opacity-60 text-blue-900"
+                className="h-3.5 w-3.5 hidden md:block opacity-80 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -366,7 +364,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
           <button
             onClick={onToggleBitToolSidebar}
-            className="h-9 px-3 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 ml-1 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+            className="h-9 px-3 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 ml-1 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             title="Toggle BIT Tools"
           >
             <img

@@ -393,7 +393,8 @@ const FloatingCompose = () => {
             await casboxAPI.sendMessage({
                 receiverEmail: formData.to,
                 subject: formData.subject,
-                body: plainText
+                body: plainText,
+                attachmentsJson: attachments.length > 0 ? JSON.stringify(attachments) : null
             });
             toast.success("Casbox Message sent.");
             closeCompose();

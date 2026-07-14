@@ -221,6 +221,34 @@ const Casbox = () => {
        <div className="text-[15px] leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
            {selectedMessage.body}
        </div>
+       
+       {selectedMessage.attachmentsJson && (
+           <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-6">
+               <h4 className="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-4">
+                   Attachments
+               </h4>
+               <div className="flex flex-wrap gap-3">
+                   {JSON.parse(selectedMessage.attachmentsJson).map((file, i) => (
+                       <a 
+                           key={i}
+                           href={`${import.meta.env.VITE_API_URL || "https://api.bnxmail.com"}${file.url || file.filePath || file}`}
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           className="flex items-center gap-3 p-3 rounded-xl border border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors w-64 group"
+                       >
+                           <div className="w-10 h-10 rounded-lg bg-blue-50 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+                               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.172 7l-6.586 6.586a2 2 0 102.828 2.828l6.414-6.586a4 4 0 00-5.656-5.656l-6.415 6.585a6 6 0 108.486 8.486L20.5 13" /></svg>
+                           </div>
+                           <div className="flex-1 min-w-0">
+                               <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-blue-600 transition-colors">
+                                   {file.fileName || file.name || (typeof file === 'string' ? file.split('/').pop() : "Attachment")}
+                               </p>
+                           </div>
+                       </a>
+                   ))}
+               </div>
+           </div>
+       )}
     </div>
   ) : (
     <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-600 bg-gray-50/30 dark:bg-[#1e1e1e]/30 border-l border-gray-100 dark:border-gray-800">
