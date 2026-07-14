@@ -175,6 +175,19 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 )}
               </div>
 
+              {/* Casbox */}
+              <div className="mb-6">
+                 <button
+                    onClick={() => navigate('/casbox')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
+                      ${location.pathname.startsWith('/casbox') ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
+                    `}
+                    style={{ color: location.pathname.startsWith('/casbox') ? (theme.accent || "#135bec") : theme.sidebarText }}
+                 >
+                   <MdChat size={18} className="shrink-0" />
+                   <span className="text-sm font-medium hide-on-collapse text-left flex-1">Casbox</span>
+                 </button>
+              </div>
 
             </div>
           )}

@@ -39,7 +39,7 @@ import Templates from "./pages/Templates";
 import Snoozed from "./pages/Snoozed";
 import Subscriptions from "./pages/Subscriptions";
 import Vault from "./pages/Vault";
-
+import Casbox from "./pages/Casbox";
 
 /* ---------------- PROTECTED ROUTE ---------------- */
 const ProtectedRoute = ({ children }) => {
@@ -198,6 +198,7 @@ const AppContent = () => {
               <Route path="/label/:labelId" element={<AllMail searchQuery={searchQuery} />} />
               <Route path="/subscriptions" element={<Subscriptions searchQuery={searchQuery} />} />
               <Route path="/vault" element={<Vault />} />
+              <Route path="/casbox" element={<Casbox />} />
             </Routes>
           </main>
 
