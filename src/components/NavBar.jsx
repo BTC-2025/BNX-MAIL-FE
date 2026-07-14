@@ -148,7 +148,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             Vault
           </button>
           <button 
-            onClick={() => navigate('/chat')}
+            onClick={() => navigate('/colab')}
             className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-gray-900 shadow-sm' : 'text-blue-900/60 hover:text-blue-900'}`}
           >
             Chat

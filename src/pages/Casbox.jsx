@@ -3,7 +3,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { casboxAPI } from "../services/api";
-import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend } from "react-icons/md";
+import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose } from "react-icons/md";
 import toast from "react-hot-toast";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
@@ -231,12 +231,30 @@ const Casbox = () => {
 
   const detailsComponent = selectedMessage ? (
     <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-y-auto hidden-scrollbar p-6 sm:p-8">
-       <div className="flex justify-between items-start mb-6">
-           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-               {selectedMessage.subject || "Casbox Message"}
-           </h2>
+       {/* Toolbar */}
+       <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+           <div className="flex items-center gap-3">
+               <button 
+                  onClick={() => setSelectedMessage(null)}
+                  className="md:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+                  title="Back to list"
+               >
+                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+               </button>
+               <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
+                   {selectedMessage.subject || "Casbox Message"}
+               </h2>
+           </div>
+           <button 
+              onClick={() => setSelectedMessage(null)}
+              className="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+              title="Close"
+           >
+               <MdClose size={22} />
+           </button>
        </div>
-       <div className="flex items-center gap-4 mb-8 pb-6 border-b border-gray-100 dark:border-gray-800">
+       
+       <div className="flex items-center gap-4 mb-8">
            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-lg">
                {selectedMessage.senderEmail.charAt(0).toUpperCase()}
            </div>
