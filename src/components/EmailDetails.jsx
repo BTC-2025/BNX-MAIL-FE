@@ -892,14 +892,23 @@ const EmailDetails = ({
         </div>
 
         {/* ATTACHMENTS */}
-        {email.attachments?.length > 0 && (
-          <div className="mt-8 pt-6 border-t" style={{ borderColor: theme.border }}>
-            <p className="text-xs font-bold mb-4 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-              Attachments ({email.attachments.length})
-            </p>
-            <div className="flex flex-wrap gap-4">
-              {email.attachments.map((file, i) => {
-                const fileInfo = getFileIcon(file);
+        {(() => {
+          const isBounce = email.from?.toLowerCase().includes('mailer-daemon') || email.from?.toLowerCase().includes('postmaster');
+          const visibleAttachments = email.attachments?.filter(file => {
+            if (!isBounce) return true;
+            return file !== 'delivery_status.txt' && file !== 'original_message.eml';
+          }) || [];
+          
+          if (visibleAttachments.length === 0) return null;
+          
+          return (
+            <div className="mt-8 pt-6 border-t" style={{ borderColor: theme.border }}>
+              <p className="text-xs font-bold mb-4 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                Attachments ({visibleAttachments.length})
+              </p>
+              <div className="flex flex-wrap gap-4">
+                {visibleAttachments.map((file, i) => {
+                  const fileInfo = getFileIcon(file);
                 return (
                   <div
                     key={i}
@@ -967,7 +976,8 @@ const EmailDetails = ({
               })}
             </div>
           </div>
-        )}
+        );
+      })()}
       </div>
 
       {/* FOOTER ACTIONS */}
