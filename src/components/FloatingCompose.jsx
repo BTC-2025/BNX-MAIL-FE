@@ -385,10 +385,17 @@ const FloatingCompose = () => {
         }
         setSending(true);
         try {
-            // Strip HTML for casbox
-            const tempDiv = document.createElement("div");
-            tempDiv.innerHTML = formData.body;
-            const plainText = tempDiv.textContent || tempDiv.innerText || "";
+            // Strip HTML but preserve newlines for casbox
+            let rawHtml = formData.body;
+            // Replace common block elements and breaks with newlines
+            rawHtml = rawHtml.replace(/<br\s*[\/]?>/gi, '\n')
+                             .replace(/<\/p>/gi, '\n')
+                             .replace(/<\/div>/gi, '\n')
+                             .replace(/<[^>]+>/g, '');
+                             
+            // Decode HTML entities
+            const doc = new DOMParser().parseFromString(rawHtml, 'text/html');
+            const plainText = doc.documentElement.textContent.trim();
             
             await casboxAPI.sendMessage({
                 receiverEmail: formData.to,

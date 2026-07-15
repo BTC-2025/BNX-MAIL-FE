@@ -378,7 +378,27 @@ const Casbox = () => {
         </div>
       </div>
       <div className="text-[15px] leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-        {selectedMessage.body}
+        {(() => {
+          if (!selectedMessage.body) return null;
+          const urlRegex = /(https?:\/\/[^\s]+)/g;
+          return selectedMessage.body.split(urlRegex).map((part, index) => {
+            if (part.match(urlRegex)) {
+              return (
+                <a
+                  key={index}
+                  href={part}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  {part}
+                </a>
+              );
+            }
+            return <React.Fragment key={index}>{part}</React.Fragment>;
+          });
+        })()}
       </div>
 
       {selectedMessage.attachmentsJson && (

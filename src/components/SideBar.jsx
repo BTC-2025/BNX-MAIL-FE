@@ -280,9 +280,9 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                       className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer btn-collapse"
                       style={{ color: theme.sidebarText, paddingLeft: `${16 + (depth * 16)}px` }}
                     >
-                      <div className="flex items-center gap-3 w-full" onClick={() => navigate(`/label/${label.id}`)}>
+                      <div className="flex items-center" onClick={() => navigate(`/label/${label.id}`)}>
                         <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
-                        <span className="text-sm truncate hide-on-collapse">{label.name}</span>
+                        <span className="text-sm truncate hide-on-collapse pl-1.5">{label.name}</span>
                       </div>
                       <div className="relative flex items-center h-full hide-on-collapse">
                         <button
