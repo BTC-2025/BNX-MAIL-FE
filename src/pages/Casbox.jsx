@@ -453,7 +453,12 @@ const Casbox = () => {
           style={{ borderColor: theme?.border || '#eee' }}
         >
           <button
-            onClick={() => openCompose({ mode: 'casbox', replyTo: selectedMessage.senderEmail })}
+            onClick={() => openCompose({ 
+              mode: 'casbox', 
+              replyTo: selectedMessage.senderEmail,
+              subject: selectedMessage.subject ? (selectedMessage.subject.toLowerCase().startsWith('re:') ? selectedMessage.subject : `Re: ${selectedMessage.subject}`) : '',
+              originalBody: selectedMessage.body
+            })}
             className="flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
             style={{ background: theme.accent || "#135bec" }}
           >
