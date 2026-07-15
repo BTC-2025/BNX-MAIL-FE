@@ -119,21 +119,21 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <img
               src={logo}
               alt="BNX Mail"
-              className="h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105 bg-white p-1 rounded-lg"
+              className="h-9 sm:h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105 bg-white p-1 rounded-lg"
               onClick={() => onToggleDesktopSidebar()}
             />
             <span
               onClick={() => onToggleDesktopSidebar()}
-              className="hidden sm:block text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity text-white"
+              className="text-lg sm:text-xl font-bold tracking-tight cursor-pointer hover:opacity-90 transition-opacity text-white hidden sm:block"
             >
               BNX<span className="font-normal text-white/90">mail</span>
             </span>
           </div>
 
-          {/* COMPOSE */}
+          {/* COMPOSE (Hidden on mobile/tablet, shown as floating button instead) */}
           <button
             onClick={() => openCompose()}
-            className="flex items-center gap-2.5 px-3 sm:px-5 py-2 rounded-full font-semibold shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98] bg-white dark:bg-[#303134] border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200 ml-1 sm:ml-12"
+            className="hidden lg:flex items-center gap-2.5 px-5 py-2 rounded-full font-semibold shadow-sm transition-all hover:shadow-md hover:scale-[1.02] active:scale-[0.98] bg-white dark:bg-[#303134] border border-gray-200/50 dark:border-gray-700/50 text-gray-700 dark:text-gray-200 ml-12"
           >
             <svg className="h-4 w-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" style={{ color: theme.accent || "#135bec" }}>
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
@@ -143,7 +143,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
         </div>
 
         {/* CENTER: SEGMENTED CONTROL */}
-        <div className="flex md:absolute md:left-1/2 md:-translate-x-1/2 items-center bg-white/10 backdrop-blur-sm shadow-sm rounded-full p-1 border border-white/10 mx-auto md:mx-0 shrink-0">
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center bg-white/10 backdrop-blur-sm shadow-sm rounded-full p-1 border border-white/10 shrink-0">
           <button 
             onClick={() => navigate('/inbox')}
             className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'mail' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`} 
@@ -385,6 +385,17 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           </button>
         </div>
       </div>
+
+      {/* Floating Action Button (Mobile/Tablet Only) */}
+      <button
+        onClick={() => openCompose()}
+        className="lg:hidden fixed bottom-6 right-6 z-[60] flex items-center justify-center w-14 h-14 rounded-2xl shadow-lg transition-transform hover:scale-105 active:scale-95 text-white"
+        style={{ background: theme.accent || "#135bec" }}
+      >
+        <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+        </svg>
+      </button>
     </nav>
   );
 };

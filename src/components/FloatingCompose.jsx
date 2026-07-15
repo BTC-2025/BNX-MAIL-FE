@@ -662,7 +662,7 @@ const FloatingCompose = () => {
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setIsComposeMinimized(!isComposeMinimized)}
-            className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
+            className="p-1 rounded hover:bg-white/10 transition-colors text-black flex items-center justify-center cursor-pointer"
             title="Minimize"
           >
             <MdRemove size={16} />
@@ -670,7 +670,7 @@ const FloatingCompose = () => {
           {!isMobile && (
             <button
               onClick={() => setIsComposeMaximized(!isComposeMaximized)}
-              className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
+              className="p-1 rounded hover:bg-white/10 transition-colors text-black flex items-center justify-center cursor-pointer"
               title={isComposeMaximized ? "Restore Window" : "Maximize"}
             >
               {isComposeMaximized ? <MdCloseFullscreen size={14} /> : <MdOpenInFull size={14} />}
@@ -678,7 +678,7 @@ const FloatingCompose = () => {
           )}
           <button
             onClick={handleClose}
-            className="p-1 rounded hover:bg-white/10 transition-colors text-white flex items-center justify-center cursor-pointer"
+            className="p-1 rounded hover:bg-white/10 transition-colors text-black flex items-center justify-center cursor-pointer"
             title="Save & Close"
           >
             <MdClose size={16} />

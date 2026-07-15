@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { MdArchive, MdUnarchive, MdDelete, MdStar, MdStarBorder, MdAccessTime, MdWbSunny, MdNightsStay, MdToday, MdEvent, MdUpdate, MdDateRange, MdKeyboardArrowLeft, MdKeyboardArrowRight } from "react-icons/md";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
+import { useMail } from "../context/MailContext";
 
 const EmailList = ({
   emails,
@@ -19,6 +20,7 @@ const EmailList = ({
 }) => {
   const { user } = useAuth();
   const { emailsPerPage } = useTheme();
+  const { isComposeOpen } = useMail();
   
   const [currentPage, setCurrentPage] = useState(1);
   const [snoozeOpenUid, setSnoozeOpenUid] = useState(null);
@@ -89,6 +91,33 @@ const EmailList = ({
       { label: "Next week", time: nextWeek, display: formatTime(nextWeek), icon: <MdUpdate size={18} className="text-emerald-500" /> },
     ];
   };
+
+  const paginationControls = emails.length > 0 && (
+    <div className="flex items-center justify-between pl-6 pr-24 lg:pr-6 py-4 border-t border-gray-100 dark:border-gray-800/60 bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+      <div className="text-sm text-gray-500 dark:text-gray-400">
+        Showing <span className="font-medium text-gray-700 dark:text-gray-300">{startIndex + 1}</span> to <span className="font-medium text-gray-700 dark:text-gray-300">{Math.min(startIndex + emailsPerPage, emails.length)}</span> of <span className="font-medium text-gray-700 dark:text-gray-300">{emails.length}</span> emails
+      </div>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          disabled={currentPage === 1}
+          className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <MdKeyboardArrowLeft size={20} />
+        </button>
+        <span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-2">
+          {currentPage} / {totalPages}
+        </span>
+        <button
+          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          disabled={currentPage === totalPages}
+          className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+        >
+          <MdKeyboardArrowRight size={20} />
+        </button>
+      </div>
+    </div>
+  );
 
   return (
     <>
@@ -373,32 +402,7 @@ const EmailList = ({
       </div>
 
       {/* Pagination Controls */}
-      {emails.length > 0 && (
-        <div className="flex items-center justify-between px-6 py-4 border-t border-gray-100 dark:border-gray-800/60 bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
-          <div className="text-sm text-gray-500 dark:text-gray-400">
-            Showing <span className="font-medium text-gray-700 dark:text-gray-300">{startIndex + 1}</span> to <span className="font-medium text-gray-700 dark:text-gray-300">{Math.min(startIndex + emailsPerPage, emails.length)}</span> of <span className="font-medium text-gray-700 dark:text-gray-300">{emails.length}</span> emails
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
-              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <MdKeyboardArrowLeft size={20} />
-            </button>
-            <span className="text-sm font-medium text-gray-600 dark:text-gray-400 px-2">
-              {currentPage} / {totalPages}
-            </span>
-            <button
-              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
-              className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
-            >
-              <MdKeyboardArrowRight size={20} />
-            </button>
-          </div>
-        </div>
-      )}
+      {paginationControls}
     </>
   );
 };
