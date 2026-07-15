@@ -109,13 +109,13 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
   return (
     <nav
-      className="sticky top-0 z-50 px-6 py-2.5 transition-colors duration-300 shrink-0 shadow-md"
+      className="sticky top-0 z-50 px-5 py-2.5 transition-colors duration-300 shrink-0 shadow-md"
       style={{ backgroundColor: backgroundImage ? "transparent" : "#1e3a8a" }}
     >
       <div className="flex items-center justify-between w-full relative">
         {/* LEFT */}
         <div className="flex items-center gap-2 sm:gap-12 shrink-0">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 pl-2">
             <img
               src={logo}
               alt="BNX Mail"
@@ -370,11 +370,11 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             )}
           </div>
 
-          <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
+        <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1  hidden sm:block" />
 
           <button
             onClick={onToggleBitToolSidebar}
-            className="h-9 px-3 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 ml-1 border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+            className="h-9 p-1 px-2 ml-4 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0  border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             title="Toggle BIT Tools"
           >
             <img

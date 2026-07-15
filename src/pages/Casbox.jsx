@@ -197,22 +197,16 @@ const Casbox = () => {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSelectedMessage(null)}
-            className="md:hidden p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-            title="Back to list"
+            className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+            title="Close"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            <MdClose size={22} className="hidden md:block" />
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
           </button>
           <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
             {selectedMessage.subject || "Casbox Message"}
           </h2>
         </div>
-        <button
-          onClick={() => setSelectedMessage(null)}
-          className="p-2 -mr-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-          title="Close"
-        >
-          <MdClose size={22} />
-        </button>
       </div>
 
       <div className="flex items-center gap-4 mb-8">
