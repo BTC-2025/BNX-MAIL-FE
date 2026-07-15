@@ -150,7 +150,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <div className="flex flex-col px-2 mt-2">
 
               {/* Casbox */}
-              <div className="mb-6">
+              <div className="mb-2">
                  <button
                     onClick={() => navigate('/casbox')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
@@ -164,7 +164,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
               </div>
 
               {/* Colab */}
-              <div className="mb-2">
+              <div className="mb-6">
                  <button
                     onClick={() => navigate('/colab')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse

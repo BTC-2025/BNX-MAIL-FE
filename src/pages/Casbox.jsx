@@ -382,13 +382,13 @@ const Casbox = () => {
 
             <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
               <span className={`text-sm ${!isMe && msg.status !== 'SEEN' ? 'font-extrabold text-gray-900 dark:text-white' : 'font-semibold text-gray-800 dark:text-gray-200'}`}>
-                {isMe ? "Me" : msg.senderEmail.split('@')[0]}
+                {activeTab === 'sent' ? `To: ${msg.receiverEmail.split('@')[0]}` : (isMe ? "Me" : msg.senderEmail.split('@')[0])}
               </span>
             </div>
 
             <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
               <span className={`text-sm truncate ${!isMe && msg.status !== 'SEEN' ? 'font-bold text-gray-900 dark:text-white' : 'font-medium text-gray-800 dark:text-gray-200'}`}>
-                {msg.subject || (isMe ? `To: ${msg.receiverEmail}` : "")}
+                {msg.subject || (activeTab === 'sent' ? "(No Subject)" : "")}
               </span>
               <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
                 — {msg.body}
