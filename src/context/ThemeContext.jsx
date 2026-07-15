@@ -58,6 +58,8 @@ export const ThemeProvider = ({ children }) => {
   const [readingPaneMode, setReadingPaneMode] = useState("right");
   const [isLandscapeImage, setIsLandscapeImage] = useState(true);
   const [emailsPerPage, setEmailsPerPage] = useState(20);
+  const [customAccentColor, setCustomAccentColor] = useState(null);
+  const [customFontSize, setCustomFontSize] = useState(1.0);
   
   const defaultSidebarPrefs = {
     Inbox: true, Starred: true, Snoozed: true, Sent: true, Draft: true, Trash: true
@@ -87,6 +89,14 @@ export const ThemeProvider = ({ children }) => {
       try {
         setSidebarPreferencesState(JSON.parse(savedSidebarPrefs));
       } catch (e) {}
+    }
+    const savedAccent = localStorage.getItem("bnx_accent_color");
+    if (savedAccent) setCustomAccentColor(savedAccent);
+    const savedFontSize = localStorage.getItem("bnx_font_size");
+    if (savedFontSize) {
+      const parsed = parseFloat(savedFontSize);
+      setCustomFontSize(parsed);
+      document.documentElement.style.fontSize = `${parsed * 16}px`;
     }
   }, []);
 
@@ -174,6 +184,23 @@ export const ThemeProvider = ({ children }) => {
     localStorage.setItem("bnx_emails_per_page", count.toString());
   };
 
+  const updateCustomAccentColor = (color) => {
+    setCustomAccentColor(color);
+    if (color) localStorage.setItem("bnx_accent_color", color);
+    else localStorage.removeItem("bnx_accent_color");
+  };
+
+  const updateCustomFontSize = (size) => {
+    setCustomFontSize(size);
+    if (size) {
+      localStorage.setItem("bnx_font_size", size.toString());
+      document.documentElement.style.fontSize = `${size * 16}px`;
+    } else {
+      localStorage.removeItem("bnx_font_size");
+      document.documentElement.style.fontSize = '16px';
+    }
+  };
+
   const setSidebarPreferences = (prefs) => {
     setSidebarPreferencesState(prefs);
     localStorage.setItem("bnx_sidebar_prefs", JSON.stringify(prefs));
@@ -181,6 +208,9 @@ export const ThemeProvider = ({ children }) => {
 
   // Merge dynamic text color into the current theme
   const activeTheme = { ...themes[currentThemeName] };
+  if (customAccentColor) {
+    activeTheme.accent = customAccentColor;
+  }
   // Removed dynamicTextColor override: with the new glassmorphism and opaque 
   // UI backgrounds, the standard theme text color is always perfectly readable.
 
@@ -201,7 +231,11 @@ export const ThemeProvider = ({ children }) => {
         emailsPerPage,
         setEmailsPerPageState,
         sidebarPreferences,
-        setSidebarPreferences
+        setSidebarPreferences,
+        customAccentColor,
+        updateCustomAccentColor,
+        customFontSize,
+        updateCustomFontSize
       }}
     >
       {children}

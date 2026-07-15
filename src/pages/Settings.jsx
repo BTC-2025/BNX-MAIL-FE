@@ -46,7 +46,15 @@ const quillModules = {
 const Settings = () => {
   const navigate = useNavigate();
   const { user, getSessions, switchAccount } = useAuth();
-  const { theme, changeTheme, currentThemeName, backgroundImage, setBackgroundImage, clearBackgroundImage, setReadingPaneModeState, emailsPerPage, setEmailsPerPageState, sidebarPreferences, setSidebarPreferences } = useTheme();
+  const { 
+    theme, changeTheme, currentThemeName, 
+    backgroundImage, setBackgroundImage, clearBackgroundImage, 
+    setReadingPaneModeState, 
+    emailsPerPage, setEmailsPerPageState, 
+    sidebarPreferences, setSidebarPreferences,
+    customAccentColor, updateCustomAccentColor,
+    customFontSize, updateCustomFontSize
+  } = useTheme();
 
   const bgFileRef = useRef(null);
   const [customBgUrl, setCustomBgUrl] = useState("");
@@ -56,6 +64,7 @@ const Settings = () => {
   const [sessions, setSessions] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [localEmailsPerPage, setLocalEmailsPerPage] = useState(emailsPerPage);
 
   // Form states
   const [showCreateEmail, setShowCreateEmail] = useState(false);
@@ -134,9 +143,10 @@ const Settings = () => {
         setQuietHoursStart(d.quietHoursStart || "22:00");
         setQuietHoursEnd(d.quietHoursEnd || "07:00");
         setThemeMode(d.themeMode || "System Default");
-        setAccentColor(d.accentColor || "#135bec");
-        setFontSize(d.fontSize || 1.0);
+        setAccentColor(d.accentColor || customAccentColor || "#135bec");
+        setFontSize(d.fontSize || customFontSize || 1.0);
         setDensity(d.density || "Default");
+        setLocalEmailsPerPage(emailsPerPage);
         setTwoFactorEnabled(d.twoFactorEnabled ?? false);
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
@@ -365,12 +375,9 @@ const Settings = () => {
       try {
         const ok = await saveBackendSettings({ undoSendDelay });
         
-        // Save the currently active signature if one exists
-        if (editingSignatureId) {
-          const currentSig = signatures.find(s => s.id === editingSignatureId);
-          if (currentSig) {
-            await signatureAPI.updateSignature(currentSig.id, { name: currentSig.name, content: currentSig.content });
-          }
+        // Save all signatures to ensure any name or content changes are persisted
+        for (const sig of signatures) {
+          await signatureAPI.updateSignature(sig.id, { name: sig.name, content: sig.content });
         }
         
         if (ok) {
@@ -409,9 +416,12 @@ const Settings = () => {
       readingPaneMode
     });
     if (ok) {
-      // Apply themeMode / accentColor changes locally if required
       if (themeMode === "Dark") changeTheme("Dark");
       else if (themeMode === "Light") changeTheme("Classic");
+      
+      updateCustomAccentColor(accentColor);
+      updateCustomFontSize(fontSize);
+      setEmailsPerPageState(localEmailsPerPage);
       
       if (setReadingPaneModeState) {
         setReadingPaneModeState(readingPaneMode);
@@ -730,9 +740,9 @@ const Settings = () => {
                     <button
                       key={count}
                       type="button"
-                      onClick={() => setEmailsPerPageState(count)}
-                      className={`p-3 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${emailsPerPage === count ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
-                      style={emailsPerPage === count ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
+                      onClick={() => setLocalEmailsPerPage(count)}
+                      className={`p-3 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${localEmailsPerPage === count ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                      style={localEmailsPerPage === count ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                     >
                       {count}
                     </button>

@@ -241,19 +241,7 @@ const FloatingCompose = () => {
           signatureInjectedRef.current = true;
         }
       } else {
-        // If we have signatures loaded, inject the default one once
-        if (!signatureInjectedRef.current && signatures.length > 0) {
-          let defaultSig = "";
-          const def = signatures.find(s => s.isDefault);
-          if (def) defaultSig = def.content;
-          
-          setFormData(prev => ({
-            ...prev,
-            body: defaultSig ? `<br/><br/>${defaultSig}` : "",
-          }));
-          signatureInjectedRef.current = true;
-        } else if (!signatureInjectedRef.current) {
-          // Reset form data if signatures are not yet loaded, but don't mark as injected so it triggers again
+        if (!signatureInjectedRef.current) {
           setFormData({
             to: "",
             cc: "",
@@ -261,6 +249,7 @@ const FloatingCompose = () => {
             subject: "",
             body: "",
           });
+          signatureInjectedRef.current = true;
         }
         setShowCc(false);
         setShowBcc(false);
