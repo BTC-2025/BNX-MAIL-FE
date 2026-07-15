@@ -119,7 +119,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             <img
               src={logo}
               alt="BNX Mail"
-              className="h-9 sm:h-10 cursor-pointer drop-shadow-sm transition-transform hover:scale-105 bg-white p-1 rounded-lg"
+              className="h-10 sm:h-11 cursor-pointer drop-shadow-sm transition-transform hover:scale-105 bg-white rounded-lg"
               onClick={() => onToggleDesktopSidebar()}
             />
             <span
@@ -150,12 +150,12 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           >
             Mail
           </button>
-          <button 
+          {/* <button 
             onClick={() => navigate('/vault')}
             className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'vault' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`}
           >
             Vault
-          </button>
+          </button> */}
           <button 
             onClick={() => navigate('/colab')}
             className={`px-4 sm:px-6 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-medium transition-colors ${currentTab === 'chat' ? 'bg-white text-[#1e3a8a] shadow-sm' : 'text-white/70 hover:text-white hover:bg-white/10'}`}

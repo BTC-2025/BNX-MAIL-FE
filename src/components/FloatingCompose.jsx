@@ -647,16 +647,19 @@ const FloatingCompose = () => {
           }
         }}
       >
-        <div className="flex items-center gap-2">
-           <select 
-             value={composeMode} 
-             onChange={(e) => setComposeMode(e.target.value)} 
-             className="text-sm font-semibold bg-transparent border-none outline-none cursor-pointer text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-             onClick={e => e.stopPropagation()}
+        <div className="flex-1 flex items-center bg-black/5 dark:bg-white/10 rounded-lg p-0.5 mr-4" onClick={e => e.stopPropagation()}>
+           <button 
+             onClick={() => setComposeMode('email')}
+             className={`flex-1 flex justify-center py-1.5 rounded-md text-xs font-bold transition-all ${composeMode === 'email' ? 'bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
            >
-              <option value="email">New Message</option>
-              <option value="casbox">Casbox Message</option>
-           </select>
+             Email
+           </button>
+           <button 
+             onClick={() => setComposeMode('casbox')}
+             className={`flex-1 flex justify-center py-1.5 rounded-md text-xs font-bold transition-all ${composeMode === 'casbox' ? 'bg-white dark:bg-gray-800 shadow-sm text-blue-600 dark:text-blue-400' : 'text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white'}`}
+           >
+             Casbox
+           </button>
         </div>
 
         <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
