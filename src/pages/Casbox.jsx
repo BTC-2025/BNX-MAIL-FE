@@ -382,7 +382,7 @@ const Casbox = () => {
 
             <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
               <span className={`text-sm ${!isMe && msg.status !== 'SEEN' ? 'font-extrabold text-gray-900 dark:text-white' : 'font-semibold text-gray-800 dark:text-gray-200'}`}>
-                {activeTab === 'sent' ? `To: ${msg.receiverEmail.split('@')[0]}` : (isMe ? "Me" : msg.senderEmail.split('@')[0])}
+                {activeTab === 'sent' ? `To: ${msg.receiverEmail}` : (isMe ? "Me" : msg.senderEmail.split('@')[0])}
               </span>
             </div>
 
