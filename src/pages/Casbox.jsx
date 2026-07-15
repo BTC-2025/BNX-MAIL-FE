@@ -3,8 +3,8 @@ import { useTheme } from "../context/ThemeContext";
 import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useMail } from "../context/MailContext";
-import { casboxAPI, api } from "../services/api";
-import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply } from "react-icons/md";
+import { casboxAPI, api, userAPI } from "../services/api";
+import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock } from "react-icons/md";
 import toast from "react-hot-toast";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
@@ -69,7 +69,7 @@ const Casbox = () => {
   const { theme, readingPaneMode } = useTheme();
   const { user } = useAuth();
   const { stompClient, isConnected } = useSocket();
-  const { openCompose } = useMail();
+  const { openCompose, emails } = useMail();
 
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -78,6 +78,53 @@ const Casbox = () => {
 
   const [activeTab, setActiveTab] = useState('received');
   const [previewFile, setPreviewFile] = useState(null);
+
+  const [acceptedContacts, setAcceptedContacts] = useState([]);
+  const [blockedContacts, setBlockedContacts] = useState([]);
+  const [knownContacts, setKnownContacts] = useState(new Set());
+  const [showBlockedModal, setShowBlockedModal] = useState(false);
+
+  useEffect(() => {
+    const fetchSettings = async () => {
+      try {
+        const res = await userAPI.getSettings();
+        if (res.data?.success) {
+           const s = res.data.data;
+           setAcceptedContacts(s.casboxAccepted || []);
+           setBlockedContacts(s.casboxBlocked || []);
+        }
+      } catch (e) {
+        console.error("Failed to load casbox settings", e);
+      }
+    };
+    fetchSettings();
+  }, []);
+
+  useEffect(() => {
+    const contacts = new Set();
+    
+    // Auto-accept contacts from regular emails
+    if (emails && emails.length > 0) {
+      emails.forEach(email => {
+        if (email.senderEmail) contacts.add(email.senderEmail);
+        if (email.receiverEmail) contacts.add(email.receiverEmail);
+        if (email.to && Array.isArray(email.to)) {
+          email.to.forEach(t => contacts.add(t));
+        }
+      });
+    }
+
+    // Auto-accept people we have sent a Casbox message to
+    if (messages && messages.length > 0 && user?.email) {
+      messages.forEach(msg => {
+        if (msg.senderEmail === user.email && msg.receiverEmail) {
+          contacts.add(msg.receiverEmail);
+        }
+      });
+    }
+
+    setKnownContacts(contacts);
+  }, [emails, messages, user?.email]);
 
   React.useEffect(() => {
     return () => {
@@ -234,9 +281,23 @@ const Casbox = () => {
     return new Date(ts);
   };
 
-  const receivedMessages = messages.filter(msg => msg.receiverEmail === user?.email);
-  const sentMessages = messages.filter(msg => msg.senderEmail === user?.email);
-  const filteredMessages = activeTab === 'received' ? receivedMessages : sentMessages;
+  const unblockedMessages = messages.filter(msg => {
+    return !blockedContacts.includes(msg.senderEmail);
+  });
+
+  const sentMessages = unblockedMessages.filter(msg => msg.senderEmail === user?.email);
+  const allReceived = unblockedMessages.filter(msg => msg.receiverEmail === user?.email);
+  
+  const receivedMessages = allReceived.filter(msg => 
+    knownContacts.has(msg.senderEmail) || acceptedContacts.includes(msg.senderEmail)
+  );
+  const requestMessages = allReceived.filter(msg => 
+    !knownContacts.has(msg.senderEmail) && !acceptedContacts.includes(msg.senderEmail)
+  );
+
+  const filteredMessages = activeTab === 'received' ? receivedMessages 
+                         : activeTab === 'sent' ? sentMessages 
+                         : requestMessages;
 
   const headerComponent = (
     <div className="flex flex-col shrink-0">
@@ -254,6 +315,12 @@ const Casbox = () => {
           >
             Sent <span className={`font-normal hidden sm:inline ${activeTab === 'sent' ? 'opacity-80' : 'opacity-60'}`}>({sentMessages.length})</span>
           </button>
+          <button 
+            onClick={() => { setActiveTab('requests'); setSelectedMessage(null); }}
+            className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${activeTab === 'requests' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+          >
+            Requests {requestMessages.length > 0 && <span className="flex h-2 w-2 rounded-full bg-red-500"></span>}
+          </button>
         </div>
         
         <div className="flex-1"></div>
@@ -266,8 +333,15 @@ const Casbox = () => {
           Compose
         </button>
         <button
-          onClick={fetchMessages}
+          onClick={() => setShowBlockedModal(true)}
           className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 ml-1"
+          title="Blocked Users"
+        >
+          <MdBlock size={18} />
+        </button>
+        <button
+          onClick={fetchMessages}
+          className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200"
         >
           <MdRefresh size={20} className={loading ? "animate-spin" : ""} />
         </button>
@@ -341,6 +415,44 @@ const Casbox = () => {
       })}
     </div>
   );
+
+  const handleAcceptRequest = async (senderEmail) => {
+    try {
+      const newAccepted = [...acceptedContacts, senderEmail];
+      setAcceptedContacts(newAccepted);
+      await userAPI.updateSettings({ casboxAccepted: newAccepted });
+      toast.success("Request accepted");
+      setActiveTab("received");
+    } catch (e) {
+      toast.error("Failed to accept request");
+      setAcceptedContacts(acceptedContacts);
+    }
+  };
+
+  const handleBlockRequest = async (senderEmail) => {
+    try {
+      const newBlocked = [...blockedContacts, senderEmail];
+      setBlockedContacts(newBlocked);
+      await userAPI.updateSettings({ casboxBlocked: newBlocked });
+      toast.success("User blocked");
+      setSelectedMessage(null);
+    } catch (e) {
+      toast.error("Failed to block user");
+      setBlockedContacts(blockedContacts);
+    }
+  };
+
+  const handleUnblockUser = async (senderEmail) => {
+    try {
+      const newBlocked = blockedContacts.filter(email => email !== senderEmail);
+      setBlockedContacts(newBlocked);
+      await userAPI.updateSettings({ casboxBlocked: newBlocked });
+      toast.success("User unblocked");
+    } catch (e) {
+      toast.error("Failed to unblock user");
+      setBlockedContacts(blockedContacts);
+    }
+  };
 
   const detailsComponent = selectedMessage ? (
     <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-y-auto hidden-scrollbar p-6 sm:p-8">
@@ -472,18 +584,36 @@ const Casbox = () => {
           className="flex items-center py-4 mt-8 border-t shrink-0"
           style={{ borderColor: theme?.border || '#eee' }}
         >
-          <button
-            onClick={() => openCompose({ 
-              mode: 'casbox', 
-              replyTo: selectedMessage.senderEmail,
-              subject: selectedMessage.subject ? (selectedMessage.subject.toLowerCase().startsWith('re:') ? selectedMessage.subject : `Re: ${selectedMessage.subject}`) : '',
-              originalBody: selectedMessage.body
-            })}
-            className="flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
-            style={{ background: theme.accent || "#135bec" }}
-          >
-            <MdReply size={18} /> Reply
-          </button>
+          {(!knownContacts.has(selectedMessage.senderEmail) && !acceptedContacts.includes(selectedMessage.senderEmail)) ? (
+            <div className="flex items-center gap-3 w-full">
+              <button
+                onClick={() => handleAcceptRequest(selectedMessage.senderEmail)}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
+                style={{ background: theme.accent || "#135bec" }}
+              >
+                <MdCheck size={18} /> Accept
+              </button>
+              <button
+                onClick={() => handleBlockRequest(selectedMessage.senderEmail)}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:shadow transition-all text-sm cursor-pointer text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 border border-red-100 dark:border-red-900/30"
+              >
+                <MdClose size={18} /> Block
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => openCompose({ 
+                mode: 'casbox', 
+                replyTo: selectedMessage.senderEmail,
+                subject: selectedMessage.subject ? (selectedMessage.subject.toLowerCase().startsWith('re:') ? selectedMessage.subject : `Re: ${selectedMessage.subject}`) : '',
+                originalBody: selectedMessage.body
+              })}
+              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
+              style={{ background: theme.accent || "#135bec" }}
+            >
+              <MdReply size={18} /> Reply
+            </button>
+          )}
         </div>
       )}
     </div>
@@ -563,6 +693,45 @@ const Casbox = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {showBlockedModal && (
+        <div className="fixed inset-0 bg-black/60 z-[2000] flex items-center justify-center animate-fade-in p-4 backdrop-blur-sm">
+          <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden max-h-[80vh]">
+            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black/20">
+              <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                <MdBlock className="text-red-500" size={20} /> Blocked Users
+              </h3>
+              <button 
+                onClick={() => setShowBlockedModal(false)}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 transition-colors"
+              >
+                <MdClose size={20} />
+              </button>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-2">
+              {blockedContacts.length === 0 ? (
+                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                  <MdCheck className="mx-auto text-4xl mb-3 opacity-30 text-green-500" />
+                  <p>No blocked users</p>
+                </div>
+              ) : (
+                blockedContacts.map((email) => (
+                  <div key={email} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors mx-2 my-1">
+                    <span className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate pr-4">{email}</span>
+                    <button 
+                      onClick={() => handleUnblockUser(email)}
+                      className="px-4 py-1.5 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shrink-0"
+                    >
+                      Unblock
+                    </button>
+                  </div>
+                ))
+              )}
+            </div>
           </div>
         </div>
       )}

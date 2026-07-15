@@ -148,19 +148,6 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
               })
           ) : (
             <div className="flex flex-col px-2 mt-2">
-              {/* Colab */}
-              <div className="mb-2">
-                 <button
-                    onClick={() => navigate('/colab')}
-                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
-                      ${location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
-                    `}
-                    style={{ color: location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? (theme.accent || "#135bec") : theme.sidebarText }}
-                 >
-                   <MdGroup size={18} className="shrink-0" />
-                   <span className="text-sm font-medium hide-on-collapse text-left flex-1">Colab</span>
-                 </button>
-              </div>
 
               {/* Casbox */}
               <div className="mb-6">
@@ -173,6 +160,20 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                  >
                    <MdChat size={18} className="shrink-0" />
                    <span className="text-sm font-medium hide-on-collapse text-left flex-1">Casbox</span>
+                 </button>
+              </div>
+
+              {/* Colab */}
+              <div className="mb-2">
+                 <button
+                    onClick={() => navigate('/colab')}
+                    className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
+                      ${location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
+                    `}
+                    style={{ color: location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? (theme.accent || "#135bec") : theme.sidebarText }}
+                 >
+                   <MdGroup size={18} className="shrink-0" />
+                   <span className="text-sm font-medium hide-on-collapse text-left flex-1">Colab</span>
                  </button>
               </div>
 
