@@ -390,12 +390,13 @@ const EmailDetails = ({
     setBounceDetails("");
     email.attachments.forEach(async (file) => {
       const ext = file.split('.').pop().toLowerCase();
-      if (['txt', 'eml', 'rfc822'].includes(ext)) {
+      // Skip known image/binary formats, try to read everything else as text for bounce messages
+      if (!['png', 'jpg', 'jpeg', 'gif', 'webp', 'pdf', 'zip'].includes(ext)) {
         try {
           const res = await mailAPI.downloadAttachment(email.uid, file, getFolder());
           const reader = new FileReader();
           reader.onload = () => {
-            setBounceDetails(prev => prev + `\n\n--- ${file} ---\n${reader.result}`);
+            setBounceDetails(prev => prev + `\n\n--- Attachment: ${file} ---\n${reader.result}`);
           };
           reader.readAsText(new Blob([res.data]));
         } catch (e) {

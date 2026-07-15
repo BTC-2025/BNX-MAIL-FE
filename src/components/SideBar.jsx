@@ -181,7 +181,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           )}
 
           {/* COLLAPSIBLE MORE SECTION */}
-          {!isChatMode && !isVaultMode && ["Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
+          {!isChatMode && !isVaultMode && ["Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates"]
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
             .filter(Boolean)
             .filter(item => sidebarPreferences?.[item.name] !== false)
@@ -202,7 +202,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
               {isMoreOpen && (
                 <div className="mt-1 space-y-0 animate-fade-in origin-top">
-                  {["Spam", "All Mail", "Archive", "Subscriptions", "Templates"]
+                  {["Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Templates"]
                     .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
                     .filter(Boolean)
                     .filter(item => sidebarPreferences?.[item.name] !== false)
