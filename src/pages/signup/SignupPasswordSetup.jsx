@@ -76,10 +76,10 @@ const SignupPasswordSetup = () => {
                 password: formData.password
             });
 
-            if (loginRes.data?.accessToken) {
-                localStorage.setItem('accessToken', loginRes.data.accessToken);
-                if (loginRes.data.refreshToken) {
-                    localStorage.setItem('refreshToken', loginRes.data.refreshToken);
+            if (loginRes.data?.success && loginRes.data?.data?.accessToken) {
+                localStorage.setItem('accessToken', loginRes.data.data.accessToken);
+                if (loginRes.data.data.refreshToken) {
+                    localStorage.setItem('refreshToken', loginRes.data.data.refreshToken);
                 }
 
                 toast.success('Account created successfully!');
