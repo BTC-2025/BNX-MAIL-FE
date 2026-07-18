@@ -18,12 +18,25 @@ export const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('accessToken');
-        if (token) {
-            config.headers.Authorization = `Bearer ${token}`;
+        const hasAuth = config.headers && (
+            (typeof config.headers.has === 'function' && (config.headers.has('Authorization') || config.headers.has('authorization'))) ||
+            config.headers.Authorization || 
+            config.headers['Authorization'] ||
+            config.headers['authorization']
+        );
+        
+        if (token && !hasAuth) {
+            if (typeof config.headers.set === 'function') {
+                config.headers.set('Authorization', `Bearer ${token}`);
+            } else {
+                config.headers.Authorization = `Bearer ${token}`;
+            }
         }
         return config;
     },
-    (error) => Promise.reject(error)
+    (error) => {
+        return Promise.reject(error);
+    }
 );
 
 // Response Interceptor for Token Refresh
