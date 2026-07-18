@@ -66,33 +66,9 @@ const SignupPasswordSetup = () => {
                 password: formData.password
             }, tempToken);
 
-            // 4. Log the user in to get the real access token
-            const fullEmail = formData.accountType === 'BUSINESS' && formData.domain
-                ? `${formData.username}@${formData.domain}`
-                : `${formData.username}@bnxmail.com`;
+            toast.success('Account created successfully! Please log in.');
+            navigate('/login');
 
-            const loginRes = await authAPI.login({
-                email: fullEmail,
-                password: formData.password
-            });
-
-            if (loginRes.data?.success && loginRes.data?.data?.accessToken) {
-                localStorage.setItem('accessToken', loginRes.data.data.accessToken);
-                if (loginRes.data.data.refreshToken) {
-                    localStorage.setItem('refreshToken', loginRes.data.data.refreshToken);
-                }
-
-                toast.success('Account created successfully!');
-
-                // 5. Route correctly
-                if (formData.accountType === 'BUSINESS') {
-                    navigate('/signup/business-onboarding');
-                } else {
-                    window.location.href = '/all-mail'; // Force full reload to load user context
-                }
-            } else {
-                throw new Error("Failed to retrieve access token");
-            }
         } catch (err) {
             console.error(err);
             setError(err.response?.data?.message || err.message || 'Registration failed');

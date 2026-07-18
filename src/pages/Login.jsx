@@ -65,7 +65,12 @@ const Login = () => {
                 } else {
                     // Pass the whole data object to login context
                     login(responseData);
-                    navigate('/inbox');
+
+                    if (responseData.accountType === 'BUSINESS' && responseData.onboarded === false) {
+                        navigate('/signup/business-onboarding');
+                    } else {
+                        navigate('/inbox');
+                    }
                 }
             }
         } catch (err) {
@@ -87,8 +92,14 @@ const Login = () => {
             });
 
             if (response.data.success) {
-                login(response.data.data);
-                navigate('/inbox');
+                const responseData = response.data.data;
+                login(responseData);
+                
+                if (responseData.accountType === 'BUSINESS' && responseData.onboarded === false) {
+                    navigate('/signup/business-onboarding');
+                } else {
+                    navigate('/inbox');
+                }
             }
         } catch (err) {
             setError(err.response?.data?.message || 'Invalid 2FA code. Please try again.');
