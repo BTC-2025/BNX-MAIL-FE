@@ -28,7 +28,7 @@ const SignupPasswordSetup = () => {
             // 1. Build Register Payload
             let payload = {
                 mode: formData.accountType === 'CHILD' ? 'PERSONAL' : formData.accountType,
-                username: formData.username,
+                username: formData.username || `user${Date.now().toString().slice(-6)}`,
                 password: formData.password,
             };
 
@@ -62,7 +62,7 @@ const SignupPasswordSetup = () => {
 
             // 3. Create the email mailbox with the tempToken for ALL account types
             await emailAPI.createEmail({
-                emailName: formData.username,
+                emailName: formData.emailName,
                 password: formData.password
             }, tempToken);
 

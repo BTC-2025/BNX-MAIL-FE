@@ -13,6 +13,7 @@ export const SignupProvider = ({ children }) => {
 
         // Common Auth
         username: '',
+        emailName: '',
         password: '',
         confirmPassword: '',
 
