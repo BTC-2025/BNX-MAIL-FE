@@ -111,8 +111,10 @@ export const authAPI = {
     sendOTP: (data) => api.post(API_ENDPOINTS.AUTH.SEND_OTP, data),
     verifyOTP: (data) => api.post(API_ENDPOINTS.AUTH.VERIFY_OTP, data),
     resetPassword: (data) => api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+    getUsernameSuggestions: (params) => api.get('/api/auth/username-suggestions', { params }),
+    sendParentOtp: (data) => api.post('/api/auth/child/send-parent-otp', data),
+    verifyParentOtp: (data) => api.post('/api/auth/child/verify-parent-otp', data),
 };
-
 // Mail APIs
 export const mailAPI = {
     getInbox: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.INBOX}?limit=${limit}`),
@@ -196,6 +198,7 @@ export const businessAPI = {
     register: (data) => api.post(API_ENDPOINTS.BUSINESS.REGISTER, data),
     getDomains: () => api.get(API_ENDPOINTS.BUSINESS.DOMAINS),
     verifyDomain: (domainId) => api.post(API_ENDPOINTS.BUSINESS.VERIFY.replace(':id', domainId)),
+    onboard: (data) => api.post('/api/business/onboard', data),
 };
 
 // Group APIs

@@ -6,6 +6,7 @@ import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ThemeProvider, useTheme } from "./context/ThemeContext";
 import { MailProvider } from "./context/MailContext";
 import { SocketProvider } from "./context/SocketContext";
+import { SignupProvider } from "./context/SignupContext";
 
 /* Layout */
 import NavBar from "./components/NavBar";
@@ -40,6 +41,17 @@ import Snoozed from "./pages/Snoozed";
 import Subscriptions from "./pages/Subscriptions";
 import Vault from "./pages/Vault";
 import Casbox from "./pages/Casbox";
+
+/* Signup Pages */
+import SignupLayout from "./pages/signup/SignupLayout";
+import SignupSelection from "./pages/signup/SignupSelection";
+import SignupProfile from "./pages/signup/SignupProfile";
+import SignupChild from "./pages/signup/SignupChild";
+import SignupParentVerify from "./pages/signup/SignupParentVerify";
+import SignupBusiness from "./pages/signup/SignupBusiness";
+import SignupMail from "./pages/signup/SignupMail";
+import SignupPasswordSetup from "./pages/signup/SignupPasswordSetup";
+import SignupBusinessOnboarding from "./pages/signup/SignupBusinessOnboarding";
 
 /* ---------------- PROTECTED ROUTE ---------------- */
 const ProtectedRoute = ({ children }) => {
@@ -247,26 +259,50 @@ const App = () => (
     <AuthProvider>
       <MailProvider>
         <SocketProvider>
-          <Router>
-            <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/create-mailbox" element={<CreateMailbox />} />
-              <Route path="/terms" element={<Terms />} />
-              <Route path="/privacy" element={<Privacy />} />
-              <Route path="/verify-domain" element={<VerifyDomain />} />
+          <SignupProvider>
+            <Router>
+              <Routes>
+                <Route path="/login" element={<Login />} />
+                <Route path="/register" element={<Navigate to="/signup/selection" replace />} />
+                
+                {/* Signup Flow */}
+                <Route path="/signup" element={<SignupLayout />}>
+                  <Route path="selection" element={<SignupSelection />} />
+                  <Route path="profile" element={<SignupProfile />} />
+                  <Route path="child" element={<SignupChild />} />
+                  <Route path="parent-verify" element={<SignupParentVerify />} />
+                  <Route path="business" element={<SignupBusiness />} />
+                  <Route path="mail" element={<SignupMail />} />
+                  <Route path="password-setup" element={<SignupPasswordSetup />} />
+                </Route>
 
-              <Route
-                path="/*"
-                element={
-                  <ProtectedRoute>
-                    <AppContent />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Router>
+                <Route path="/forgot-password" element={<ForgotPassword />} />
+                <Route path="/create-mailbox" element={<CreateMailbox />} />
+                <Route path="/terms" element={<Terms />} />
+                <Route path="/privacy" element={<Privacy />} />
+                <Route path="/verify-domain" element={<VerifyDomain />} />
+
+                {/* Protected Business Onboarding */}
+                <Route 
+                  path="/signup/business-onboarding" 
+                  element={
+                    <ProtectedRoute>
+                      <SignupBusinessOnboarding />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                <Route
+                  path="/*"
+                  element={
+                    <ProtectedRoute>
+                      <AppContent />
+                    </ProtectedRoute>
+                  }
+                />
+              </Routes>
+            </Router>
+          </SignupProvider>
         </SocketProvider>
       </MailProvider>
     </AuthProvider>

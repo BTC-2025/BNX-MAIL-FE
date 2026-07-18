@@ -322,12 +322,11 @@ const Settings = () => {
   const addSignature = async () => {
     try {
       setLoading(true);
-      const res = await signatureAPI.createSignature({ name: "New Signature", content: "", isDefault: signatures.length === 0 });
+      const res = await signatureAPI.createSignature({ name: "New Signature", content: "", isDefault: false });
       if (res.data?.success) {
         const newSig = res.data.data;
         setSignatures(prev => [...prev, newSig]);
         setEditingSignatureId(newSig.id);
-        toast.success("Signature created");
       }
     } catch (e) {
       toast.error("Failed to create signature");
@@ -346,7 +345,6 @@ const Settings = () => {
       setLoading(true);
       await signatureAPI.deleteSignature(id);
       setSignatures(prev => prev.filter(s => s.id !== id));
-      toast.success("Signature deleted");
       fetchSignatures(); // Refresh defaults if needed
     } catch (e) {
       toast.error("Failed to delete signature");
@@ -360,7 +358,6 @@ const Settings = () => {
       setLoading(true);
       await signatureAPI.setDefaultSignature(id);
       setSignatures(prev => prev.map(s => ({ ...s, isDefault: s.id === id })));
-      toast.success("Default signature updated");
     } catch (e) {
       toast.error("Failed to set default signature");
     } finally {
