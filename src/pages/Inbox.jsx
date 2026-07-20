@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useMail } from "../context/MailContext";
+import { useAuth } from "../context/AuthContext";
 import { mailAPI } from "../services/api";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
-import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo } from "react-icons/md";
+import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant } from "react-icons/md";
 import toast from "react-hot-toast";
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
@@ -14,6 +15,7 @@ const Inbox = ({ searchQuery }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, readingPaneMode } = useTheme();
+  const { user } = useAuth();
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive, openCompose } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
@@ -34,9 +36,16 @@ const Inbox = ({ searchQuery }) => {
     fetchEmails('inbox');
   }, [fetchEmails]);
 
+  const getTabCategory = (e) => {
+    if (user?.email && e.cc?.toLowerCase().includes(user.email.toLowerCase())) {
+      return 'IMPORTANT';
+    }
+    return (e.category || 'PRIMARY').toUpperCase();
+  };
+
   const visibleEmails = emails.filter(
     (e) =>
-      ((e.category || 'PRIMARY').toUpperCase() === activeTab) &&
+      (getTabCategory(e) === activeTab) &&
       (!searchQuery ||
         e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -59,10 +68,11 @@ const Inbox = ({ searchQuery }) => {
     }
   };
 
-  const unreadPrimary = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'PRIMARY' && !e.isRead).length;
-  const unreadPromotions = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'PROMOTIONS' && !e.isRead).length;
-  const unreadSocial = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'SOCIAL' && !e.isRead).length;
-  const unreadUpdates = emails.filter(e => (e.category || 'PRIMARY').toUpperCase() === 'UPDATES' && !e.isRead).length;
+  const unreadPrimary = emails.filter(e => getTabCategory(e) === 'PRIMARY' && !e.isRead).length;
+  const unreadImportant = emails.filter(e => getTabCategory(e) === 'IMPORTANT' && !e.isRead).length;
+  const unreadPromotions = emails.filter(e => getTabCategory(e) === 'PROMOTIONS' && !e.isRead).length;
+  const unreadSocial = emails.filter(e => getTabCategory(e) === 'SOCIAL' && !e.isRead).length;
+  const unreadUpdates = emails.filter(e => getTabCategory(e) === 'UPDATES' && !e.isRead).length;
 
 
   const listComponent = (
@@ -121,6 +131,14 @@ const Inbox = ({ searchQuery }) => {
           <MdInbox size={18} />
           Primary
           {unreadPrimary > 0 && <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm" style={{ backgroundColor: theme.accent || "#135bec" }}>{unreadPrimary}</span>}
+        </button>
+        <button
+          onClick={() => setActiveTab('IMPORTANT')}
+          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'IMPORTANT' ? 'border-yellow-500 text-yellow-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+        >
+          <MdLabelImportant size={18} />
+          Important
+          {unreadImportant > 0 && <span className="text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadImportant}</span>}
         </button>
         <button
           onClick={() => setActiveTab('PROMOTIONS')}
