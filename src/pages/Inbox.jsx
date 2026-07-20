@@ -37,8 +37,12 @@ const Inbox = ({ searchQuery }) => {
   }, [fetchEmails]);
 
   const getTabCategory = (e) => {
-    if (user?.email && e.cc?.toLowerCase().includes(user.email.toLowerCase())) {
-      return 'IMPORTANT';
+    if (user?.email && e.cc) {
+      const escapedEmail = user.email.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`\\b${escapedEmail}\\b`, 'i');
+      if (regex.test(e.cc)) {
+        return 'IMPORTANT';
+      }
     }
     return (e.category || 'PRIMARY').toUpperCase();
   };
