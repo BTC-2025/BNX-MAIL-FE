@@ -557,13 +557,6 @@ const Casbox = () => {
                     
                     <div className="flex items-center gap-0.5 shrink-0">
                       <button
-                        onClick={() => handlePreviewAttachment(fileObj)}
-                        className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
-                        title="Preview file"
-                      >
-                        <MdRemoveRedEye size={15} />
-                      </button>
-                      <button
                         onClick={() => handleDownloadAttachment(fileObj)}
                         className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
                         title="Download file"
