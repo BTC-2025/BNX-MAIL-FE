@@ -18,10 +18,11 @@ const Spam = ({ searchQuery }) => {
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const handleToggleSelect = (uid) => {
+    const strUid = String(uid);
     setSelectedIds((prev) => {
       const next = new Set(prev);
-      if (next.has(uid)) next.delete(uid);
-      else next.add(uid);
+      if (next.has(strUid)) next.delete(strUid);
+      else next.add(strUid);
       return next;
     });
   };

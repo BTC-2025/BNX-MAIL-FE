@@ -258,9 +258,13 @@ const EmailList = ({
                   <div className="flex items-center shrink-0" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
-                      checked={selectedIds.has(email.uid)}
-                      onChange={() => onToggleSelect?.(email.uid)}
-                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer"
+                      className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer bg-white dark:bg-[#1e1e1e]"
+                      checked={selectedIds.has(String(email.uid))}
+                      onChange={(e) => {
+                        e.stopPropagation();
+                        onToggleSelect?.(String(email.uid));
+                      }}
+                      onClick={(e) => e.stopPropagation()}
                     />
                   </div>
 

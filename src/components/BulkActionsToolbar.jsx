@@ -64,18 +64,18 @@ const BulkActionsToolbar = ({
   if (selectedIds.size === 0) return null;
 
   // Find the selected email objects
-  const selectedEmails = visibleEmails.filter((e) => selectedIds.has(e.uid));
+  const selectedEmails = visibleEmails.filter((e) => selectedIds.has(String(e.uid)));
 
   // Determine if any of the selected emails are unread
   const hasUnread = selectedEmails.some((e) => !e.isRead);
 
   // Select all toggle handler
   const handleSelectAllToggle = () => {
-    const allSelected = visibleEmails.every((e) => selectedIds.has(e.uid));
+    const allSelected = visibleEmails.every((e) => selectedIds.has(String(e.uid)));
     if (allSelected) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(visibleEmails.map((e) => e.uid)));
+      setSelectedIds(new Set(visibleEmails.map((e) => String(e.uid))));
     }
   };
 
