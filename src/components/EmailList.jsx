@@ -294,7 +294,9 @@ const EmailList = ({
                           : "font-medium text-gray-600 dark:text-gray-300"
                         }`}
                     >
-                      {isSentByUser ? (
+                      {email.folderName?.toLowerCase() === "draft" || email.folderName?.toLowerCase() === "drafts" ? (
+                        <span className="text-red-500 font-bold italic tracking-wide">Draft</span>
+                      ) : isSentByUser ? (
                         <span className="flex items-center gap-1">
                           <span className="text-[9px] font-bold border border-current px-0.5 rounded-sm opacity-50">TO</span>
                           {(email.to || email.recipientEmail)?.split("@")[0]}

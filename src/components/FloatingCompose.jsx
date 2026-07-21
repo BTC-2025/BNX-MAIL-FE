@@ -91,6 +91,7 @@ const FloatingCompose = () => {
   const signatureInjectedRef = useRef(false);
 
   const [draftId, setDraftId] = useState(null);
+  const imapDraftUidRef = useRef(null);
   const [attachments, setAttachments] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [showScheduleMenu, setShowScheduleMenu] = useState(false);
@@ -200,6 +201,7 @@ const FloatingCompose = () => {
       // Only set initial empty state once when opening
       if (!signatureInjectedRef.current && signatures.length === 0) {
         setDraftId(null);
+        imapDraftUidRef.current = null;
         setAttachments([]);
         setUploading(false);
       }
@@ -218,6 +220,7 @@ const FloatingCompose = () => {
             });
           } else if (composeData.draft) {
             const d = composeData.draft;
+            imapDraftUidRef.current = d.uid;
             setFormData({
               to: d.to || "",
               cc: d.cc || "",
@@ -445,6 +448,10 @@ const FloatingCompose = () => {
             toast.success("Message sent.", { id: tid, duration: 4000 });
             closeCompose();
           }
+          if (imapDraftUidRef.current) {
+            mailAPI.trash(imapDraftUidRef.current, "draft").catch(console.error);
+            imapDraftUidRef.current = null;
+          }
           fetchEmails(undefined, true);
         }
       } catch (err) {
@@ -608,7 +615,13 @@ const FloatingCompose = () => {
 
       // Save draft in the background silently
       mailAPI.saveDraft(payload)
-        .then(() => fetchEmails('draft'))
+        .then(() => {
+          if (imapDraftUidRef.current) {
+            mailAPI.trash(imapDraftUidRef.current, "draft").catch(console.error);
+            imapDraftUidRef.current = null;
+          }
+          fetchEmails('draft');
+        })
         .catch((err) => {
           console.error("Failed to auto-save draft in the background:", err);
         });
@@ -623,6 +636,14 @@ const FloatingCompose = () => {
           await api.delete(`/api/mail/drafts/${draftId}`);
         } catch (e) {
           console.error("Failed to discard DB draft:", e);
+        }
+      }
+      if (imapDraftUidRef.current) {
+        try {
+          await mailAPI.trash(imapDraftUidRef.current, "draft");
+          imapDraftUidRef.current = null;
+        } catch (e) {
+          console.error("Failed to discard IMAP draft:", e);
         }
       }
       closeCompose();
