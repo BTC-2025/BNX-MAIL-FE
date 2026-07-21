@@ -239,12 +239,12 @@ const EmailList = ({
               const isSentByUser = showTo || (user?.email && email.from?.toLowerCase().includes(user.email.toLowerCase()));
               const sender = isSentByUser ? (email.to || email.recipientEmail) : email.from;
               const isUnread = !email.isRead;
-              const isSelected = selectedEmailId === email.uid;
+              const isSelected = selectedEmailId === email.uid || selectedEmailId === String(email.uid) || selectedEmailId === `${email.uid}__${email.folderName || ''}`;
               const isActuallyArchived = isArchiveFolder || email.folderName?.toLowerCase() === "archive";
 
               return (
                 <div
-                  key={email.uid}
+                  key={`${email.uid}__${email.folderName || ''}`}
                   onClick={() => onSelectEmail(email)}
                   className={`group flex items-center gap-3 py-2.5 px-4 cursor-pointer relative transition-colors duration-150 select-none ${snoozeOpenUid === email.uid ? 'z-50' : 'z-10'}
                     ${isSelected

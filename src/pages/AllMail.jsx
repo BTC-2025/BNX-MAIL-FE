@@ -15,7 +15,9 @@ const AllMail = ({ searchQuery }) => {
   const { theme, readingPaneMode } = useTheme();
   const { emails, loading, fetchEmails, fetchLabelEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleApplyLabel, labels, currentFolder, handleArchive, handleUnarchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
+  const selectedEmail = emails.find(
+    (e) => String(e.uid) === String(selectedEmailUid) || `${e.uid}__${e.folderName || ''}` === String(selectedEmailUid)
+  );
 
   const [selectedIds, setSelectedIds] = useState(new Set());
   const handleToggleSelect = (uid) => {
@@ -63,7 +65,7 @@ const AllMail = ({ searchQuery }) => {
     if (email.folderName?.toLowerCase() === "drafts" || email.folderName?.toLowerCase() === "draft") {
       openCompose({ draft: email });
     } else {
-      setSelectedEmailUid(email.uid);
+      setSelectedEmailUid(`${email.uid}__${email.folderName || ''}`);
       if (!email.isRead) {
         handleMarkRead(email.uid);
       }

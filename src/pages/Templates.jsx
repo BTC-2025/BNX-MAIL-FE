@@ -237,7 +237,7 @@ const Templates = () => {
   const handleUseTemplate = (template) => {
     openCompose({
       subject: template.subject,
-      body: template.body,
+      body: template.body ? template.body.replace(/\n/g, '<br/>') : '',
     });
   };
 
