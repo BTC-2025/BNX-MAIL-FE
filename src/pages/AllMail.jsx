@@ -60,9 +60,13 @@ const AllMail = ({ searchQuery }) => {
   }, [fetchEmails, fetchLabelEmails, labelId]);
 
   const handleSelectEmail = (email) => {
-    setSelectedEmailUid(email.uid);
-    if (!email.isRead) {
-      handleMarkRead(email.uid);
+    if (email.folderName?.toLowerCase() === "drafts" || email.folderName?.toLowerCase() === "draft") {
+      openCompose({ draft: email });
+    } else {
+      setSelectedEmailUid(email.uid);
+      if (!email.isRead) {
+        handleMarkRead(email.uid);
+      }
     }
   };
 

@@ -46,7 +46,7 @@ const Draft = ({ searchQuery }) => {
   );
 
   const handleSelectEmail = (email) => {
-    setSelectedEmailUid(email.uid);
+    openCompose({ draft: email });
   };
 
   const handleReply = (email) => {
