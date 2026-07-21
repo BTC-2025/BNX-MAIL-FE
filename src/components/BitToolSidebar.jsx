@@ -6,6 +6,7 @@ import {
 } from "react-icons/md";
 import { useTheme } from "../context/ThemeContext";
 import AppLauncher from "./AppLauncher";
+import betalogo from '../assets/beta2.png'
 
 // Tools Definition
 const ALL_TOOLS = [
@@ -353,7 +354,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
     <div 
       className={`h-full flex shrink-0 select-none transition-all duration-300 ease-in-out ${backgroundImage ? "bg-transparent" : "bg-white dark:bg-gray-900"} rounded-t-2xl animate-fade-in`}
       style={{ 
-        width: !isOpen ? "0px" : (selectedTool ? (selectedTool === 'apps' ? "492px" : "372px") : "72px"),
+        width: !isOpen ? "0px" : (selectedTool ? "372px" : "72px"),
         borderLeftWidth: isOpen ? "1px" : "0px",
         borderLeftColor: theme.border,
         overflow: "hidden"
@@ -363,7 +364,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
       <div 
         className={`flex flex-col h-full select-text transition-all duration-300 ease-in-out rounded-t-2xl ${backgroundImage ? "bg-transparent" : "bg-white dark:bg-gray-900"}`}
         style={{ 
-          width: selectedTool ? (selectedTool === 'apps' ? "420px" : "300px") : "0px",
+          width: selectedTool ? "300px" : "0px",
           borderRightWidth: selectedTool ? "1px" : "0px",
           borderRightColor: theme.border,
           overflow: "hidden"
@@ -410,10 +411,11 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
                   e.stopPropagation();
                   setSelectedTool(selectedTool === 'apps' ? null : 'apps');
                 }}
-                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border ${selectedTool === 'apps' ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
+                className={`w-10 h-10 bg-gray rounded-xl flex items-center justify-center transition-all cursor-pointer border ${selectedTool === 'apps' ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
                 title="Beta Ecosystem"
               >
-                <MdApps size={22} />
+                {/* <MdApps size={22} /> */}
+                <img src={betalogo} alt="beta-apps" />
               </button>
             </div>
           )}
