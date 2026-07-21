@@ -62,7 +62,7 @@ const AppLauncher = ({ isOpen, onClose, onToggleBitToolSidebar }) => {
           
           <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
             {/* BNXmail */}
-            <a href="#" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40">
+            <a href="https://www.bnxmail.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
               <img src={bnxLogo} alt="BNXmail" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
               <div className="min-w-0">
                 <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">BNXmail</h4>
@@ -71,7 +71,7 @@ const AppLauncher = ({ isOpen, onClose, onToggleBitToolSidebar }) => {
             </a>
 
             {/* B2Auth */}
-            <a href="#" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40">
+            <a href="https://www.b2auth.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
               <img src={b2authLogo} alt="B2Auth" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
               <div className="min-w-0">
                 <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">B2Auth</h4>
@@ -95,7 +95,7 @@ const AppLauncher = ({ isOpen, onClose, onToggleBitToolSidebar }) => {
             </button>
 
             {/* Cliks */}
-            <a href="#" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40">
+            <a href="https://cliks.beta-softnet.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
               <img src={cliksLogo} alt="Cliks" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
               <div className="min-w-0">
                 <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">Cliks</h4>
@@ -111,7 +111,7 @@ const AppLauncher = ({ isOpen, onClose, onToggleBitToolSidebar }) => {
           
           <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
             {/* CliksBusiness */}
-            <a href="#" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40">
+            <a href="https://www.cliksbusiness.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
               <img src={cliksBusinessLogo} alt="CliksBusiness" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
               <div className="min-w-0">
                 <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">CliksBusiness</h4>
