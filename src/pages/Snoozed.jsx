@@ -38,9 +38,7 @@ const Snoozed = ({ searchQuery }) => {
     });
   };
 
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [emails]);
+
 
   useEffect(() => {
     fetchEmails('snoozed');

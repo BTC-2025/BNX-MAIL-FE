@@ -27,9 +27,7 @@ const Spam = ({ searchQuery }) => {
     });
   };
 
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [emails]);
+
 
   useEffect(() => {
     fetchEmails('spam');

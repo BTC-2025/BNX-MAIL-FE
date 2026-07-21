@@ -26,9 +26,7 @@ const Outbox = ({ searchQuery }) => {
     });
   };
 
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [emails]);
+
 
   const visibleEmails = emails.filter(
     (e) =>

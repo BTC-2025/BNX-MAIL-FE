@@ -26,9 +26,7 @@ const Trash = ({ searchQuery }) => {
     });
   };
 
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [emails]);
+
 
   useEffect(() => {
     fetchEmails('trash');

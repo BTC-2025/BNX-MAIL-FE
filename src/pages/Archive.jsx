@@ -25,9 +25,7 @@ const Archive = ({ searchQuery }) => {
     });
   };
 
-  useEffect(() => {
-    setSelectedIds(new Set());
-  }, [emails]);
+
 
   const visibleEmails = emails.filter(
     (e) =>

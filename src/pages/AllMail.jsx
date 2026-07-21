@@ -30,7 +30,7 @@ const AllMail = ({ searchQuery }) => {
 
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [emails, labelId]);
+  }, [labelId]);
 
   const activeLabel = labels.find(l => l.id.toString() === labelId);
 
