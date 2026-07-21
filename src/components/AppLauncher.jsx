@@ -1,133 +1,131 @@
-import React, { useRef, useEffect } from "react";
-import { createPortal } from "react-dom";
+import React, { useState } from "react";
+import { MdClose, MdEdit } from "react-icons/md";
 import bnxLogo from "../assets/bnx-remove.png";
 import b2authLogo from "../assets/b2auth.png";
 import bitToolLogo from "../assets/BIT-TOOL-2.png";
 import cliksLogo from "../assets/cliks.png";
 import cliksBusinessLogo from "../assets/cliks-business.png";
 
-const AppLauncher = ({ isOpen, onClose, onToggleBitToolSidebar }) => {
-  const popupRef = useRef(null);
+const AppLauncher = ({ onClose, onToggleBitToolSidebar }) => {
+  const [activeTab, setActiveTab] = useState('BASE');
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      // Don't close if clicking the toggle button
-      if (popupRef.current && !popupRef.current.contains(event.target)) {
-        // Also check if the click was on the trigger button (by ID or class, though we don't strictly have one. We can just rely on capturing)
-        // Wait, the trigger button stops propagation? If not, clicking the trigger button outside the portal might immediately close and reopen it.
-        // But since we use mousedown on document, if it's outside the popup, it triggers onClose.
-        // The trigger button is inside BitToolSidebar and also uses mousedown/click. 
-        onClose();
-      }
-    };
-    if (isOpen) {
-      // Small delay to prevent immediate close from the click that opened it
-      setTimeout(() => {
-        document.addEventListener("mousedown", handleClickOutside);
-      }, 0);
-    }
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [isOpen, onClose]);
+  const publicApps = [
+    { name: 'Cliks', icon: cliksLogo, href: 'https://cliks.beta-softnet.com' },
+    { name: 'BNXmail', icon: bnxLogo, href: 'https://www.bnxmail.com' },
+    { name: 'Bit-Tool', icon: bitToolLogo, isButton: true },
+    { name: 'B2Auth', icon: b2authLogo, href: 'https://www.b2auth.com' }
+  ];
 
-  if (!isOpen) return null;
+  const businessApps = [
+    { name: 'CliksBusiness', icon: cliksBusinessLogo, href: 'https://www.cliksbusiness.com' }
+  ];
 
-  return createPortal(
-    <div
-      ref={popupRef}
-      className="fixed top-[80px] right-2 md:right-[85px] w-[calc(100vw-16px)] md:w-[560px] max-w-[560px] max-h-[calc(100vh-100px)] overflow-y-auto bg-white rounded-2xl shadow-2xl border border-gray-100 z-[9999] animate-fade-in custom-scrollbar"
-    >
-      <div className="flex flex-col md:flex-row bg-white min-h-full">
-        {/* Category Column */}
-        <div className="w-full md:w-[110px] border-b md:border-b-0 md:border-r border-gray-100 p-2 md:p-3 flex flex-row md:flex-col items-center shrink-0">
-          <h3 className="text-[10px] font-bold text-gray-800 tracking-wider mb-0 md:mb-3 self-center md:self-start pl-1 mr-4 md:mr-0">CATEGORY</h3>
-          
-          <div className="flex justify-center mb-0 md:mb-3 mr-2 md:mr-0">
-            <span className="px-3 py-1 border border-blue-100 text-blue-900 rounded-full text-[9px] font-bold tracking-widest bg-blue-50/50">
-              BASE
-            </span>
+  const displayApps = activeTab === 'BASE' 
+    ? [...publicApps, ...businessApps] 
+    : activeTab === 'PUBLIC' 
+      ? publicApps 
+      : businessApps;
+
+  return (
+    <div className="flex flex-col h-full bg-white w-full">
+      {/* Header */}
+      <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
+        <div className="flex items-center text-xl font-black text-gray-900 tracking-tight">
+          <span className="text-blue-500 text-3xl font-serif mr-2 leading-none">B</span> Beta
+        </div>
+        <div className="flex items-center gap-3">
+          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+            <MdEdit size={14} /> Edit
+          </button>
+          <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
+            <MdClose size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+        {/* Favorites & Recent */}
+        <div className="bg-[#f8fbff] border border-blue-50/50 rounded-[20px] p-4 flex gap-4 mb-8 shadow-sm">
+          {/* Favorites */}
+          <div className="flex-1">
+            <h3 className="text-[11px] font-extrabold text-slate-700 tracking-widest mb-3">FAVORITES</h3>
+            <div className="grid grid-cols-2 gap-2">
+              {publicApps.map((app, idx) => (
+                <div 
+                  key={idx} 
+                  className="bg-white border border-gray-100 rounded-2xl p-2 flex flex-col items-center justify-center gap-1 hover:border-gray-200 hover:shadow-sm cursor-pointer transition-all aspect-[4/3]" 
+                  onClick={app.isButton ? () => { onToggleBitToolSidebar?.(); onClose(); } : () => window.open(app.href, '_blank')}
+                >
+                  <img src={app.icon} alt={app.name} className="w-6 h-6 object-contain" />
+                  <span className="text-[9px] font-bold text-slate-700 mt-0.5">{app.name}</span>
+                </div>
+              ))}
+            </div>
           </div>
+          
+          {/* Vertical Divider */}
+          <div className="w-px bg-gray-200/60 my-2"></div>
 
-          <div className="hidden md:block w-full h-px bg-gray-100 my-2"></div>
-
-          <div className="flex justify-center md:mt-2">
-            <span className="px-2 py-0.5 border border-orange-200 text-orange-400 rounded-md text-[8px] font-bold tracking-widest bg-orange-50/30 text-center leading-tight">
-              COMING<span className="hidden md:inline"><br/></span><span className="inline md:hidden"> </span>SOON
-            </span>
+          {/* Recent View */}
+          <div className="flex-1 flex flex-col">
+            <h3 className="text-[11px] font-extrabold text-slate-700 tracking-widest mb-3">RECENT VIEW</h3>
+            <div className="flex-1 border border-dashed border-gray-300 rounded-2xl flex items-center justify-center bg-transparent min-h-[80px]">
+              <span className="text-[10px] font-bold text-gray-400">No recents</span>
+            </div>
           </div>
         </div>
 
-        {/* Public Column */}
-        <div className="flex-[1.2] border-b md:border-b-0 md:border-r border-gray-100 p-2 md:p-3">
-          <h3 className="text-[10px] font-bold text-gray-800 tracking-wider mb-1.5 md:mb-2.5">PUBLIC</h3>
+        {/* Tabs Row */}
+        <div className="flex items-center justify-between mb-6">
+          <button 
+            onClick={() => setActiveTab('BASE')}
+            className={`text-[13px] font-extrabold tracking-widest pb-1.5 border-b-2 transition-colors ${activeTab === 'BASE' ? 'text-slate-700 border-slate-700' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
+          >
+            BASE
+          </button>
           
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
-            {/* BNXmail */}
-            <a href="https://www.bnxmail.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
-              <img src={bnxLogo} alt="BNXmail" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-              <div className="min-w-0">
-                <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">BNXmail</h4>
-                <p className="text-gray-500 text-[9px] md:text-[10px] truncate leading-tight">Real time mail, always in sync.</p>
-              </div>
-            </a>
-
-            {/* B2Auth */}
-            <a href="https://www.b2auth.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
-              <img src={b2authLogo} alt="B2Auth" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-              <div className="min-w-0">
-                <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">B2Auth</h4>
-                <p className="text-gray-500 text-[9px] md:text-[10px] truncate leading-tight">MFA & SSO Gateway</p>
-              </div>
-            </a>
-
-            {/* Bit-Tool */}
+          <div className="flex items-center gap-3 text-[11px] font-extrabold tracking-widest">
             <button 
-              onClick={() => {
-                onToggleBitToolSidebar && onToggleBitToolSidebar();
-                onClose();
-              }}
-              className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40 w-full text-left"
+              onClick={() => setActiveTab('PUBLIC')}
+              className={`pb-1.5 border-b-2 transition-colors ${activeTab === 'PUBLIC' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
             >
-              <img src={bitToolLogo} alt="Bit-Tool" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-              <div className="min-w-0">
-                <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">Bit-Tool</h4>
-                <p className="text-gray-500 text-[9px] md:text-[10px] truncate leading-tight">User's daily utility assistant</p>
-              </div>
+              PUBLIC
             </button>
-
-            {/* Cliks */}
-            <a href="https://cliks.beta-softnet.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
-              <img src={cliksLogo} alt="Cliks" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-              <div className="min-w-0">
-                <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">Cliks</h4>
-                <p className="text-gray-500 text-[9px] md:text-[10px] truncate leading-tight">Make your Money</p>
-              </div>
-            </a>
+            <span className="text-gray-300 pb-1.5 font-normal">|</span>
+            <button 
+              onClick={() => setActiveTab('BUSINESS')}
+              className={`pb-1.5 border-b-2 transition-colors ${activeTab === 'BUSINESS' ? 'text-blue-600 border-blue-600' : 'text-gray-400 border-transparent hover:text-gray-600'}`}
+            >
+              BUSINESS
+            </button>
           </div>
         </div>
 
-        {/* Business Column */}
-        <div className="flex-1 p-2 md:p-3">
-          <h3 className="text-[10px] font-bold text-gray-800 tracking-wider mb-1.5 md:mb-2.5">BUSINESS</h3>
-          
-          <div className="grid grid-cols-2 md:grid-cols-1 gap-1.5">
-            {/* CliksBusiness */}
-            <a href="https://www.cliksbusiness.com" className="flex items-center gap-2 p-1.5 md:p-2 rounded-xl border border-transparent hover:border-gray-200 hover:shadow-sm transition-all bg-gray-50/40" target="_blank" rel="noopener noreferrer">
-              <img src={cliksBusinessLogo} alt="CliksBusiness" className="w-6 h-6 md:w-7 md:h-7 object-contain" />
-              <div className="min-w-0">
-                <h4 className="text-gray-900 font-semibold text-[11px] md:text-[12px] leading-tight">CliksBusiness</h4>
-                <p className="text-gray-500 text-[9px] md:text-[10px] truncate leading-tight">Work together, faster</p>
+        {/* Apps Grid */}
+        <div className="grid grid-cols-4 gap-x-2 gap-y-4">
+          {displayApps.map((app, idx) => (
+            <div 
+              key={idx}
+              onClick={app.isButton ? () => { onToggleBitToolSidebar?.(); onClose(); } : () => window.open(app.href, '_blank')}
+              className="flex flex-col items-center gap-2.5 cursor-pointer group"
+            >
+              <div className="w-[60px] h-[60px] rounded-[18px] bg-[#fafafa] border border-gray-100 flex items-center justify-center group-hover:shadow-md group-hover:border-gray-200 group-hover:bg-white transition-all">
+                <img src={app.icon} alt={app.name} className="w-7 h-7 object-contain" />
               </div>
-            </a>
-          </div>
+              <span className="text-[10px] font-bold text-slate-700 text-center leading-tight">
+                {app.name}
+              </span>
+            </div>
+          ))}
         </div>
       </div>
 
       {/* Footer */}
-      <div className="bg-gray-50 py-3 text-center border-t border-gray-100 sticky bottom-0">
-        <span className="text-[11px] font-bold text-gray-800 tracking-[0.2em]">BETA ECOSYSTEM</span>
+      <div className="bg-gray-50/50 py-4 text-center border-t border-gray-100 shrink-0 rounded-b-[24px]">
+        <span className="text-[9px] font-extrabold text-gray-400 tracking-[0.2em]">BETA ECO-SYSTEM • FUTURE READY</span>
       </div>
-    </div>,
-    document.body
+    </div>
   );
 };
 

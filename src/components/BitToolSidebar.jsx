@@ -353,7 +353,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
     <div 
       className={`h-full flex shrink-0 select-none transition-all duration-300 ease-in-out ${backgroundImage ? "bg-transparent" : "bg-white dark:bg-gray-900"} rounded-t-2xl animate-fade-in`}
       style={{ 
-        width: !isOpen ? "0px" : (selectedTool ? "372px" : "72px"),
+        width: !isOpen ? "0px" : (selectedTool ? (selectedTool === 'apps' ? "492px" : "372px") : "72px"),
         borderLeftWidth: isOpen ? "1px" : "0px",
         borderLeftColor: theme.border,
         overflow: "hidden"
@@ -363,29 +363,33 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
       <div 
         className={`flex flex-col h-full select-text transition-all duration-300 ease-in-out rounded-t-2xl ${backgroundImage ? "bg-transparent" : "bg-white dark:bg-gray-900"}`}
         style={{ 
-          width: selectedTool ? "300px" : "0px",
+          width: selectedTool ? (selectedTool === 'apps' ? "420px" : "300px") : "0px",
           borderRightWidth: selectedTool ? "1px" : "0px",
           borderRightColor: theme.border,
           overflow: "hidden"
         }}
       >
         {selectedTool && (
-          <>
-            <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
-              <h4 className="font-bold text-sm" style={{ color: theme.text }}>
-                {ALL_TOOLS.find(t => t.id === selectedTool)?.name}
-              </h4>
-              <button 
-                onClick={() => setSelectedTool(null)} 
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer flex items-center justify-center"
-              >
-                <MdClose size={18} />
-              </button>
-            </div>
-            <div className="flex-1 overflow-y-auto p-4">
-              {renderMiniApp()}
-            </div>
-          </>
+          selectedTool === 'apps' ? (
+            <AppLauncher onClose={() => setSelectedTool(null)} onToggleBitToolSidebar={() => {}} />
+          ) : (
+            <>
+              <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
+                <h4 className="font-bold text-sm" style={{ color: theme.text }}>
+                  {ALL_TOOLS.find(t => t.id === selectedTool)?.name}
+                </h4>
+                <button 
+                  onClick={() => setSelectedTool(null)} 
+                  className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 cursor-pointer flex items-center justify-center"
+                >
+                  <MdClose size={18} />
+                </button>
+              </div>
+              <div className="flex-1 overflow-y-auto p-4 custom-scrollbar">
+                {renderMiniApp()}
+              </div>
+            </>
+          )
         )}
       </div>
 
@@ -404,18 +408,13 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  setShowAppLauncher(!showAppLauncher);
+                  setSelectedTool(selectedTool === 'apps' ? null : 'apps');
                 }}
-                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border ${selectedTool === 'apps' ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
                 title="Beta Ecosystem"
               >
                 <MdApps size={22} />
               </button>
-              <AppLauncher
-                isOpen={showAppLauncher}
-                onClose={() => setShowAppLauncher(false)}
-                onToggleBitToolSidebar={() => {}}
-              />
             </div>
           )}
 
