@@ -2,9 +2,10 @@ import React, { useState } from "react";
 import { 
   MdCalendarToday, MdCalculate, MdPeople, MdSecurity, MdKeyboard, 
   MdTranslate, MdFilterCenterFocus, MdCloudQueue, MdNewspaper, 
-  MdAdd, MdCheck, MdClose, MdOutlineEdit, MdTune
+  MdAdd, MdCheck, MdClose, MdOutlineEdit, MdTune, MdApps
 } from "react-icons/md";
 import { useTheme } from "../context/ThemeContext";
+import AppLauncher from "./AppLauncher";
 
 // Tools Definition
 const ALL_TOOLS = [
@@ -24,6 +25,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
   const [pinnedTools, setPinnedTools] = useState(["calendar", "calculator", "contacts", "security"]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedTool, setSelectedTool] = useState(null);
+  const [showAppLauncher, setShowAppLauncher] = useState(false);
 
   // Tooltip helper state
   const [hoveredTool, setHoveredTool] = useState(null);
@@ -398,7 +400,23 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
               Edit<br />Pins
             </div>
           ) : (
-            <div className="h-6" /> // spacer
+            <div className="mb-4 mt-2 relative">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowAppLauncher(!showAppLauncher);
+                }}
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-all cursor-pointer border border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400"
+                title="Beta Ecosystem"
+              >
+                <MdApps size={22} />
+              </button>
+              <AppLauncher
+                isOpen={showAppLauncher}
+                onClose={() => setShowAppLauncher(false)}
+                onToggleBitToolSidebar={() => {}}
+              />
+            </div>
           )}
 
           {/* ACTIVE & INACTIVE TOOLS LIST */}
