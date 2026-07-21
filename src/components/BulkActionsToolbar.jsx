@@ -64,18 +64,18 @@ const BulkActionsToolbar = ({
   if (selectedIds.size === 0) return null;
 
   // Find the selected email objects
-  const selectedEmails = visibleEmails.filter((e) => selectedIds.has(String(e.uid)));
+  const selectedEmails = visibleEmails.filter((e) => selectedIds.has(`${e.uid}__${e.folderName || ''}`));
 
   // Determine if any of the selected emails are unread
   const hasUnread = selectedEmails.some((e) => !e.isRead);
 
   // Select all toggle handler
   const handleSelectAllToggle = () => {
-    const allSelected = visibleEmails.every((e) => selectedIds.has(String(e.uid)));
+    const allSelected = visibleEmails.every((e) => selectedIds.has(`${e.uid}__${e.folderName || ''}`));
     if (allSelected) {
       setSelectedIds(new Set());
     } else {
-      setSelectedIds(new Set(visibleEmails.map((e) => String(e.uid))));
+      setSelectedIds(new Set(visibleEmails.map((e) => `${e.uid}__${e.folderName || ''}`)));
     }
   };
 
@@ -83,7 +83,7 @@ const BulkActionsToolbar = ({
   const handleBulkArchive = async () => {
     try {
       toast.loading("Archiving selected emails...", { id: "bulk-archive" });
-      await Promise.all(selectedEmails.map((e) => handleArchive(e.uid, folder, true)));
+      await Promise.all(selectedEmails.map((e) => handleArchive(e.uid, e.folderName || folder, true)));
       setSelectedIds(new Set());
       toast.success("Emails archived", { id: "bulk-archive" });
     } catch (err) {
@@ -117,7 +117,7 @@ const BulkActionsToolbar = ({
         toast.success("Emails permanently deleted", { id: "bulk-delete" });
       } else {
         toast.loading("Deleting selected emails...", { id: "bulk-delete" });
-        await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, folder, true)));
+        await Promise.all(selectedEmails.map((e) => handleMoveToTrash(e.uid, e.folderName || folder, true)));
         setSelectedIds(new Set());
         toast.success("Emails moved to trash", { id: "bulk-delete" });
       }
@@ -147,7 +147,7 @@ const BulkActionsToolbar = ({
   const handleBulkSpam = async () => {
     try {
       toast.loading("Reporting spam...", { id: "bulk-spam" });
-      await Promise.all(selectedEmails.map((e) => handleMarkSpam(e.uid, folder, true)));
+      await Promise.all(selectedEmails.map((e) => handleMarkSpam(e.uid, e.folderName || folder, true)));
       setSelectedIds(new Set());
       toast.success("Reported as spam", { id: "bulk-spam" });
     } catch (err) {
@@ -174,7 +174,7 @@ const BulkActionsToolbar = ({
       toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
       const wakeUpAt = new Date();
       wakeUpAt.setHours(wakeUpAt.getHours() + hours);
-      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString(), true)));
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAt.toISOString(), e.folderName || folder, true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       toast.success("Emails snoozed", { id: "bulk-snooze" });
@@ -187,7 +187,7 @@ const BulkActionsToolbar = ({
   const handleBulkSnoozeWithDate = async (wakeUpAtIso) => {
     try {
       toast.loading("Snoozing selected emails...", { id: "bulk-snooze" });
-      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAtIso, true)));
+      await Promise.all(selectedEmails.map((e) => handleSnooze(e.uid, wakeUpAtIso, e.folderName || folder, true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       setShowSnoozeSub(false);
@@ -202,7 +202,7 @@ const BulkActionsToolbar = ({
   const handleBulkApplyLabel = async (labelId) => {
     try {
       toast.loading("Applying label...", { id: "bulk-label" });
-      await Promise.all(selectedEmails.map((e) => handleApplyLabel(e.uid, labelId, folder, true)));
+      await Promise.all(selectedEmails.map((e) => handleApplyLabel(e.uid, labelId, e.folderName || folder, true)));
       setSelectedIds(new Set());
       setShowMoreMenu(false);
       toast.success("Label applied", { id: "bulk-label" });
@@ -236,7 +236,7 @@ const BulkActionsToolbar = ({
       {/* Select All Checkbox */}
       <input
         type="checkbox"
-        checked={visibleEmails.length > 0 && visibleEmails.every((e) => selectedIds.has(e.uid))}
+        checked={visibleEmails.length > 0 && visibleEmails.every((e) => selectedIds.has(`${e.uid}__${e.folderName || ''}`))}
         onChange={handleSelectAllToggle}
         className="w-4 h-4 rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary focus:ring-offset-0 cursor-pointer shrink-0"
       />

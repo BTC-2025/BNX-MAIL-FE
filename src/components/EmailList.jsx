@@ -259,10 +259,10 @@ const EmailList = ({
                     <input
                       type="checkbox"
                       className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer bg-white dark:bg-[#1e1e1e]"
-                      checked={selectedIds.has(String(email.uid))}
+                      checked={selectedIds.has(`${email.uid}__${email.folderName || ''}`)}
                       onChange={(e) => {
                         e.stopPropagation();
-                        onToggleSelect?.(String(email.uid));
+                        onToggleSelect?.(`${email.uid}__${email.folderName || ''}`);
                       }}
                       onClick={(e) => e.stopPropagation()}
                     />
@@ -273,7 +273,7 @@ const EmailList = ({
                     <button
                       onClick={(e) => {
                         e.stopPropagation();
-                        onStar?.(email.uid);
+                        onStar?.(email.uid, email.folderName);
                       }}
                       className="p-1 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-400 dark:text-gray-500 hover:text-yellow-500 cursor-pointer"
                       title={email.starred ? "Unstar" : "Star"}
@@ -360,10 +360,10 @@ const EmailList = ({
                         onClick={(e) => {
                           e.stopPropagation();
                           if (isActuallyArchived) {
-                            if (onUnarchive) onUnarchive(email.uid);
-                            else onArchive?.(email.uid);
+                            if (onUnarchive) onUnarchive(email.uid, email.folderName);
+                            else onArchive?.(email.uid, email.folderName);
                           } else {
-                            onArchive?.(email.uid);
+                            onArchive?.(email.uid, email.folderName);
                           }
                         }}
                         className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
@@ -372,7 +372,7 @@ const EmailList = ({
                         {isActuallyArchived ? <MdUnarchive size={18} /> : <MdArchive size={18} />}
                       </button>
                       <button
-                        onClick={() => onDelete?.(email.uid)}
+                        onClick={() => onDelete?.(email.uid, email.folderName)}
                         className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
                         title="Delete"
                       >

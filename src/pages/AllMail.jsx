@@ -160,10 +160,10 @@ const AllMail = ({ searchQuery }) => {
                 emails={visibleEmails}
                 selectedEmailId={selectedEmail?.uid}
                 onSelectEmail={handleSelectEmail}
-                onDelete={(uid) => handleMoveToTrash(uid, currentFolder || "inbox")}
-                onStar={(uid) => handleToggleStar(uid, currentFolder || "inbox")}
-                onArchive={(uid) => handleArchive(uid, currentFolder || "inbox")}
-                onUnarchive={handleUnarchive}
+                onDelete={(uid, folder) => handleMoveToTrash(uid, folder || currentFolder || "inbox")}
+                onStar={(uid, folder) => handleToggleStar(uid, folder || currentFolder || "inbox")}
+                onArchive={(uid, folder) => handleArchive(uid, folder || currentFolder || "inbox")}
+                onUnarchive={(uid, folder) => handleUnarchive(uid, folder || currentFolder || "inbox")}
                 selectedIds={selectedIds}
                 onToggleSelect={handleToggleSelect}
               />

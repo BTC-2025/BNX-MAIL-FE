@@ -253,9 +253,9 @@ export const MailProvider = ({ children }) => {
         }
     };
 
-    const handleSnooze = async (uid, wakeUpAt, silent = false) => {
+    const handleSnooze = async (uid, wakeUpAt, folder = 'INBOX', silent = false) => {
         try {
-            await mailAPI.snooze(uid, wakeUpAt);
+            await mailAPI.snooze(uid, wakeUpAt, folder);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
             if (!silent) toast.success('Snoozed email');
         } catch (error) {
