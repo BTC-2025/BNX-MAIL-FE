@@ -902,13 +902,12 @@ const EmailDetails = ({
             return (
               <div 
                 key={msg.uid} 
-                className={`flex flex-col border rounded-xl overflow-hidden transition-all duration-200 ${isExpanded ? 'shadow-sm bg-white dark:bg-black/20' : 'bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
-                style={{ borderColor: theme.border }}
+                className={`flex flex-col transition-all duration-200 ${isExpanded ? 'my-1' : 'hover:bg-black/[0.02] dark:hover:bg-white/[0.02]'}`}
+                style={{ borderBottom: index !== messagesToRender.length - 1 ? `1px solid ${theme.border}` : 'none' }}
               >
                 {/* SENDER INFO HEADER (Clickable to expand/collapse) */}
                 <div 
-                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 cursor-pointer ${isExpanded ? 'border-b' : ''}`}
-                  style={{ borderColor: isExpanded ? theme.border : 'transparent' }}
+                  className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 cursor-pointer`}
                   onClick={() => {
                     setExpandedMessages(prev => {
                       const newSet = new Set(prev);

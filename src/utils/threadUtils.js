@@ -1,6 +1,12 @@
 export const normalizeSubject = (subject) => {
   if (!subject) return "(No Subject)";
-  return subject.replace(/^(Re|Fwd|Fw|Reply):\s*/gi, '').trim().toLowerCase();
+  let s = subject;
+  let prev = "";
+  while (s !== prev) {
+    prev = s;
+    s = s.replace(/^(Re|Fwd|Fw|Reply):\s*/gi, '').trim();
+  }
+  return s.toLowerCase();
 };
 
 export const groupEmailsIntoThreads = (emails) => {
