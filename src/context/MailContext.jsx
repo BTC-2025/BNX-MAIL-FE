@@ -397,6 +397,12 @@ export const MailProvider = ({ children }) => {
     const [composeData, setComposeData] = useState(null);
 
     const openCompose = useCallback((data = null) => {
+        if (data && data.replyTo) {
+            const match = data.replyTo.match(/<([^>]+)>/);
+            if (match) {
+                data.replyTo = match[1];
+            }
+        }
         setComposeData(data);
         setIsComposeOpen(true);
         setIsComposeMinimized(false);
