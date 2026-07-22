@@ -15,7 +15,15 @@ import {
   MdVolumeUp,
   MdSettingsBackupRestore,
   MdRefresh,
-  MdSignalCellularAlt
+  MdSignalCellularAlt,
+  MdPhoneAndroid,
+  MdTabletMac,
+  MdComputer,
+  MdDelete,
+  MdCheckCircle,
+  MdError,
+  MdAdd,
+  MdClose
 } from "react-icons/md";
 import { emailAPI, authAPI, userAPI, signatureAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -62,6 +70,7 @@ const Settings = () => {
   const [activeTab, setActiveTab] = useState("accounts");
   const [emails, setEmails] = useState([]);
   const [sessions, setSessions] = useState([]);
+  const [externalSessions, setExternalSessions] = useState([]);
   const [activityLogs, setActivityLogs] = useState([]);
   const [loading, setLoading] = useState(false);
   const [localEmailsPerPage, setLocalEmailsPerPage] = useState(emailsPerPage);
@@ -115,6 +124,7 @@ const Settings = () => {
       fetchBackendSettings();
     } else if (activeTab === "sessions") {
       fetchSessions();
+      fetchExternalSessions();
       fetchActivityLogs();
     }
   }, [activeTab]);
@@ -231,6 +241,98 @@ const Settings = () => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchExternalSessions = async () => {
+    try {
+      setLoading(true);
+      const res = await authAPI.getExternalSessions();
+      if (res.data?.success) {
+        setExternalSessions(res.data.data || []);
+      }
+    } catch {
+      toast.error("Failed to load third-party app sessions");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRevokeSession = async (sessionId) => {
+    if (!window.confirm("Are you sure you want to sign out of this session remotely?")) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await authAPI.revokeSession(sessionId);
+      if (res.data?.success) {
+        toast.success("Signed out of session successfully");
+        fetchSessions();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to sign out of session");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleRevokeExternalSession = async (sessionId) => {
+    if (!window.confirm("Are you sure you want to remove access for this application?")) {
+      return;
+    }
+    try {
+      setLoading(true);
+      const res = await authAPI.revokeExternalSession(sessionId);
+      if (res.data?.success) {
+        toast.success("Application access revoked successfully");
+        fetchExternalSessions();
+      }
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to revoke application access");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const parseUserAgent = (ua) => {
+    if (!ua) return { name: 'Unknown Device', browser: 'Browser', type: 'monitor' };
+    const lowerUA = ua.toLowerCase();
+
+    let name = 'Unknown Device';
+    let type = 'monitor';
+    if (lowerUA.includes('iphone')) {
+      name = 'iPhone';
+      type = 'phone';
+    } else if (lowerUA.includes('android')) {
+      name = 'Android Phone';
+      type = 'phone';
+    } else if (lowerUA.includes('ipad')) {
+      name = 'iPad';
+      type = 'tablet';
+    } else if (lowerUA.includes('macintosh')) {
+      name = 'MacBook';
+      type = 'monitor';
+    } else if (lowerUA.includes('windows')) {
+      name = 'Windows PC';
+      type = 'monitor';
+    } else if (lowerUA.includes('linux')) {
+      name = 'Linux PC';
+      type = 'monitor';
+    }
+
+    let browser = 'Web Browser';
+    if (lowerUA.includes('firefox')) {
+      browser = 'Firefox';
+    } else if (lowerUA.includes('opr/') || lowerUA.includes('opera')) {
+      browser = 'Opera';
+    } else if (lowerUA.includes('edg/')) {
+      browser = 'Edge';
+    } else if (lowerUA.includes('chrome')) {
+      browser = 'Chrome';
+    } else if (lowerUA.includes('safari') && !lowerUA.includes('chrome')) {
+      browser = 'Safari';
+    }
+
+    return { name, browser, type };
   };
 
   const fetchActivityLogs = async () => {
@@ -1072,20 +1174,74 @@ const Settings = () => {
             <Section title="Active Device Sessions" theme={theme}>
               <p className="text-sm text-gray-500 mb-6">Below are the devices currently logged into your account.</p>
               <div className="flex flex-col gap-4">
-                {sessions.map((s, idx) => (
-                  <div key={idx} className="p-5 rounded-2xl border flex flex-col gap-1 shadow-sm" style={{ borderColor: theme.border, background: theme.cardBg }}>
-                    <p className="text-base font-semibold" style={{ color: theme.text }}>{s.deviceName || "Unknown Browser / Client"}</p>
-                    <p className="text-sm text-gray-500">{s.ipAddress} — {s.location}</p>
-                    <p className="text-xs text-gray-400 mt-2 font-medium">Last active: {new Date(s.lastActive).toLocaleString()}</p>
+                {sessions.length > 0 ? sessions.map((s) => {
+                  const device = parseUserAgent(s.userAgent);
+                  return (
+                    <div key={s.id} className="p-5 rounded-2xl border flex justify-between items-center shadow-sm hover:shadow transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
+                      <div className="flex items-center gap-4">
+                        <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5" style={{ color: theme.accent }}>
+                          {device.type === 'phone' ? <MdPhoneAndroid size={20} /> :
+                           device.type === 'tablet' ? <MdTabletMac size={20} /> : <MdComputer size={20} />}
+                        </div>
+                        <div className="flex flex-col gap-0.5">
+                          <div className="flex items-center gap-2">
+                            <span className="text-base font-semibold" style={{ color: theme.text }}>{device.name}</span>
+                            {s.isCurrentSession && (
+                              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white bg-green-500 uppercase tracking-wider">This device</span>
+                            )}
+                          </div>
+                          <p className="text-sm text-gray-500">{s.ipAddress} — {device.browser}</p>
+                          <p className="text-xs text-gray-400 mt-1">Logged in: {new Date(s.createdAt).toLocaleString()}</p>
+                        </div>
+                      </div>
+                      {!s.isCurrentSession && (
+                        <button 
+                          onClick={() => handleRevokeSession(s.id)}
+                          className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                        >
+                          Sign Out
+                        </button>
+                      )}
+                    </div>
+                  );
+                }) : (
+                  <p className="text-sm text-gray-400 text-center py-6">No active sessions found.</p>
+                )}
+              </div>
+            </Section>
+
+            <Section title="Connected Applications" theme={theme}>
+              <p className="text-sm text-gray-500 mb-6">Third-party applications authorized to access your mailbox profile.</p>
+              <div className="flex flex-col gap-4">
+                {externalSessions.length > 0 ? externalSessions.map((s) => (
+                  <div key={s.id} className="p-5 rounded-2xl border flex justify-between items-center shadow-sm hover:shadow transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
+                    <div className="flex items-center gap-4">
+                      <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5" style={{ color: theme.accent }}>
+                        <MdSecurity size={20} />
+                      </div>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="text-base font-semibold" style={{ color: theme.text }}>{s.appName}</span>
+                        <p className="text-sm text-gray-500">{s.ipAddress} — Basic Profile Access</p>
+                        <p className="text-xs text-gray-400 mt-1">Authorized: {new Date(s.loggedInAt).toLocaleString()}</p>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => handleRevokeExternalSession(s.id)}
+                      className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                    >
+                      Revoke Access
+                    </button>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-gray-400 text-center py-6">No connected applications found.</p>
+                )}
               </div>
             </Section>
 
             <Section title="Security Activity Log" theme={theme}>
               <p className="text-sm text-gray-500 mb-6">Audit history of recent security-critical adjustments on your account.</p>
               <div className="flex flex-col gap-3 max-h-96 overflow-y-auto hidden-scrollbar pr-2">
-                {activityLogs.map((log, idx) => (
+                {activityLogs.length > 0 ? activityLogs.map((log, idx) => (
                   <div key={idx} className="p-4 border rounded-xl flex justify-between items-center bg-black/5 dark:bg-white/5" style={{ borderColor: theme.border }}>
                     <div className="flex flex-col gap-1">
                       <p className="font-semibold text-sm" style={{ color: theme.text }}>{log.action}</p>
@@ -1093,7 +1249,9 @@ const Settings = () => {
                     </div>
                     <span className="text-xs text-gray-400 font-medium text-right">{new Date(log.timestamp).toLocaleString()}</span>
                   </div>
-                ))}
+                )) : (
+                  <p className="text-sm text-gray-400 text-center py-6">No activity logs recorded.</p>
+                )}
               </div>
             </Section>
           </div>
