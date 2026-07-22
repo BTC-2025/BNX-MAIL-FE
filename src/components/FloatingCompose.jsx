@@ -449,10 +449,10 @@ const FloatingCompose = () => {
             closeCompose();
           }
           if (imapDraftUidRef.current) {
-            mailAPI.trash(imapDraftUidRef.current, "draft").catch(console.error);
+            mailAPI.trash(imapDraftUidRef.current, "Drafts").catch(console.error);
             imapDraftUidRef.current = null;
           }
-          fetchEmails(undefined, true);
+          fetchEmails('Drafts', true);
         }
       } catch (err) {
         setError(err.response?.data?.message || "Failed to send email");
@@ -617,10 +617,10 @@ const FloatingCompose = () => {
       mailAPI.saveDraft(payload)
         .then(() => {
           if (imapDraftUidRef.current) {
-            mailAPI.trash(imapDraftUidRef.current, "draft").catch(console.error);
+            mailAPI.trash(imapDraftUidRef.current, "Drafts").catch(console.error);
             imapDraftUidRef.current = null;
           }
-          fetchEmails('draft');
+          fetchEmails('Drafts');
         })
         .catch((err) => {
           console.error("Failed to auto-save draft in the background:", err);
@@ -640,7 +640,7 @@ const FloatingCompose = () => {
       }
       if (imapDraftUidRef.current) {
         try {
-          await mailAPI.trash(imapDraftUidRef.current, "draft");
+          await mailAPI.trash(imapDraftUidRef.current, "Drafts");
           imapDraftUidRef.current = null;
         } catch (e) {
           console.error("Failed to discard IMAP draft:", e);

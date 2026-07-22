@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { MdClose, MdEdit } from "react-icons/md";
 import bnxLogo from "../assets/bnx-remove.png";
-import b2authLogo from "../assets/b2auth.png";
+import b2authLogo from "../assets/auth2.png";
 import bitToolLogo from "../assets/BIT-TOOL-2.png";
 import cliksLogo from "../assets/cliks.png";
 import cliksBusinessLogo from "../assets/cliks-business.png";
@@ -33,17 +33,17 @@ const AppLauncher = ({ onClose, onToggleBitToolSidebar }) => {
       <div className="flex items-center justify-between p-5 border-b border-gray-100 shrink-0">
         {/* <div className="flex items-center text-xl text-blue-900 tracking-tight" style={{fontFamily:'Saira Stencil One',fontWeight:'900'}}>BETA</div> */}
         <div
-  className="flex items-center text-xl text-blue-900 tracking-tight font-bold"
-  style={{
-    fontFamily: "'Saira Stencil One', 'Anton', sans-serif",
-  }}
->
-  BETA
-</div>
+          className="flex items-center text-xl text-blue-900 tracking-tight font-bold"
+          style={{
+            fontFamily: "'Saira Stencil One', 'Anton', sans-serif",
+          }}
+        >
+          BE<span style={{marginLeft:'1px'}}>TA</span>
+        </div>
         <div className="flex items-center gap-3">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
+          {/* <button className="flex items-center gap-1.5 px-3 py-1.5 border border-gray-200 rounded-full text-xs font-semibold text-gray-700 hover:bg-gray-50 transition-colors">
             <MdEdit size={14} /> Edit
-          </button>
+          </button> */}
           <button onClick={onClose} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-50 hover:bg-gray-100 text-gray-500 transition-colors">
             <MdClose size={18} />
           </button>
@@ -51,7 +51,7 @@ const AppLauncher = ({ onClose, onToggleBitToolSidebar }) => {
       </div>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-5 custom-scrollbar">
+      <div className="flex-1 overflow-y-auto p-5 custom-scrollbar" style={{scrollbarWidth:'none'}}>
         {/* Favorites & Recent Tabs */}
         <div className="mb-8">
           <div className="flex items-center w-full mb-4">
@@ -84,10 +84,10 @@ const AppLauncher = ({ onClose, onToggleBitToolSidebar }) => {
                   {publicApps.map((app, idx) => (
                     <div 
                       key={idx} 
-                      className="w-[72px] h-[72px] bg-white border border-gray-100 rounded-[18px] flex flex-col items-center justify-center hover:border-gray-200 hover:shadow-md cursor-pointer transition-all" 
+                      className="w-[72px] h-[72px] border-gray-100 rounded-[18px] flex flex-col items-center justify-center hover:border-gray-200 hover:shadow-md cursor-pointer transition-all" 
                       onClick={app.isButton ? () => { onToggleBitToolSidebar?.(); onClose(); } : () => window.open(app.href, '_blank')}
                     >
-                      <img src={app.icon} alt={app.name} className="w-8 h-8 object-contain mb-1.5" />
+                      <img src={app.icon} alt={app.name} className="w-10 h-10 object-contain mb-1.5" />
                       <span className="text-[10px] font-bold text-slate-700">{app.name}</span>
                     </div>
                   ))}
