@@ -929,7 +929,9 @@ const EmailDetails = ({
                     </div>
                     <div className="min-w-0">
                       <p className="font-semibold text-sm sm:text-base flex flex-wrap items-center gap-x-2 truncate" style={{ color: theme.text }}>
-                        {msg.from?.includes("<") ? (
+                        {isSentByUser ? (
+                          <span className="truncate">me</span>
+                        ) : msg.from?.includes("<") ? (
                           <>
                             <span className="truncate">{msg.from.split("<")[0].replace(/^["']/g, "").replace(/["']$/g, "").trim()}</span>
                             {isExpanded && <span className="text-xs font-normal text-gray-500 dark:text-gray-400 truncate">&lt;{msg.from.split("<")[1].split(">")[0]}&gt;</span>}
@@ -948,7 +950,9 @@ const EmailDetails = ({
                         )}
                       </p>
                       <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                        to <span className="font-medium text-gray-700 dark:text-gray-300">{msg.to || "me"}</span>
+                        to <span className="font-medium text-gray-700 dark:text-gray-300">
+                          {msg.to?.toLowerCase().includes(user?.email?.toLowerCase()) ? "me" : (msg.to || "me")}
+                        </span>
                       </p>
                     </div>
                   </div>
