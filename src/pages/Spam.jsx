@@ -49,7 +49,15 @@ const Spam = ({ searchQuery }) => {
     setSelectedEmailUid(email.uid);
   };
 
-  const handleReply = (email) => {
+  
+  const handleForward = (email) => {
+    openCompose({
+      forward: true,
+      subject: `Fwd: ${email.subject || ""}`,
+      originalBody: email.body,
+    });
+  };
+const handleReply = (email) => {
     openCompose({
       replyTo: email.senderEmail || email.from,
       subject: `Re: ${email.subject || ""}`,
@@ -75,6 +83,7 @@ const Spam = ({ searchQuery }) => {
             setSelectedEmailUid(null);
           }}
           onReply={handleReply}
+          onForward={handleForward}
         />
   ) : null;
 

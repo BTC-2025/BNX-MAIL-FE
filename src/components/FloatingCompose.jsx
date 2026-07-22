@@ -208,14 +208,14 @@ const FloatingCompose = () => {
 
       if (composeData) {
         if (!signatureInjectedRef.current) {
-          if (composeData.replyTo) {
+          if (composeData.replyTo || composeData.forward) {
             setFormData({
-              to: composeData.replyTo,
+              to: composeData.forward ? "" : composeData.replyTo,
               cc: "",
               bcc: "",
               subject: composeData.subject || "",
               body: composeData.originalBody
-                ? `<br/><br/><div>--- Original Message ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
+                ? `<br/><br/><div>--- ${composeData.forward ? "Forwarded Message" : "Original Message"} ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
                 : "",
             });
           } else if (composeData.draft) {

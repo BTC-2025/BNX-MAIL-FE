@@ -49,7 +49,15 @@ const Draft = ({ searchQuery }) => {
     openCompose({ draft: email });
   };
 
-  const handleReply = (email) => {
+  
+  const handleForward = (email) => {
+    openCompose({
+      forward: true,
+      subject: `Fwd: ${email.subject || ""}`,
+      originalBody: email.body,
+    });
+  };
+const handleReply = (email) => {
     // Open draft in composer
     openCompose({
       draft: email
@@ -89,6 +97,7 @@ const Draft = ({ searchQuery }) => {
             setSelectedEmailUid(null);
           }}
           onReply={handleReply}
+          onForward={handleForward}
           onApplyLabel={handleApplyLabel}
         />
   ) : null;

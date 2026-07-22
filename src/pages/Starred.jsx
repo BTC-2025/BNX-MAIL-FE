@@ -53,7 +53,15 @@ const Starred = ({ searchQuery }) => {
     await handleToggleStar(uid, 'starred');
   };
 
-  const handleReply = (email) => {
+  
+  const handleForward = (email) => {
+    openCompose({
+      forward: true,
+      subject: `Fwd: ${email.subject || ""}`,
+      originalBody: email.body,
+    });
+  };
+const handleReply = (email) => {
     openCompose({
       replyTo: email.senderEmail || email.from,
       subject: `Re: ${email.subject || ""}`,
@@ -83,6 +91,7 @@ const Starred = ({ searchQuery }) => {
         setSelectedEmailUid(null);
       }}
       onReply={handleReply}
+          onForward={handleForward}
       onApplyLabel={handleApplyLabel}
     />
   ) : null;

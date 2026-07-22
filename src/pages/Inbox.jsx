@@ -197,6 +197,13 @@ const Inbox = ({ searchQuery }) => {
           originalBody: email.body,
         })
       }
+      onForward={(email) =>
+        openCompose({
+          forward: true,
+          subject: `Fwd: ${email.subject}`,
+          originalBody: email.body,
+        })
+      }
     />
   ) : null;
 

@@ -8,6 +8,7 @@ import {
   MdLabel, 
   MdReply, 
   MdForward,
+  MdStarBorder,
   MdFileDownload,
   MdRemoveRedEye,
   MdClose,
@@ -96,6 +97,7 @@ const EmailDetails = ({
   email,
   onBack,
   onReply,
+  onForward,
   onDelete,
   onStar,
   onArchive,
@@ -749,7 +751,7 @@ const EmailDetails = ({
                   <span className="text-sm font-medium">Reply</span>
                 </button>
                 <button
-                  onClick={() => { setShowMoreOptions(false); /* onForward logic */ }}
+                  onClick={() => { onForward?.(email); setShowMoreOptions(false); }}
                   className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
                 >
                   <MdForward size={18} className="text-gray-500" />
@@ -1019,22 +1021,26 @@ const EmailDetails = ({
       >
         <div className="flex gap-3">
           {currentFolder !== "draft" && (
-            <>
-              <button
+            <div className="flex flex-wrap items-center gap-3">
+              <button 
                 onClick={() => onReply?.(email)}
-                className="flex items-center justify-center gap-2 px-5 py-2 rounded-full text-white font-medium shadow-sm hover:shadow hover:-translate-y-0.5 transition-all w-28 text-sm cursor-pointer"
-                style={{ background: theme.accent || "#135bec" }}
+                className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-200 flex items-center gap-2
+                  ${theme.name === 'dark' 
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-[0_2px_8px_-2px_rgba(37,99,235,0.5)]' 
+                    : 'bg-white border hover:bg-gray-50 hover:shadow-sm text-gray-700'}`}
               >
                 <MdReply size={18} /> Reply
               </button>
-
-              <button
-                className="flex items-center justify-center gap-2 px-5 py-2 rounded-full font-medium border hover:bg-black/5 dark:hover:bg-white/5 hover:shadow-sm transition-all text-sm w-28 cursor-pointer text-gray-700 dark:text-gray-200"
-                style={{ borderColor: theme.border }}
+              <button 
+                onClick={() => onForward?.(email)}
+                className={`px-6 py-2.5 rounded-full font-medium text-sm transition-all duration-200 flex items-center gap-2
+                  ${theme.name === 'dark' 
+                    ? 'bg-gray-800 hover:bg-gray-700 text-white shadow-sm' 
+                    : 'bg-white border hover:bg-gray-50 hover:shadow-sm text-gray-700'}`}
               >
                 <MdForward size={18} /> Forward
               </button>
-            </>
+            </div>
           )}
         </div>
 
