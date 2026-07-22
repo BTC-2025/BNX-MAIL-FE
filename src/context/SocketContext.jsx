@@ -84,12 +84,12 @@ export const SocketProvider = ({ children }) => {
         switch (data.type) {
             case 'new_email':
                 toast('New email received!', { icon: '📧' });
-                fetchEmails();
+                fetchEmails(undefined, true);
                 break;
             case 'send_progress':
                 if (data.status === 'completed') {
                     toast.success('Email sent successfully');
-                    fetchEmails('sent');
+                    fetchEmails('sent', true);
                 } else if (data.status === 'failed') {
                     toast.error('Failed to send email');
                 }
