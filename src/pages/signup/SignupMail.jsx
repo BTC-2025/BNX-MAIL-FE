@@ -23,7 +23,8 @@ const SignupMail = () => {
                     const res = await authAPI.getUsernameSuggestions({
                         firstName: formData.firstName,
                         lastName: formData.lastName,
-                        dob: formData.dob
+                        dob: formData.dob,
+                        mode: formData.accountType
                     });
                     if (res.data?.success && res.data.data) {
                         setSuggestions(res.data.data);
@@ -46,6 +47,19 @@ const SignupMail = () => {
         if (!formData.username || formData.username.trim() === '') {
             setError('Please choose a valid email address');
             return;
+        }
+
+        if (formData.accountType === 'PERSONAL' || formData.accountType === 'CHILD') {
+            const username = formData.username.trim();
+            if (username.length < 10) {
+                setError('Email handle must contain at least 10 characters');
+                return;
+            }
+            const digits = username.replace(/[^0-9]/g, '').length;
+            if (digits < 3) {
+                setError('Email handle must contain at least 3 numbers');
+                return;
+            }
         }
 
         // Proceed to Password Setup
