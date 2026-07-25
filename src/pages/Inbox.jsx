@@ -6,7 +6,7 @@ import { mailAPI } from "../services/api";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
-import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant } from "react-icons/md";
+import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant,MdSend, MdDrafts, MdStar,MdDelete,MdEdit, MdCheck } from "react-icons/md";
 import toast from "react-hot-toast";
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
@@ -33,9 +33,15 @@ const Inbox = ({ searchQuery }) => {
     });
   };
 
+  const isCategoryTab = ['PRIMARY', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES'].includes(activeTab);
+
   useEffect(() => {
-    fetchEmails('inbox');
-  }, [fetchEmails]);
+    if (isCategoryTab) {
+      fetchEmails('inbox');
+    } else {
+      fetchEmails(activeTab.toLowerCase());
+    }
+  }, [activeTab, fetchEmails]);
 
   const getTabCategory = (e) => {
     if (user?.email && e.cc) {
@@ -49,8 +55,9 @@ const Inbox = ({ searchQuery }) => {
   };
 
   const visibleEmails = emails.filter(
-    (e) =>
-      (getTabCategory(e) === activeTab) &&
+    (e) => {
+      const matchesTab = isCategoryTab ? (getTabCategory(e) === activeTab) : true;
+      return matchesTab &&
       (!searchQuery ||
         e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -58,7 +65,8 @@ const Inbox = ({ searchQuery }) => {
         e.to?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.recipientEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
         e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase()))
+        e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase()));
+    }
   );
 
   useEffect(() => {
@@ -73,12 +81,42 @@ const Inbox = ({ searchQuery }) => {
     }
   };
 
-  const unreadPrimary = emails.filter(e => getTabCategory(e) === 'PRIMARY' && !e.isRead).length;
-  const unreadImportant = emails.filter(e => getTabCategory(e) === 'IMPORTANT' && !e.isRead).length;
-  const unreadPromotions = emails.filter(e => getTabCategory(e) === 'PROMOTIONS' && !e.isRead).length;
-  const unreadSocial = emails.filter(e => getTabCategory(e) === 'SOCIAL' && !e.isRead).length;
-  const unreadUpdates = emails.filter(e => getTabCategory(e) === 'UPDATES' && !e.isRead).length;
+  const availableTabs = [
+    { id: 'PRIMARY', label: 'Primary', icon: MdInbox, color: theme.accent || '#135bec', category: true },
+    { id: 'IMPORTANT', label: 'Important', icon: MdLabelImportant, color: '#eab308', category: true },
+    { id: 'PROMOTIONS', label: 'Promotions', icon: MdLocalOffer, color: '#22c55e', category: true },
+    { id: 'SOCIAL', label: 'Social', icon: MdPeople, color: '#3b82f6', category: true },
+    { id: 'UPDATES', label: 'Updates', icon: MdInfo, color: '#f97316', category: true },
+    { id: 'SENT', label: 'Sent', icon: MdSend, color: '#8b5cf6', category: false },
+    { id: 'DRAFT', label: 'Drafts', icon: MdDrafts, color: '#64748b', category: false },
+    { id: 'STARRED', label: 'Starred', icon: MdStar, color: '#eab308', category: false },
+    { id: 'TRASH', label: 'Trash', icon: MdDelete, color: '#ef4444', category: false }
+  ];
 
+  const [activeTabs, setActiveTabs] = useState(() => {
+    const saved = localStorage.getItem('inbox_visible_tabs');
+    if (saved) return JSON.parse(saved);
+    return ['PRIMARY'];
+  });
+
+  const [showTabMenu, setShowTabMenu] = useState(false);
+
+  const toggleTab = (tabId) => {
+    if (tabId === 'PRIMARY') return;
+    setActiveTabs(prev => {
+      const next = prev.includes(tabId) ? prev.filter(t => t !== tabId) : [...prev, tabId];
+      localStorage.setItem('inbox_visible_tabs', JSON.stringify(next));
+      if (activeTab === tabId && prev.includes(tabId)) {
+        setActiveTab('PRIMARY');
+      }
+      return next;
+    });
+  };
+
+  const getUnreadCount = (tabId) => {
+    if (!availableTabs.find(t => t.id === tabId)?.category) return 0; // Don't show unread for folders here
+    return emails.filter(e => getTabCategory(e) === tabId && !e.isRead).length;
+  };
 
   const listComponent = (
     <div className="flex-1 flex flex-col overflow-hidden">
@@ -97,12 +135,31 @@ const Inbox = ({ searchQuery }) => {
     </div>
   );
 
+  const renderTab = (tab) => {
+    if (!tab) return null;
+    const Icon = tab.icon;
+    const unread = getUnreadCount(tab.id);
+    const isActive = activeTab === tab.id;
+    return (
+      <button
+        key={tab.id}
+        onClick={() => setActiveTab(tab.id)}
+        className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${isActive ? '' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
+        style={isActive ? { borderColor: tab.color, color: tab.color } : {}}
+      >
+        <Icon size={18} />
+        {tab.label}
+        {unread > 0 && <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm" style={{ backgroundColor: tab.color }}>{unread}</span>}
+      </button>
+    );
+  };
+
   const headerComponent = selectedIds.size > 0 ? (
     <BulkActionsToolbar
       selectedIds={selectedIds}
       setSelectedIds={setSelectedIds}
       visibleEmails={visibleEmails}
-      folder="inbox"
+      folder={availableTabs.find(t => t.id === activeTab)?.category ? 'inbox' : activeTab.toLowerCase()}
     />
   ) : (
     <div className="flex flex-col border-b border-gray-100 dark:border-gray-800 bg-transparent shrink-0">
@@ -112,11 +169,11 @@ const Inbox = ({ searchQuery }) => {
             className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
             style={{ background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)` }}
           >
-            <MdInbox size={15} /> Inbox ({visibleEmails.length})
+            <MdInbox size={15} /> {availableTabs.find(t => t.id === activeTab)?.label} ({visibleEmails.length})
           </span>
 
           <button
-            onClick={() => fetchEmails("inbox")}
+            onClick={() => fetchEmails(availableTabs.find(t => t.id === activeTab)?.category ? "inbox" : activeTab.toLowerCase())}
             disabled={loading}
             className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center cursor-pointer"
             title="Refresh mail"
@@ -127,48 +184,50 @@ const Inbox = ({ searchQuery }) => {
       </div>
 
       {/* TABS */}
-      <div className="flex px-4 pt-1 gap-2 sm:gap-6 text-sm font-medium overflow-x-auto hidden-scrollbar">
-        <button
-          onClick={() => setActiveTab('PRIMARY')}
-          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'PRIMARY' ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-          style={activeTab === 'PRIMARY' ? { borderColor: theme.accent, color: theme.accent } : {}}
-        >
-          <MdInbox size={18} />
-          Primary
-          {unreadPrimary > 0 && <span className="text-[10px] text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm" style={{ backgroundColor: theme.accent || "#135bec" }}>{unreadPrimary}</span>}
-        </button>
-        <button
-          onClick={() => setActiveTab('IMPORTANT')}
-          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'IMPORTANT' ? 'border-yellow-500 text-yellow-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-        >
-          <MdLabelImportant size={18} />
-          Important
-          {unreadImportant > 0 && <span className="text-[10px] bg-yellow-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadImportant}</span>}
-        </button>
-        <button
-          onClick={() => setActiveTab('PROMOTIONS')}
-          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'PROMOTIONS' ? 'border-green-500 text-green-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-        >
-          <MdLocalOffer size={18} />
-          Promotions
-          {unreadPromotions > 0 && <span className="text-[10px] bg-green-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadPromotions}</span>}
-        </button>
-        <button
-          onClick={() => setActiveTab('SOCIAL')}
-          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'SOCIAL' ? 'border-blue-500 text-blue-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-        >
-          <MdPeople size={18} />
-          Social
-          {unreadSocial > 0 && <span className="text-[10px] bg-blue-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadSocial}</span>}
-        </button>
-        <button
-          onClick={() => setActiveTab('UPDATES')}
-          className={`py-3 px-2 border-b-2 transition-colors flex items-center gap-2 whitespace-nowrap cursor-pointer ${activeTab === 'UPDATES' ? 'border-orange-500 text-orange-500' : 'border-transparent text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
-        >
-          <MdInfo size={18} />
-          Updates
-          {unreadUpdates > 0 && <span className="text-[10px] bg-orange-500 text-white px-1.5 py-0.5 rounded-full font-bold shadow-sm">{unreadUpdates}</span>}
-        </button>
+      <div className="flex px-4 pt-1 items-center gap-2 sm:gap-4 text-sm font-medium">
+        {/* Edit Button */}
+        <div className="relative shrink-0 border-r border-gray-100 dark:border-gray-800 pr-2 sm:pr-4">
+          <button
+            onClick={() => setShowTabMenu(!showTabMenu)}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/5 text-gray-500 transition-colors cursor-pointer"
+            title="Edit Tabs"
+          >
+            <MdEdit size={18} />
+          </button>
+          
+          {showTabMenu && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setShowTabMenu(false)} />
+              <div className="absolute left-0 top-full mt-1 w-48 bg-white dark:bg-gray-800 rounded-xl shadow-xl border border-gray-100 dark:border-gray-700 z-50 py-2 overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">Customize Tabs</div>
+                {availableTabs.map(tab => {
+                  const Icon = tab.icon;
+                  const isVisible = activeTabs.includes(tab.id);
+                  const isPrimary = tab.id === 'PRIMARY';
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => toggleTab(tab.id)}
+                      disabled={isPrimary}
+                      className={`w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer ${isPrimary ? 'opacity-50' : ''}`}
+                    >
+                      <div className="flex items-center gap-2 text-gray-700 dark:text-gray-300">
+                        <Icon size={16} style={{ color: tab.color }} />
+                        {tab.label}
+                      </div>
+                      {isVisible && <MdCheck size={16} className="text-primary" style={{ color: theme.accent || "#135bec" }} />}
+                    </button>
+                  );
+                })}
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* All Tabs */}
+        <div className="flex gap-2 sm:gap-6 overflow-x-auto hidden-scrollbar flex-1">
+          {availableTabs.filter(t => activeTabs.includes(t.id)).map(tab => renderTab(tab))}
+        </div>
       </div>
     </div>
   );
