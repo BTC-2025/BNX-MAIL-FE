@@ -163,7 +163,17 @@ const ChatRoom = () => {
 
   const formatMessageTime = (timestamp) => {
     if (!timestamp) return '';
-    const date = new Date(timestamp);
+    
+    let date;
+    if (Array.isArray(timestamp)) {
+      const [year, month, day, hour, minute, second] = timestamp;
+      date = new Date(year, month - 1, day, hour || 0, minute || 0, second || 0);
+    } else {
+      date = new Date(timestamp);
+    }
+
+    if (isNaN(date.getTime())) return '';
+
     const now = new Date();
     
     if (date.toDateString() === now.toDateString()) {
