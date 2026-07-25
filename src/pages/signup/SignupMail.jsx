@@ -51,13 +51,15 @@ const SignupMail = () => {
 
         if (formData.accountType === 'PERSONAL' || formData.accountType === 'CHILD') {
             const username = formData.username.trim();
-            if (username.length < 10) {
-                setError('Email handle must contain at least 10 characters');
+            const letters = username.replace(/[^a-zA-Z]/g, '').length;
+            const digits = username.replace(/[^0-9]/g, '').length;
+            
+            if (username.length !== 10) {
+                setError('Email handle must be exactly 10 characters long');
                 return;
             }
-            const digits = username.replace(/[^0-9]/g, '').length;
-            if (digits < 3) {
-                setError('Email handle must contain at least 3 numbers');
+            if (letters !== 7 || digits !== 3) {
+                setError('Email handle must contain exactly 7 letters and 3 numbers');
                 return;
             }
         }
