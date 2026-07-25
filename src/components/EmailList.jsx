@@ -320,7 +320,20 @@ const EmailList = ({
                       {email.subject || "(No Subject)"}
                     </span>
                     <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
-                      — {email.body ? email.body.replace(/\s+/g, " ") : (email.textPlain ? email.textPlain.replace(/\s+/g, " ") : "")}
+                      — {(() => {
+                        if (email.textPlain && email.textPlain.trim().length > 0) {
+                          return email.textPlain.replace(/\s+/g, " ");
+                        }
+                        if (email.body) {
+                          // Strip <style> tags and all other HTML tags
+                          const noStyle = email.body.replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '');
+                          const noTags = noStyle.replace(/<[^>]+>/g, ' ');
+                          // Decode basic HTML entities to avoid &nbsp; etc.
+                          const decoded = noTags.replace(/&nbsp;/gi, ' ').replace(/&amp;/gi, '&').replace(/&lt;/gi, '<').replace(/&gt;/gi, '>');
+                          return decoded.replace(/\s+/g, " ").trim();
+                        }
+                        return "";
+                      })()}
                     </span>
                   </div>
 

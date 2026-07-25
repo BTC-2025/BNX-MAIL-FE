@@ -7,34 +7,45 @@ const ReadingPaneLayout = ({
   detailsComponent,
   headerComponent
 }) => {
-  const [listFlex, setListFlex] = useState(mode === 'right' ? 40 : 50); // percentage
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 768;
+  const effectiveMode = isMobile ? 'no_split' : mode;
+
+  const [listFlex, setListFlex] = useState(effectiveMode === 'right' ? 40 : 50); // percentage
   const containerRef = useRef(null);
   const isResizing = useRef(false);
 
   // Reset flex when mode changes
   useEffect(() => {
-    if (mode === 'right') setListFlex(40);
-    else if (mode === 'below') setListFlex(50);
-  }, [mode]);
+    if (effectiveMode === 'right') setListFlex(40);
+    else if (effectiveMode === 'below') setListFlex(50);
+  }, [effectiveMode]);
 
   const handleMouseDown = (e) => {
     e.preventDefault();
     isResizing.current = true;
     document.addEventListener('mousemove', handleMouseMove);
     document.addEventListener('mouseup', handleMouseUp);
-    document.body.style.cursor = mode === 'right' ? 'col-resize' : 'row-resize';
+    document.body.style.cursor = effectiveMode === 'right' ? 'col-resize' : 'row-resize';
   };
 
   const handleMouseMove = (e) => {
     if (!isResizing.current || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
     
-    if (mode === 'right') {
+    if (effectiveMode === 'right') {
       const newPercentage = ((e.clientX - rect.left) / rect.width) * 100;
       if (newPercentage > 20 && newPercentage < 80) {
         setListFlex(newPercentage);
       }
-    } else if (mode === 'below') {
+    } else if (effectiveMode === 'below') {
       const newPercentage = ((e.clientY - rect.top) / rect.height) * 100;
       if (newPercentage > 20 && newPercentage < 80) {
         setListFlex(newPercentage);
@@ -49,19 +60,19 @@ const ReadingPaneLayout = ({
     document.body.style.cursor = 'default';
   };
 
-  if (mode === 'no_split' || !hasSelection) {
+  if (effectiveMode === 'no_split' || !hasSelection) {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-transparent relative">
-        <div className={`flex flex-col h-full overflow-hidden ${hasSelection && mode === 'no_split' ? 'hidden' : 'flex'}`}>
+        <div className={`flex flex-col h-full overflow-hidden ${hasSelection && effectiveMode === 'no_split' ? 'hidden' : 'flex'}`}>
           {headerComponent}
           {listComponent}
         </div>
-        {hasSelection && mode === 'no_split' && detailsComponent}
+        {hasSelection && effectiveMode === 'no_split' && detailsComponent}
       </div>
     );
   }
 
-  const isRight = mode === 'right';
+  const isRight = effectiveMode === 'right';
 
   return (
     <div 
