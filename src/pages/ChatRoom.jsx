@@ -17,7 +17,9 @@ import {
   MdKeyboardArrowLeft,
   MdImage,
   MdEdit,
-  MdPictureAsPdf
+  MdPictureAsPdf,
+  MdVisibility,
+  MdFileDownload
 } from "react-icons/md";
 import { chatAPI, mailAPI, templateAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -550,7 +552,7 @@ const ChatRoom = () => {
                       className="p-4 rounded-2xl border border-gray-200/40 dark:border-gray-800/40 bg-white/50 dark:bg-gray-900/50 hover:bg-white/80 dark:hover:bg-gray-900/80 transition-all shadow-sm flex flex-col gap-1.5"
                     >
                       <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-1.5 text-[10px] opacity-75 text-gray-500 font-semibold uppercase tracking-wider">
+                      <div className="flex items-center gap-1.5 text-[10px] opacity-75 text-gray-500 font-semibold tracking-wider">
                         <span>From: {b.from?.split("<")[0]?.trim() || b.from}</span>
                       </div>
 
@@ -678,15 +680,23 @@ const ChatRoom = () => {
                                         <img src={att.content} alt={att.name} className="max-h-48 w-auto object-contain cursor-pointer hover:opacity-90 transition-opacity" />
                                       </a>
                                     ) : (
-                                      <a href={att.content} download={att.name} className="flex items-center gap-2 p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
-                                        <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg">
+                                      <div className="flex items-center gap-3 p-3 hover:bg-black/5 dark:hover:bg-white/5 transition-colors">
+                                        <div className="p-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg shrink-0">
                                           <MdPictureAsPdf size={24} />
                                         </div>
-                                        <div className="flex flex-col min-w-0">
-                                          <span className="text-xs font-semibold truncate max-w-[150px]">{att.name}</span>
+                                        <div className="flex flex-col min-w-0 flex-1">
+                                          <span className="text-xs font-semibold truncate max-w-[120px]">{att.name}</span>
                                           <span className="text-[10px] opacity-70">{(att.size / 1024).toFixed(1)} KB</span>
                                         </div>
-                                      </a>
+                                        <div className="flex items-center gap-1 shrink-0">
+                                          <a href={att.content} target="_blank" rel="noreferrer" title="View PDF" className="p-1.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 transition-colors">
+                                            <MdVisibility size={16} />
+                                          </a>
+                                          <a href={att.content} download={att.name} title="Download PDF" className="p-1.5 rounded-full bg-black/5 dark:bg-white/10 hover:bg-black/10 dark:hover:bg-white/20 text-gray-700 dark:text-gray-300 transition-colors">
+                                            <MdFileDownload size={16} />
+                                          </a>
+                                        </div>
+                                      </div>
                                     )}
                                   </div>
                                 ));
