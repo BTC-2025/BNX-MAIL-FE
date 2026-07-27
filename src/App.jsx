@@ -192,6 +192,7 @@ const AppContent = () => {
               <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
               <Route path="/analytics" element={<AnalyticsApp />} />
               <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
+              <Route path="/all-inbox" element={<Inbox searchQuery={searchQuery} />} />
               <Route path="/starred" element={<Starred searchQuery={searchQuery} />} />
               <Route path="/snoozed" element={<Snoozed searchQuery={searchQuery} />} />
               <Route path="/draft" element={<Draft searchQuery={searchQuery} />} />

@@ -36,12 +36,14 @@ const Inbox = ({ searchQuery }) => {
   const isCategoryTab = ['PRIMARY', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES', 'JOB'].includes(activeTab);
 
   useEffect(() => {
-    if (isCategoryTab) {
+    if (location.pathname === '/all-inbox') {
+      fetchEmails('all-inbox');
+    } else if (isCategoryTab) {
       fetchEmails('inbox');
     } else {
       fetchEmails(activeTab.toLowerCase());
     }
-  }, [activeTab, fetchEmails]);
+  }, [activeTab, fetchEmails, location.pathname, isCategoryTab]);
 
   const getTabCategory = (e) => {
     if (user?.email && e.cc) {

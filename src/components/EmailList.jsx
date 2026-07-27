@@ -311,6 +311,11 @@ const EmailList = ({
 
                   {/* Subject & Snippet */}
                   <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
+                    {email.accountEmail && (
+                      <span className="shrink-0 text-[9px] font-bold text-teal-600 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/30 px-1.5 py-0.5 rounded-md select-none" title={`Account: ${email.accountEmail}`}>
+                        {email.accountEmail.split('@')[0].toUpperCase()}
+                      </span>
+                    )}
                     <span
                       className={`text-sm truncate ${isUnread
                           ? "font-bold text-gray-900 dark:text-gray-100"

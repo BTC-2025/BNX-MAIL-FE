@@ -12,7 +12,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const location = useLocation();
   const { theme, backgroundImage, sidebarPreferences } = useTheme();
   const { unreadCounts, labels, handleCreateLabel, handleUpdateLabel, handleDeleteLabel, openCompose } = useMail();
-  const { user } = useAuth();
+  const { user, getSessions } = useAuth();
 
   const isChatMode = location.pathname.startsWith("/colab") || location.pathname.startsWith("/chat") || location.pathname.startsWith("/casbox");
   const isVaultMode = location.pathname.startsWith("/vault");
@@ -121,45 +121,54 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                </button>
             </div>
           ) : !isChatMode ? (
-            ["Inbox", "Analytics", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
+            ["All Inbox", "Inbox", "Analytics", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
+              .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
               .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
               .filter(Boolean)
               .filter(item => sidebarPreferences?.[item.name] !== false)
               .map((item) => {
                 const isActive = location.pathname === item.path || (location.pathname === "/" && item.path === "/inbox");
-                const count = unreadCounts[item.name.toLowerCase()] || 0;
+                const unreadKey = item.name.toLowerCase().replace(' ', '').replace('-', '');
+                const count = unreadCounts[unreadKey] || 0;
 
                 return (
-                  <button
-                    key={item.name}
-                    onClick={() => navigate(item.path)}
-                    className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
-                  ${isActive
-                        ? "bg-primary/10 dark:bg-primary/20"
-                        : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
-                      }
-                `}
-                    style={{
-                      color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
-                      fontWeight: isActive ? 400 : 300,
-                    }}
-                  >
-                    <div className="flex items-center gap-3">
-                      <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
-                        {item.icon}
-                      </span>
-                      <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
-                    </div>
+                  <React.Fragment key={item.name}>
+                    <button
+                      onClick={() => navigate(item.path)}
+                      className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
+                        ${isActive
+                          ? "bg-primary/10 dark:bg-primary/20"
+                          : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                        }
+                      `}
+                      style={{
+                        color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                        fontWeight: isActive ? 400 : 300,
+                      }}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                          {item.icon}
+                        </span>
+                        <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
+                      </div>
 
-                    {count > 0 && (
-                      <span
-                        className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
-                        style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
-                      >
-                        {count}
-                      </span>
+                      {count > 0 && (
+                        <span
+                          className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
+                          style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                        >
+                          {count}
+                        </span>
+                      )}
+                    </button>
+                    {item.name === "All Inbox" && (
+                      <>
+                        <div className="mx-4 mt-2  border-b border-gray-300 dark:border-gray-700 hide-on-collapse" />
+                        <div className="h-2 hide-on-collapse" />
+                      </>
                     )}
-                  </button>
+                  </React.Fragment>
                 );
               })
           ) : (

@@ -64,6 +64,63 @@ export const MailProvider = ({ children }) => {
                 case 'spam': res = await mailAPI.getSpam(); break;
                 case 'snoozed': res = await mailAPI.getSnoozed(); break;
                 case 'archive': res = await mailAPI.getArchive(); break;
+                case 'all-inbox':
+                case 'allinbox': {
+                    const sessionsStr = localStorage.getItem('bnx_sessions');
+                    let sessions = {};
+                    try {
+                        sessions = sessionsStr ? JSON.parse(sessionsStr) : {};
+                    } catch (e) {}
+                    
+                    const sessionKeys = Object.keys(sessions);
+                    if (sessionKeys.length === 0) {
+                        res = await mailAPI.getInbox();
+                        break;
+                    }
+                    
+                    const fetchPromises = sessionKeys.map(async (email) => {
+                        const token = sessions[email].accessToken;
+                        try {
+                            const inboxRes = await api.get(API_ENDPOINTS.MAIL.INBOX, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`
+                                }
+                            });
+                            if (inboxRes.data?.success) {
+                                const emailsList = inboxRes.data.data?.emails || [];
+                                return emailsList.map(e => ({
+                                    ...e,
+                                    accountEmail: email
+                                }));
+                            }
+                        } catch (err) {
+                            console.error(`Failed to fetch all-inbox for ${email}:`, err);
+                        }
+                        return [];
+                    });
+                    
+                    const results = await Promise.all(fetchPromises);
+                    const mergedEmails = results.flat();
+                    
+                    mergedEmails.sort((a, b) => {
+                        const dateA = new Date(a.date || a.receivedDate || a.sentDate || 0);
+                        const dateB = new Date(b.date || b.receivedDate || b.sentDate || 0);
+                        return dateB - dateA;
+                    });
+                    
+                    const totalUnreadCount = mergedEmails.filter(e => !e.isRead).length;
+                    
+                    res = {
+                        data: {
+                            success: true,
+                            data: {
+                                emails: mergedEmails,
+                                unreadCount: totalUnreadCount
+                            }
+                        }
+                    };
+                    break;
+                }
                 case 'all-mail':
                 case 'allmail': {
                     const [inboxRes, sentRes, draftRes, archiveRes] = await Promise.all([
@@ -125,7 +182,8 @@ export const MailProvider = ({ children }) => {
                         normalizedEmails = normalizedEmails.filter(m => m.folderName?.toLowerCase() !== 'trash');
                     }
                     setEmails(normalizedEmails);
-                    setUnreadCounts(prev => ({ ...prev, [folder]: data.unreadCount || 0 }));
+                    const countKey = folder.toLowerCase().replace('-', '').replace(' ', '');
+                    setUnreadCounts(prev => ({ ...prev, [countKey]: data.unreadCount || 0 }));
                 }
             }
         } catch (error) {

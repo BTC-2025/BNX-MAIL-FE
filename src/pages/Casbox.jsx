@@ -212,23 +212,30 @@ const Casbox = () => {
   }, []);
 
   useEffect(() => {
-    if (!stompClient || !isConnected) return;
+    if (!stompClient || !isConnected || !stompClient.connected) return;
 
-    const messageSub = stompClient.subscribe('/user/queue/casbox/messages', (msg) => {
-      const newMsg = JSON.parse(msg.body);
-      setMessages(prev => [newMsg, ...prev]);
-    });
+    let messageSub = null;
+    let statusSub = null;
 
-    const statusSub = stompClient.subscribe('/user/queue/casbox/status', (msg) => {
-      const updatedMsg = JSON.parse(msg.body);
-      setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
-    });
+    try {
+      messageSub = stompClient.subscribe('/user/queue/casbox/messages', (msg) => {
+        const newMsg = JSON.parse(msg.body);
+        setMessages(prev => [newMsg, ...prev]);
+      });
 
-    casboxAPI.markAsDelivered().catch(console.error);
+      statusSub = stompClient.subscribe('/user/queue/casbox/status', (msg) => {
+        const updatedMsg = JSON.parse(msg.body);
+        setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
+      });
+
+      casboxAPI.markAsDelivered().catch(console.error);
+    } catch (e) {
+      console.error("Failed to subscribe to Casbox queue:", e);
+    }
 
     return () => {
-      messageSub.unsubscribe();
-      statusSub.unsubscribe();
+      if (messageSub) messageSub.unsubscribe();
+      if (statusSub) statusSub.unsubscribe();
     };
   }, [stompClient, isConnected]);
 

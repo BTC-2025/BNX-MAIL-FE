@@ -14,10 +14,18 @@ import {
   MdSchedule,
   MdAccessTime,
   MdNotifications,
-  MdTrendingUp
+  MdTrendingUp,
+  MdAllInbox,
+  MdLayers
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
+  {
+    name: 'All Inbox',
+    icon: <MdLayers size={20} />,
+    path: '/all-inbox',
+    count: 0
+  },
   {
     name: 'Inbox',
     icon: <MdInbox size={20} />,
