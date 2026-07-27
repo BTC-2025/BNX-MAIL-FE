@@ -9,7 +9,7 @@ const AnalyticsApp = ({ onClose }) => {
   useEffect(() => {
     const fetchAnalytics = async () => {
       try {
-        const token = localStorage.getItem('token');
+        const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No token found');
         
         const res = await fetch('/api/mail/analytics', {
