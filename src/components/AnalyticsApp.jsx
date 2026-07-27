@@ -19,8 +19,8 @@ const AnalyticsApp = ({ onClose }) => {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No token found');
         
-        // use api instance to automatically include baseURL and tokens
-        const res = await api.get('/api/mail/analytics');
+        const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        const res = await api.get(`/api/mail/analytics?timezone=${encodeURIComponent(tz)}`);
         
         if (res.data && res.data.success) {
           setData(res.data.data);
@@ -98,9 +98,14 @@ const AnalyticsApp = ({ onClose }) => {
 
   const formatDateTick = (tickItem) => {
     try {
-      const d = new Date(tickItem);
-      if (isNaN(d.getTime())) return tickItem;
-      return d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+      if (!tickItem || typeof tickItem !== 'string') return tickItem;
+      const parts = tickItem.split('-');
+      if (parts.length !== 3) return tickItem;
+      const [y, m, d] = parts;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIdx = parseInt(m, 10) - 1;
+      if (monthIdx < 0 || monthIdx > 11) return tickItem;
+      return `${months[monthIdx]} ${parseInt(d, 10)}`;
     } catch {
       return tickItem;
     }
@@ -108,9 +113,14 @@ const AnalyticsApp = ({ onClose }) => {
 
   const formatMonthTick = (tickItem) => {
     try {
-      const [y, m] = tickItem.split('-');
-      const d = new Date(y, m - 1);
-      return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' });
+      if (!tickItem || typeof tickItem !== 'string') return tickItem;
+      const parts = tickItem.split('-');
+      if (parts.length !== 2) return tickItem;
+      const [y, m] = parts;
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      const monthIdx = parseInt(m, 10) - 1;
+      if (monthIdx < 0 || monthIdx > 11) return tickItem;
+      return `${months[monthIdx]} ${y}`;
     } catch {
       return tickItem;
     }
