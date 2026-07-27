@@ -114,7 +114,8 @@ export const EMAIL_CATEGORIES = {
   PRIMARY: 'primary',
   SOCIAL: 'social',
   PROMOTIONS: 'promotions',
-  UPDATES: 'updates'
+  UPDATES: 'updates',
+  JOB: 'job'
 };
 
 export const API_ENDPOINTS = {

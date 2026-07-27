@@ -6,7 +6,7 @@ import { mailAPI } from "../services/api";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
-import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant,MdSend, MdDrafts, MdStar,MdDelete,MdEdit, MdCheck } from "react-icons/md";
+import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant,MdSend, MdDrafts, MdStar,MdDelete,MdEdit, MdCheck, MdWork } from "react-icons/md";
 import toast from "react-hot-toast";
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
@@ -33,7 +33,7 @@ const Inbox = ({ searchQuery }) => {
     });
   };
 
-  const isCategoryTab = ['PRIMARY', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES'].includes(activeTab);
+  const isCategoryTab = ['PRIMARY', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES', 'JOB'].includes(activeTab);
 
   useEffect(() => {
     if (isCategoryTab) {
@@ -56,7 +56,9 @@ const Inbox = ({ searchQuery }) => {
 
   const visibleEmails = emails.filter(
     (e) => {
-      const matchesTab = isCategoryTab ? (getTabCategory(e) === activeTab) : true;
+      const matchesTab = isCategoryTab 
+        ? (activeTab === 'PRIMARY' || getTabCategory(e) === activeTab) 
+        : true;
       return matchesTab &&
       (!searchQuery ||
         e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -87,6 +89,7 @@ const Inbox = ({ searchQuery }) => {
     { id: 'PROMOTIONS', label: 'Promotions', icon: MdLocalOffer, color: '#22c55e', category: true },
     { id: 'SOCIAL', label: 'Social', icon: MdPeople, color: '#3b82f6', category: true },
     { id: 'UPDATES', label: 'Updates', icon: MdInfo, color: '#f97316', category: true },
+    { id: 'JOB', label: 'Job', icon: MdWork, color: '#0d9488', category: true },
     { id: 'SENT', label: 'Sent', icon: MdSend, color: '#8b5cf6', category: false },
     { id: 'DRAFT', label: 'Drafts', icon: MdDrafts, color: '#64748b', category: false },
     { id: 'STARRED', label: 'Starred', icon: MdStar, color: '#eab308', category: false },
@@ -115,6 +118,9 @@ const Inbox = ({ searchQuery }) => {
 
   const getUnreadCount = (tabId) => {
     if (!availableTabs.find(t => t.id === tabId)?.category) return 0; // Don't show unread for folders here
+    if (tabId === 'PRIMARY') {
+      return emails.filter(e => !e.isRead).length;
+    }
     return emails.filter(e => getTabCategory(e) === tabId && !e.isRead).length;
   };
 
