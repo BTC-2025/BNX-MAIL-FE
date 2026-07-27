@@ -3,7 +3,8 @@ import { MdTrendingUp, MdEmail, MdInbox, MdSend, MdDelete, MdReport, MdArchive, 
 import { api } from '../services/api';
 import { 
   PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer, 
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line 
+  BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line,
+  AreaChart, Area
 } from 'recharts';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#64748b'];
@@ -12,6 +13,7 @@ const AnalyticsApp = ({ onClose }) => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [dailyRange, setDailyRange] = useState(15); // Default to last 15 days
 
   useEffect(() => {
     const fetchAnalytics = async () => {
@@ -21,7 +23,7 @@ const AnalyticsApp = ({ onClose }) => {
         
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const res = await api.get(`/api/mail/analytics?timezone=${encodeURIComponent(tz)}`);
-        
+        console.log(res.data)
         if (res.data && res.data.success) {
           setData(res.data.data);
         } else {
@@ -80,21 +82,54 @@ const AnalyticsApp = ({ onClose }) => {
   // Pie Chart Data
   const pieData = Object.entries(folderCounts).map(([name, value]) => ({ name, value }));
 
-  // Date Chart Data - strictly from backend keys
-  const allDateKeys = Array.from(new Set([...Object.keys(receivedByDate), ...Object.keys(sentByDate)])).sort();
-  const dateData = allDateKeys.map(date => ({
-    date,
-    Received: Number(receivedByDate[date] || 0),
-    Sent: Number(sentByDate[date] || 0)
-  }));
+  // Date Chart Data - strictly chronological and padded timezone-safely based on selected range
+  let dateData = [];
+  if (data) {
+    const end = new Date();
+    const start = new Date();
+    start.setDate(end.getDate() - (dailyRange - 1));
+    
+    let current = new Date(start);
+    while (current <= end) {
+      const yyyy = current.getFullYear();
+      const mm = String(current.getMonth() + 1).padStart(2, '0');
+      const dd = String(current.getDate()).padStart(2, '0');
+      const dateStr = `${yyyy}-${mm}-${dd}`;
+      
+      dateData.push({
+        date: dateStr,
+        Received: Number(receivedByDate[dateStr] || 0),
+        Sent: Number(sentByDate[dateStr] || 0)
+      });
+      
+      current.setDate(current.getDate() + 1);
+    }
+  }
 
-  // Month Chart Data - strictly from backend keys
+  // Month Chart Data - strictly chronological and padded timezone-safely
   const allMonthKeys = Array.from(new Set([...Object.keys(receivedByMonth), ...Object.keys(sentByMonth)])).sort();
-  const monthData = allMonthKeys.map(month => ({
-    month,
-    Received: Number(receivedByMonth[month] || 0),
-    Sent: Number(sentByMonth[month] || 0)
-  }));
+  let monthData = [];
+  if (allMonthKeys.length > 0) {
+    const [sY, sM] = allMonthKeys[0].split('-').map(Number);
+    const [eY, eM] = allMonthKeys[allMonthKeys.length - 1].split('-').map(Number);
+    
+    let curY = sY;
+    let curM = sM;
+    while (curY < eY || (curY === eY && curM <= eM)) {
+      const monthStr = `${curY}-${String(curM).padStart(2, '0')}`;
+      monthData.push({
+        month: monthStr,
+        Received: Number(receivedByMonth[monthStr] || 0),
+        Sent: Number(sentByMonth[monthStr] || 0)
+      });
+      
+      curM++;
+      if (curM > 12) {
+        curM = 1;
+        curY++;
+      }
+    }
+  }
 
   const formatDateTick = (tickItem) => {
     try {
@@ -142,7 +177,7 @@ const AnalyticsApp = ({ onClose }) => {
         {/* Mailbox Composition Pie Chart */}
         <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px]">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Mailbox Composition</h3>
-          <div className="flex-1 w-full h-full">
+          <div className="w-full h-[270px]">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -203,18 +238,45 @@ const AnalyticsApp = ({ onClose }) => {
 
       {/* Daily Activity */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
-        <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 shrink-0">Daily Activity</h3>
-        <div className="flex-1 w-full h-full">
+        <div className="flex items-center justify-between mb-4 shrink-0">
+          <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Daily Activity</h3>
+          <div className="flex bg-gray-100 dark:bg-gray-700/50 rounded-lg p-0.5 gap-0.5 select-none">
+            {[7, 15, 30].map((days) => (
+              <button
+                key={days}
+                onClick={() => setDailyRange(days)}
+                className={`text-[10px] font-bold px-2.5 py-1 rounded-md transition-all cursor-pointer ${
+                  dailyRange === days
+                    ? 'bg-white dark:bg-gray-600 text-gray-800 dark:text-gray-100 shadow-sm border-none'
+                    : 'text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 border-none bg-transparent'
+                }`}
+              >
+                {days}D
+              </button>
+            ))}
+          </div>
+        </div>
+        <div className="w-full h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
-            <LineChart data={dateData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={dateData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+              <defs>
+                <linearGradient id="colorReceived" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                </linearGradient>
+                <linearGradient id="colorSent" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
+                  <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                </linearGradient>
+              </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-              <XAxis dataKey="date" tick={{fontSize: 12}} tickMargin={10} minTickGap={30} tickFormatter={formatDateTick} />
+              <XAxis dataKey="date" tick={{fontSize: 12}} tickMargin={10} minTickGap={10} tickFormatter={formatDateTick} />
               <YAxis tick={{fontSize: 12}} />
               <Tooltip labelFormatter={formatDateTick} />
               <Legend verticalAlign="top" height={36} />
-              <Line type="monotone" dataKey="Received" stroke="#3b82f6" strokeWidth={2} dot={{r: 4}} activeDot={{r: 6}} />
-              <Line type="monotone" dataKey="Sent" stroke="#10b981" strokeWidth={2} dot={{r: 4}} activeDot={{r: 6}} />
-            </LineChart>
+              <Area type="monotone" dataKey="Received" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorReceived)" />
+              <Area type="monotone" dataKey="Sent" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorSent)" />
+            </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
@@ -222,7 +284,7 @@ const AnalyticsApp = ({ onClose }) => {
       {/* Monthly Activity */}
       <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 shrink-0">Monthly Activity</h3>
-        <div className="flex-1 w-full h-full">
+        <div className="w-full h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={monthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
