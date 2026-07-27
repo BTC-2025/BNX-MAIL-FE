@@ -13,7 +13,8 @@ import {
   MdAssignment,
   MdSchedule,
   MdAccessTime,
-  MdNotifications
+  MdNotifications,
+  MdTrendingUp
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -21,6 +22,12 @@ export const SIDEBAR_ITEMS = [
     name: 'Inbox',
     icon: <MdInbox size={20} />,
     path: '/inbox',
+    count: 0
+  },
+  {
+    name: 'Analytics',
+    icon: <MdTrendingUp size={20} />,
+    path: '/analytics',
     count: 0
   },
   {

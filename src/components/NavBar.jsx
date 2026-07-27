@@ -188,7 +188,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setShowDropdown(!showDropdown)}
-              className="flex items-center gap-2 p-1 pr-3 rounded-full hover:bg-white/10 transition-all border border-transparent hover:border-white/20"
+              className="flex items-center gap-2 p-1 pr-3 rounded-full bg-white/10 hover:bg-white/10 transition-all border border-transparent hover:border-white/20"
             >
               {user?.profilePictureUrl ? (
                 <img
@@ -370,7 +370,7 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
 
           <button
             onClick={onToggleBitToolSidebar}
-            className="h-9 p-1 px-2 ml-4 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0  border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
+            className="h-9 p-1 px-2 rounded-full bg-white dark:hover:bg-white/10 transition-colors flex items-center justify-center shrink-0  border border-transparent hover:border-gray-200 dark:hover:border-gray-700"
             title="Toggle BIT Tools"
           >
             <img

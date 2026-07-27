@@ -13,6 +13,7 @@ import NavBar from "./components/NavBar";
 import SideBar from "./components/SideBar";
 import FloatingCompose from "./components/FloatingCompose";
 import BitToolSidebar from "./components/BitToolSidebar";
+import AnalyticsApp from "./components/AnalyticsApp";
 
 /* Pages */
 import Login from "./pages/Login";
@@ -189,6 +190,7 @@ const AppContent = () => {
           >
             <Routes>
               <Route path="/" element={<Inbox searchQuery={searchQuery} />} />
+              <Route path="/analytics" element={<AnalyticsApp />} />
               <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
               <Route path="/starred" element={<Starred searchQuery={searchQuery} />} />
               <Route path="/snoozed" element={<Snoozed searchQuery={searchQuery} />} />

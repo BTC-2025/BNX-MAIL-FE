@@ -121,7 +121,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                </button>
             </div>
           ) : !isChatMode ? (
-            ["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
+            ["Inbox", "Analytics", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
               .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
               .filter(Boolean)
               .filter(item => sidebarPreferences?.[item.name] !== false)

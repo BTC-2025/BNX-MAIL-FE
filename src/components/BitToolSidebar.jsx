@@ -396,7 +396,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
 
       {/* Right Sidebar Strip */}
       <div 
-        className="w-[72px] flex flex-col items-center py-4 h-full justify-between select-none shrink-0 rounded-t-2xl"
+        className="w-[72px] flex flex-col items-center py-4 pt-2 h-full justify-between select-none shrink-0 rounded-t-2xl"
       >
         <div className="flex flex-col items-center w-full">
           {/* HEADER / EDIT MODE LABEL */}
@@ -411,7 +411,7 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
                   e.stopPropagation();
                   setSelectedTool(selectedTool === 'apps' ? null : 'apps');
                 }}
-                className={`w-10 h-10 bg-gray rounded-xl flex items-center justify-center transition-all cursor-pointer border ${selectedTool === 'apps' ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
+                className={`w-10 mb-2 h-10 bg-gray rounded-xl flex items-center justify-center transition-all cursor-pointer border ${selectedTool === 'apps' ? 'bg-blue-50 text-blue-600 border-blue-200 dark:bg-blue-900/30 dark:text-blue-400 dark:border-blue-800' : 'border-transparent hover:border-gray-300 dark:hover:border-gray-600 hover:bg-gray-50 dark:hover:bg-gray-800 text-gray-500 dark:text-gray-400'}`}
                 title="Beta Ecosystem"
               >
                 {/* <MdApps size={22} /> */}
