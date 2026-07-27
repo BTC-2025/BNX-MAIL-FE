@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { MdTrendingUp, MdEmail, MdInbox, MdSend, MdDelete, MdReport, MdArchive, MdDrafts, MdPerson } from 'react-icons/md';
+import { api } from '../services/api';
 
 const AnalyticsApp = ({ onClose }) => {
   const [data, setData] = useState(null);
@@ -12,15 +13,13 @@ const AnalyticsApp = ({ onClose }) => {
         const token = localStorage.getItem('accessToken');
         if (!token) throw new Error('No token found');
         
-        const res = await fetch('/api/mail/analytics', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        // use api instance to automatically include baseURL and tokens
+        const res = await api.get('/api/mail/analytics');
         
-        const json = await res.json();
-        if (json.success) {
-          setData(json.data);
+        if (res.data && res.data.success) {
+          setData(res.data.data);
         } else {
-          throw new Error(json.message || 'Failed to load analytics');
+          throw new Error(res.data?.message || 'Failed to load analytics');
         }
       } catch (err) {
         setError(err.message);
