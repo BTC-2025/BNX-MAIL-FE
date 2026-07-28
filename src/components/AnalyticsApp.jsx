@@ -23,7 +23,7 @@ const AnalyticsApp = ({ onClose }) => {
         
         const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
         const res = await api.get(`/api/mail/analytics?timezone=${encodeURIComponent(tz)}`);
-        console.log(res.data)
+        // console.log(res.data)
         if (res.data && res.data.success) {
           setData(res.data.data);
         } else {
