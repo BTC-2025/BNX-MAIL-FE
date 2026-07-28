@@ -162,7 +162,7 @@ const AnalyticsApp = ({ onClose }) => {
   };
 
   return (
-    <div className="flex flex-col h-full overflow-y-auto hidden-scrollbar pb-6 gap-6 px-6">
+    <div className="flex flex-col h-full overflow-y-auto hidden-scrollbar pb-6 gap-4 sm:gap-6 px-3 sm:px-6">
       <div className="flex items-center gap-2 mb-2 mt-6">
         <div className="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center text-blue-600 dark:text-blue-400">
           <MdTrendingUp size={20} />
@@ -173,9 +173,9 @@ const AnalyticsApp = ({ onClose }) => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-4 sm:gap-6">
         {/* Mailbox Composition Pie Chart */}
-        <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px]">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px]">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2">Mailbox Composition</h3>
           <div className="w-full h-[270px]">
             <ResponsiveContainer width="100%" height="100%">
@@ -183,10 +183,10 @@ const AnalyticsApp = ({ onClose }) => {
                 <Pie
                   data={pieData}
                   cx="50%"
-                  cy="50%"
-                  innerRadius={70}
-                  outerRadius={100}
-                  paddingAngle={5}
+                  cy="40%"
+                  innerRadius="40%"
+                  outerRadius="65%"
+                  paddingAngle={3}
                   dataKey="value"
                 >
                   {pieData.map((entry, index) => (
@@ -194,15 +194,15 @@ const AnalyticsApp = ({ onClose }) => {
                   ))}
                 </Pie>
                 <Tooltip />
-                <Legend verticalAlign="bottom" height={36} />
+                <Legend verticalAlign="bottom" height={44} iconSize={8} iconType="circle" wrapperStyle={{ fontSize: '10px', paddingTop: '10px' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
         </div>
 
         {/* Top People */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 h-full">
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px] overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 h-full">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px] overflow-hidden">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 shrink-0">Top Senders</h3>
             <div className="overflow-y-auto hidden-scrollbar flex-1">
               {sortedSenders.length > 0 ? (
@@ -218,7 +218,7 @@ const AnalyticsApp = ({ onClose }) => {
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px] overflow-hidden">
+          <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[350px] overflow-hidden">
             <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 shrink-0">Top Receivers</h3>
             <div className="overflow-y-auto hidden-scrollbar flex-1">
               {sortedReceivers.length > 0 ? (
@@ -237,7 +237,7 @@ const AnalyticsApp = ({ onClose }) => {
       </div>
 
       {/* Daily Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
         <div className="flex items-center justify-between mb-4 shrink-0">
           <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider">Daily Activity</h3>
           <div className="flex bg-gray-100 dark:bg-gray-700/50 rounded-lg p-0.5 gap-0.5 select-none">
@@ -258,7 +258,7 @@ const AnalyticsApp = ({ onClose }) => {
         </div>
         <div className="w-full h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={dateData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <AreaChart data={dateData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
               <defs>
                 <linearGradient id="colorReceived" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.2}/>
@@ -270,8 +270,8 @@ const AnalyticsApp = ({ onClose }) => {
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-              <XAxis dataKey="date" tick={{fontSize: 12}} tickMargin={10} minTickGap={10} tickFormatter={formatDateTick} />
-              <YAxis tick={{fontSize: 12}} />
+              <XAxis dataKey="date" tick={{fontSize: 10}} tickMargin={10} minTickGap={10} tickFormatter={formatDateTick} />
+              <YAxis tick={{fontSize: 10}} />
               <Tooltip labelFormatter={formatDateTick} />
               <Legend verticalAlign="top" height={36} />
               <Area type="monotone" dataKey="Received" stroke="#3b82f6" strokeWidth={2} fillOpacity={1} fill="url(#colorReceived)" />
@@ -282,14 +282,14 @@ const AnalyticsApp = ({ onClose }) => {
       </div>
 
       {/* Monthly Activity */}
-      <div className="bg-white dark:bg-gray-800 rounded-xl p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-4 sm:p-5 shadow-sm border border-gray-100 dark:border-gray-700/50 flex flex-col h-[400px]">
         <h3 className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-4 shrink-0">Monthly Activity</h3>
         <div className="w-full h-[320px]">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={monthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <BarChart data={monthData} margin={{ top: 10, right: 10, left: -15, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#eee" />
-              <XAxis dataKey="month" tick={{fontSize: 12}} tickMargin={10} tickFormatter={formatMonthTick} />
-              <YAxis tick={{fontSize: 12}} />
+              <XAxis dataKey="month" tick={{fontSize: 10}} tickMargin={10} tickFormatter={formatMonthTick} />
+              <YAxis tick={{fontSize: 10}} />
               <Tooltip cursor={{fill: 'rgba(0,0,0,0.05)'}} labelFormatter={formatMonthTick} />
               <Legend verticalAlign="top" height={36} />
               <Bar dataKey="Received" fill="#3b82f6" radius={[4, 4, 0, 0]} maxBarSize={50} />

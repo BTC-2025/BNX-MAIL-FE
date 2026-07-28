@@ -14,6 +14,11 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
   const { unreadCounts, labels, handleCreateLabel, handleUpdateLabel, handleDeleteLabel, openCompose } = useMail();
   const { user, getSessions } = useAuth();
 
+  const handleNavigation = (path) => {
+    navigate(path);
+    if (onCloseMobile) onCloseMobile();
+  };
+
   const isChatMode = location.pathname.startsWith("/colab") || location.pathname.startsWith("/chat") || location.pathname.startsWith("/casbox");
   const isVaultMode = location.pathname.startsWith("/vault");
 
@@ -99,20 +104,21 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
     <>
       <aside
         className={`
-        h-full overflow-y-auto flex flex-col transition-all duration-300 shrink-0 border-r-0 hover-scrollbar
+        h-full overflow-y-auto flex flex-col transition-all duration-300 shrink-0 border-r-0 hidden-scrollbar
         flex relative translate-x-0 sidebar-wrapper
         ${!isDesktopOpen ? "sidebar-collapsed" : "md:w-56"}
+        ${isMobileOpen ? "sidebar-mobile-open" : ""}
       `}
         style={{ backgroundColor: isMobileOpen ? undefined : (backgroundImage ? "transparent" : theme.bg) }}
       >
 
         {/* NAVIGATION */}
-        <nav className="flex-1 flex flex-col pr-0 pt-6 pb-2 space-y-0 overflow-y-auto hover-scrollbar">
+        <nav className="flex-1 flex flex-col pr-0 pt-6 pb-2 space-y-0 overflow-y-auto hidden-scrollbar">
           {/* TOP ITEMS */}
           {isVaultMode ? (
             <div className="flex flex-col px-2 mt-2">
                <button
-                  onClick={() => navigate('/vault')}
+                  onClick={() => handleNavigation('/vault')}
                   className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse bg-primary/10 dark:bg-primary/20`}
                   style={{ color: theme.accent || "#135bec" }}
                >
@@ -134,8 +140,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 return (
                   <React.Fragment key={item.name}>
                     <button
-                      onClick={() => navigate(item.path)}
-                      className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
+                      onClick={() => handleNavigation(item.path)}
+                      className={`w-[calc(100%-16px)] mx-2 my-0.5 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse shrink-0
                         ${isActive
                           ? "bg-primary/10 dark:bg-primary/20"
                           : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -164,8 +170,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                     </button>
                     {item.name === "All Inbox" && (
                       <>
-                        <div className="mx-4 mt-2  border-b border-gray-300 dark:border-gray-700 hide-on-collapse" />
-                        <div className="h-2 hide-on-collapse" />
+                        <hr className="mx-4 mt-2 border-gray-300 dark:border-gray-700" />
+                        <div className="h-2" />
                       </>
                     )}
                   </React.Fragment>
@@ -177,7 +183,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
               {/* Casbox */}
               <div className="mb-2">
                  <button
-                    onClick={() => navigate('/casbox')}
+                    onClick={() => handleNavigation('/casbox')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
                       ${location.pathname.startsWith('/casbox') ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
                     `}
@@ -191,7 +197,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
               {/* Colab */}
               <div className="mb-6">
                  <button
-                    onClick={() => navigate('/colab')}
+                    onClick={() => handleNavigation('/colab')}
                     className={`w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all duration-200 group cursor-pointer btn-collapse
                       ${location.pathname.startsWith('/colab') || location.pathname.startsWith('/chat') ? "bg-primary/10 dark:bg-primary/20" : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"}
                     `}
@@ -213,14 +219,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
             <div className="pt-1">
               <button
                 onClick={() => setIsMoreOpen(!isMoreOpen)}
-                className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer group btn-collapse"
+                className="w-[calc(100%-16px)] mx-2 my-0.5 flex items-center justify-between pl-4 pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer group btn-collapse shrink-0"
                 style={{ color: theme.sidebarText, fontWeight: 500 }}
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-[18px] transition-transform duration-200 group-hover:scale-105 text-black">
+                  <span className="text-[18px] transition-transform duration-200 group-hover:scale-105">
                     {isMoreOpen ? <MdExpandLess /> : <MdExpandMore />}
                   </span>
-                  <span className="text-sm tracking-wide text-black hide-on-collapse">{isMoreOpen ? "Less" : "More"}</span>
+                  <span className="text-sm tracking-wide hide-on-collapse">{isMoreOpen ? "Less" : "More"}</span>
                 </div>
               </button>
 
@@ -237,8 +243,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                       return (
                         <button
                           key={item.name}
-                          onClick={() => navigate(item.path)}
-                          className={`w-[calc(100%-16px)] mx-2 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
+                          onClick={() => handleNavigation(item.path)}
+                          className={`w-[calc(100%-16px)] mx-2 my-0.5 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse
                     ${isActive
                               ? "bg-primary/10 dark:bg-primary/20"
                               : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
@@ -305,7 +311,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                       className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer btn-collapse"
                       style={{ color: theme.sidebarText, paddingLeft: `${16 + (depth * 16)}px` }}
                     >
-                      <div className="flex items-center" onClick={() => navigate(`/label/${label.id}`)}>
+                      <div className="flex items-center" onClick={() => handleNavigation(`/label/${label.id}`)}>
                         <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
                         <span className="text-sm truncate hide-on-collapse pl-1.5">{label.name}</span>
                       </div>
@@ -370,8 +376,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
         <div className="space-y-0 mb-6 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
           <button
-            onClick={() => navigate("/settings")}
-            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
+            onClick={() => handleNavigation("/settings")}
+            className="w-[calc(100%-16px)] mx-2 my-0.5 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
             <span className="text-[18px]"><MdSettings size={22} /></span>
@@ -380,7 +386,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
 
           <button
             onClick={() => alert("Contacting support...")}
-            className="w-[calc(100%-16px)] mx-2 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
+            className="w-[calc(100%-16px)] mx-2 my-0.5 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
             style={{ color: theme.sidebarText, fontWeight: 500 }}
           >
             <span className="text-[18px]"><MdHelpOutline size={22} /></span>

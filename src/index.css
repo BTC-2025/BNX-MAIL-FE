@@ -146,15 +146,16 @@
 }
 
 /* Sidebar Collapsed Mode (Desktop Toggle) */
-.sidebar-collapsed {
+aside.sidebar-collapsed {
   width: 72px !important;
   overflow-x: hidden !important;
   align-items: center !important;
 }
-.sidebar-collapsed .hide-on-collapse {
+aside.sidebar-collapsed .hide-on-collapse {
   display: none !important;
 }
-.sidebar-collapsed .btn-collapse {
+aside.sidebar-collapsed button.btn-collapse,
+aside.sidebar-collapsed .btn-collapse {
   width: 44px !important;
   height: 44px !important;
   padding: 0 !important;
@@ -163,7 +164,14 @@
   margin-right: auto !important;
   border-radius: 9999px !important;
 }
-.sidebar-collapsed hr {
+aside.sidebar-collapsed button.btn-collapse > div,
+aside.sidebar-collapsed .btn-collapse > div {
+  justify-content: center !important;
+  width: 100% !important;
+  margin: 0 !important;
+  gap: 0 !important;
+}
+aside.sidebar-collapsed hr {
   width: 32px !important;
   margin-left: auto !important;
   margin-right: auto !important;
@@ -171,15 +179,16 @@
 
 /* Force Collapsed Mode on Mobile */
 @media (max-width: 767px) {
-  .sidebar-wrapper {
+  aside.sidebar-wrapper {
     width: 72px !important;
     overflow-x: hidden !important;
     align-items: center !important;
   }
-  .sidebar-wrapper .hide-on-collapse {
+  aside.sidebar-wrapper .hide-on-collapse {
     display: none !important;
   }
-  .sidebar-wrapper .btn-collapse {
+  aside.sidebar-wrapper button.btn-collapse,
+  aside.sidebar-wrapper .btn-collapse {
     width: 44px !important;
     height: 44px !important;
     padding: 0 !important;
@@ -188,9 +197,54 @@
     margin-right: auto !important;
     border-radius: 9999px !important;
   }
-  .sidebar-wrapper hr {
+  aside.sidebar-wrapper button.btn-collapse > div,
+  aside.sidebar-wrapper .btn-collapse > div {
+    justify-content: center !important;
+    width: 100% !important;
+    margin: 0 !important;
+    gap: 0 !important;
+  }
+  aside.sidebar-wrapper hr {
     width: 32px !important;
     margin-left: auto !important;
     margin-right: auto !important;
+  }
+
+  /* Style for Mobile Open Drawer */
+  aside.sidebar-wrapper.sidebar-mobile-open {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100% !important;
+    width: 240px !important;
+    z-index: 5000 !important;
+    transform: translateX(0) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    align-items: stretch !important;
+  }
+  aside.sidebar-wrapper.sidebar-mobile-open .hide-on-collapse {
+    display: block !important;
+  }
+  aside.sidebar-wrapper.sidebar-mobile-open button.btn-collapse,
+  aside.sidebar-wrapper.sidebar-mobile-open .btn-collapse {
+    width: calc(100% - 16px) !important;
+    height: 36px !important;
+    padding-left: 16px !important;
+    padding-right: 12px !important;
+    justify-content: space-between !important;
+    margin-left: 8px !important;
+    margin-right: 8px !important;
+    border-radius: 9999px !important;
+  }
+  aside.sidebar-wrapper.sidebar-mobile-open button.btn-collapse > div,
+  aside.sidebar-wrapper.sidebar-mobile-open .btn-collapse > div {
+    justify-content: flex-start !important;
+    width: auto !important;
+    gap: 12px !important;
+  }
+  aside.sidebar-wrapper.sidebar-mobile-open hr {
+    width: auto !important;
+    margin-left: 16px !important;
+    margin-right: 16px !important;
   }
 }
