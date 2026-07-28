@@ -53,7 +53,12 @@ const SignupMail = () => {
             const username = formData.username.trim();
             const letters = username.replace(/[^a-zA-Z]/g, '').length;
             const digits = username.replace(/[^0-9]/g, '').length;
-            
+                  console.log({
+          username,
+          letters,
+          digits,
+          length: username.length
+      });
             if (username.length < 10) {
                 setError('Email handle must be at least 10 characters long');
                 return;
