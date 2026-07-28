@@ -58,7 +58,7 @@ const SignupMail = () => {
                 setError('Email handle must be at least 10 characters long');
                 return;
             }
-            if (letters < 7 && digits < 3) {
+            if (letters < 7 || digits < 3) {
                 setError('Email handle must contain at least 7 letters and 3 numbers');
                 return;
             }
