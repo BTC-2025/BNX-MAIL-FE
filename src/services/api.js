@@ -142,6 +142,7 @@ export const mailAPI = {
     getInbox: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.INBOX}?limit=${limit}`),
     getSent: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SENT}?limit=${limit}`),
     getDrafts: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.DRAFTS}?limit=${limit}`),
+    getStorageQuota: () => api.get('/api/mail/storage-quota'),
     saveDraft: (data) => api.post(API_ENDPOINTS.MAIL.DRAFTS, data),
     downloadAttachment: (uid, fileName, folder = 'INBOX') => api.get(`/api/mail/${uid}/attachments/${fileName}?folder=${folder}`, { responseType: 'blob' }),
     createDbDraft: (data) => api.post('/api/mail/drafts', data),

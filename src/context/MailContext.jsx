@@ -35,6 +35,13 @@ export const MailProvider = ({ children }) => {
                     ...m,
                     starred: m.starred ?? m.isStarred ?? false
                 })).filter(m => m.folderName?.toLowerCase() !== 'trash');
+
+                normalizedEmails.sort((a, b) => {
+                    const dateA = new Date(a.date || a.receivedDate || a.sentDate || 0);
+                    const dateB = new Date(b.date || b.receivedDate || b.sentDate || 0);
+                    return dateB - dateA;
+                });
+
                 setEmails(normalizedEmails);
             }
         } catch (error) {

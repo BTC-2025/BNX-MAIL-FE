@@ -5,6 +5,7 @@ import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
 import { chatAPI } from "../services/api";
+import StorageWidget from './StorageWidget';
 import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit, MdGroup, MdChat, MdCloudUpload } from "react-icons/md";
 
 const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
@@ -375,6 +376,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
         </nav>
 
         <div className="space-y-0 mb-6 shrink-0 pt-2 border-t border-gray-200/50 dark:border-gray-700/50">
+          <StorageWidget isDesktopOpen={isDesktopOpen} />
           <button
             onClick={() => handleNavigation("/settings")}
             className="w-[calc(100%-16px)] mx-2 my-0.5 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
