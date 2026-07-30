@@ -20,9 +20,9 @@ const EmailList = ({
 }) => {
   const { user } = useAuth();
   const { emailsPerPage } = useTheme();
-  const { isComposeOpen, totalEmails, currentPage, handlePageChange } = useMail();
-  
-    const [snoozeOpenUid, setSnoozeOpenUid] = useState(null);
+  const { isComposeOpen, totalEmails, currentPage, handlePageChange, loading } = useMail();
+
+  const [snoozeOpenUid, setSnoozeOpenUid] = useState(null);
   const [customPickerUid, setCustomPickerUid] = useState(null);
   const [customDateTime, setCustomDateTime] = useState("");
   const [snoozeCoords, setSnoozeCoords] = useState({ top: 0, right: 0 });
@@ -219,7 +219,19 @@ const EmailList = ({
         </>
       )}
 
-      <div className="flex-1 overflow-y-auto bg-transparent hidden-scrollbar">
+      {loading && (
+        <div className="h-0.5 w-full bg-blue-500/20 overflow-hidden relative shrink-0">
+          <div className="absolute h-full bg-blue-500 w-1/3 rounded-full animate-bounce" style={{ left: '0', animation: 'indeterminate 1.5s infinite ease-in-out' }} />
+          <style>{`
+            @keyframes indeterminate {
+              0% { left: -33%; width: 33%; }
+              50% { left: 50%; width: 50%; }
+              100% { left: 100%; width: 33%; }
+            }
+          `}</style>
+        </div>
+      )}
+      <div className={`flex-1 overflow-y-auto bg-transparent hidden-scrollbar transition-opacity duration-300 ${loading ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
         {emails.length === 0 ? (
           <div className="flex flex-col items-center justify-center min-h-[50vh] text-gray-400 p-8">
             <span className="text-5xl mb-4 opacity-75">📭</span>
@@ -282,8 +294,8 @@ const EmailList = ({
                   <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
                     <span
                       className={`text-sm ${isUnread
-                          ? "font-bold text-gray-900 dark:text-gray-100"
-                          : "font-medium text-gray-600 dark:text-gray-300"
+                        ? "font-bold text-gray-900 dark:text-gray-100"
+                        : "font-medium text-gray-600 dark:text-gray-300"
                         }`}
                     >
                       {email.folderName?.toLowerCase() === "draft" || email.folderName?.toLowerCase() === "drafts" ? (
@@ -310,8 +322,8 @@ const EmailList = ({
                     )}
                     <span
                       className={`text-sm truncate ${isUnread
-                          ? "font-bold text-gray-900 dark:text-gray-100"
-                          : "font-medium text-gray-800 dark:text-gray-200"
+                        ? "font-bold text-gray-900 dark:text-gray-100"
+                        : "font-medium text-gray-800 dark:text-gray-200"
                         }`}
                     >
                       {email.subject || "(No Subject)"}
@@ -418,7 +430,7 @@ const EmailList = ({
                 </div>
               );
             })}
-            
+
           </div>
         )}
       </div>

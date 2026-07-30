@@ -20,11 +20,11 @@ api.interceptors.request.use(
         const token = localStorage.getItem('accessToken');
         const hasAuth = config.headers && (
             (typeof config.headers.has === 'function' && (config.headers.has('Authorization') || config.headers.has('authorization'))) ||
-            config.headers.Authorization || 
+            config.headers.Authorization ||
             config.headers['Authorization'] ||
             config.headers['authorization']
         );
-        
+
         if (token && !hasAuth) {
             if (typeof config.headers.set === 'function') {
                 config.headers.set('Authorization', `Bearer ${token}`);
@@ -244,11 +244,11 @@ export const chatAPI = {
     getMembers: (chatId) => api.get(`/api/chat/${chatId}/members`),
     getBroadcasts: (chatId) => api.get(`/api/chat/${chatId}/broadcasts`),
     sendBroadcast: (chatId, data) => api.post(`/api/chat/${chatId}/broadcast`, data),
-    
+
     getInvitations: () => api.get('/api/chat/invitations'),
     acceptInvitation: (id) => api.post(`/api/chat/invitations/${id}/accept`),
     rejectInvitation: (id) => api.post(`/api/chat/invitations/${id}/reject`),
-    
+
     leaveGroup: (chatId) => api.post(`/api/chat/${chatId}/leave`),
     deleteGroup: (chatId) => api.delete(`/api/chat/${chatId}`),
     renameGroup: (chatId, name) => api.patch(`/api/chat/${chatId}/name`, { name })

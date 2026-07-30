@@ -6,7 +6,7 @@ import { mailAPI } from "../services/api";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
-import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant,MdSend, MdDrafts, MdStar,MdDelete,MdEdit, MdCheck, MdWork } from "react-icons/md";
+import { MdRefresh, MdInbox, MdLocalOffer, MdPeople, MdInfo, MdLabelImportant, MdSend, MdDrafts, MdStar, MdDelete, MdEdit, MdCheck, MdWork } from "react-icons/md";
 import toast from "react-hot-toast";
 import BulkActionsToolbar from "../components/BulkActionsToolbar";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
@@ -19,7 +19,7 @@ const Inbox = ({ searchQuery }) => {
   const { emails, loading, fetchEmails, handleToggleStar, handleMoveToTrash, handleMarkRead, handleSnooze, handleApplyLabel, handleArchive, openCompose } = useMail();
 
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  const [activeTab, setActiveTab] = useState('PRIMARY');
+  const [activeTab, setActiveTab] = useState('ALL');
   const selectedEmail = emails.find((e) => String(e.uid) === String(selectedEmailUid));
 
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -33,7 +33,7 @@ const Inbox = ({ searchQuery }) => {
     });
   };
 
-  const isCategoryTab = ['PRIMARY', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES', 'JOB'].includes(activeTab);
+  const isCategoryTab = ['ALL', 'IMPORTANT', 'PROMOTIONS', 'SOCIAL', 'UPDATES', 'JOB'].includes(activeTab);
 
   useEffect(() => {
     if (location.pathname === '/all-inbox') {
@@ -53,23 +53,24 @@ const Inbox = ({ searchQuery }) => {
         return 'IMPORTANT';
       }
     }
-    return (e.category || 'PRIMARY').toUpperCase();
+    const cat = (e.category || 'ALL').toUpperCase();
+    return cat === 'PRIMARY' ? 'ALL' : cat;
   };
 
   const visibleEmails = emails.filter(
     (e) => {
-      const matchesTab = isCategoryTab 
-        ? (activeTab === 'PRIMARY' || getTabCategory(e) === activeTab) 
+      const matchesTab = isCategoryTab
+        ? (activeTab === 'ALL' || getTabCategory(e) === activeTab)
         : true;
       return matchesTab &&
-      (!searchQuery ||
-        e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.to?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.recipientEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase()));
+        (!searchQuery ||
+          e.subject?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.from?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.senderEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.to?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.recipientEmail?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.body?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+          e.textPlain?.toLowerCase().includes(searchQuery.toLowerCase()));
     }
   );
 
@@ -86,7 +87,7 @@ const Inbox = ({ searchQuery }) => {
   };
 
   const availableTabs = [
-    { id: 'PRIMARY', label: 'Primary', icon: MdInbox, color: theme.accent || '#135bec', category: true },
+    { id: 'ALL', label: 'All', icon: MdInbox, color: theme.accent || '#135bec', category: true },
     { id: 'IMPORTANT', label: 'Important', icon: MdLabelImportant, color: '#eab308', category: true },
     { id: 'PROMOTIONS', label: 'Promotions', icon: MdLocalOffer, color: '#22c55e', category: true },
     { id: 'SOCIAL', label: 'Social', icon: MdPeople, color: '#3b82f6', category: true },
@@ -100,19 +101,27 @@ const Inbox = ({ searchQuery }) => {
 
   const [activeTabs, setActiveTabs] = useState(() => {
     const saved = localStorage.getItem('inbox_visible_tabs');
-    if (saved) return JSON.parse(saved);
-    return ['PRIMARY'];
+    if (saved) {
+      let parsed = JSON.parse(saved);
+      if (parsed.includes('PRIMARY')) {
+        parsed = parsed.map(t => t === 'PRIMARY' ? 'ALL' : t);
+        localStorage.setItem('inbox_visible_tabs', JSON.stringify(parsed));
+      }
+      if (!parsed.includes('ALL')) parsed.unshift('ALL');
+      return parsed;
+    }
+    return ['ALL'];
   });
 
   const [showTabMenu, setShowTabMenu] = useState(false);
 
   const toggleTab = (tabId) => {
-    if (tabId === 'PRIMARY') return;
+    if (tabId === 'ALL') return;
     setActiveTabs(prev => {
       const next = prev.includes(tabId) ? prev.filter(t => t !== tabId) : [...prev, tabId];
       localStorage.setItem('inbox_visible_tabs', JSON.stringify(next));
       if (activeTab === tabId && prev.includes(tabId)) {
-        setActiveTab('PRIMARY');
+        setActiveTab('ALL');
       }
       return next;
     });
@@ -120,15 +129,18 @@ const Inbox = ({ searchQuery }) => {
 
   const getUnreadCount = (tabId) => {
     if (!availableTabs.find(t => t.id === tabId)?.category) return 0; // Don't show unread for folders here
-    if (tabId === 'PRIMARY') {
-      return emails.filter(e => !e.isRead).length;
+    if (tabId === 'ALL') {
+      return emails.filter(e => {
+        const emailCat = getTabCategory(e);
+        return !e.isRead && (emailCat === 'ALL' || !activeTabs.includes(emailCat));
+      }).length;
     }
     return emails.filter(e => getTabCategory(e) === tabId && !e.isRead).length;
   };
 
   const listComponent = (
     <div className="flex-1 flex flex-col overflow-hidden">
-      {loading && <div className="p-4 text-center text-xs opacity-60">Loading inbox...</div>}
+      {loading && <div className="p-4 text-center text-xs opacity-60">Loading emails...</div>}
       <EmailList
         emails={visibleEmails}
         selectedEmailId={selectedEmailUid}
@@ -177,7 +189,7 @@ const Inbox = ({ searchQuery }) => {
             className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
             style={{ background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)` }}
           >
-            <MdInbox size={15} /> {availableTabs.find(t => t.id === activeTab)?.label} ({visibleEmails.length})
+            <MdInbox size={15} /> {availableTabs.find(t => t.id === activeTab)?.label}
           </span>
 
           <button
@@ -202,7 +214,7 @@ const Inbox = ({ searchQuery }) => {
           >
             <MdEdit size={18} />
           </button>
-          
+
           {showTabMenu && (
             <>
               <div className="fixed inset-0 z-40" onClick={() => setShowTabMenu(false)} />
@@ -211,7 +223,7 @@ const Inbox = ({ searchQuery }) => {
                 {availableTabs.map(tab => {
                   const Icon = tab.icon;
                   const isVisible = activeTabs.includes(tab.id);
-                  const isPrimary = tab.id === 'PRIMARY';
+                  const isPrimary = tab.id === 'ALL';
                   return (
                     <button
                       key={tab.id}

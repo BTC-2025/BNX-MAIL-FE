@@ -13,6 +13,7 @@ export const MailProvider = ({ children }) => {
     const [emails, setEmails] = useState([]);
     const [currentFolder, setCurrentFolder] = useState('inbox');
     const currentFolderRef = useRef('inbox');
+    const pagesCache = useRef({});
     const [loading, setLoading] = useState(false);
     const [unreadCounts, setUnreadCounts] = useState({ inbox: 0, spam: 0, trash: 0 });
     const [labels, setLabels] = useState([]);
@@ -24,7 +25,7 @@ export const MailProvider = ({ children }) => {
     }, [currentFolder]);
 
     const fetchLabelEmails = useCallback(async (labelId, silent = false, page = 1) => {
-        
+
         if (currentFolder !== `label-${labelId}`) setCurrentPage(1);
         else setCurrentPage(page);
         if (!user) return;
@@ -61,13 +62,25 @@ export const MailProvider = ({ children }) => {
     }, [user, currentFolder, limit]);
 
     const fetchEmails = useCallback(async (folder = currentFolder, silent = false, page = 1) => {
+        const folderKey = folder.toLowerCase();
         
         if (currentFolder !== folder) setCurrentPage(1);
         else setCurrentPage(page);
+        
         if (!user) return;
-        if (!silent) setLoading(true);
-        // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
-        setEmails(prev => (currentFolder === folder && page === 1 ? prev : (currentFolder === folder ? prev : [])));
+
+        // Check cache if not silent (manual navigation)
+        if (!silent && pagesCache.current[folderKey] && pagesCache.current[folderKey][page]) {
+            setEmails(pagesCache.current[folderKey][page]);
+            setCurrentFolder(folder);
+            currentFolderRef.current = folder;
+            return;
+        }
+
+        if (!silent) {
+            setLoading(true);
+        }
+        
         setCurrentFolder(folder);
         currentFolderRef.current = folder;
         try {
@@ -88,14 +101,14 @@ export const MailProvider = ({ children }) => {
                     let sessions = {};
                     try {
                         sessions = sessionsStr ? JSON.parse(sessionsStr) : {};
-                    } catch (e) {}
-                    
+                    } catch (e) { }
+
                     const sessionKeys = Object.keys(sessions);
                     if (sessionKeys.length === 0) {
                         res = await mailAPI.getInbox(page, limit);
                         break;
                     }
-                    
+
                     const fetchPromises = sessionKeys.map(async (email) => {
                         const token = sessions[email].accessToken;
                         try {
@@ -116,18 +129,18 @@ export const MailProvider = ({ children }) => {
                         }
                         return [];
                     });
-                    
+
                     const results = await Promise.all(fetchPromises);
                     const mergedEmails = results.flat();
-                    
+
                     mergedEmails.sort((a, b) => {
                         const dateA = new Date(a.date || a.receivedDate || a.sentDate || 0);
                         const dateB = new Date(b.date || b.receivedDate || b.sentDate || 0);
                         return dateB - dateA;
                     });
-                    
+
                     const totalUnreadCount = mergedEmails.filter(e => !e.isRead).length;
-                    
+
                     res = {
                         data: {
                             success: true,
@@ -147,7 +160,7 @@ export const MailProvider = ({ children }) => {
                         mailAPI.getDrafts().catch(() => ({ data: { success: false } })),
                         mailAPI.getArchive().catch(() => ({ data: { success: false } }))
                     ]);
-                    
+
                     let mergedEmails = [];
                     if (inboxRes.data?.success && inboxRes.data.data?.emails) {
                         mergedEmails = [...mergedEmails, ...inboxRes.data.data.emails];
@@ -161,20 +174,20 @@ export const MailProvider = ({ children }) => {
                     if (archiveRes.data?.success && archiveRes.data.data?.emails) {
                         mergedEmails = [...mergedEmails, ...archiveRes.data.data.emails];
                     }
-                    
+
                     console.log('📬 [All Mail] Inbox count:', inboxRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Sent count:', sentRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Draft count:', draftRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Archive count:', archiveRes.data?.data?.emails?.length);
                     console.log('📬 [All Mail] Merged count:', mergedEmails.length);
-                    
+
                     // Sort descending by date
                     mergedEmails.sort((a, b) => {
                         const dateA = new Date(a.date || a.sentDate || a.receivedDate || 0);
                         const dateB = new Date(b.date || b.sentDate || b.receivedDate || 0);
                         return dateB - dateA;
                     });
-                    
+
                     res = {
                         data: {
                             success: true,
@@ -200,8 +213,16 @@ export const MailProvider = ({ children }) => {
                     if (folder === 'starred') {
                         normalizedEmails = normalizedEmails.filter(m => m.folderName?.toLowerCase() !== 'trash');
                     }
+                    
+                    // Update Cache
+                    const folderKey = folder.toLowerCase();
+                    if (!pagesCache.current[folderKey]) pagesCache.current[folderKey] = {};
+                    pagesCache.current[folderKey][page] = normalizedEmails;
+                    
+                    // Only update state if this is still the active page
                     setEmails(normalizedEmails);
-                    const countKey = folder.toLowerCase().replace('-', '').replace(' ', '');
+                    
+                    const countKey = folderKey.replace('-', '').replace(' ', '');
                     setUnreadCounts(prev => ({ ...prev, [countKey]: data.unreadCount || 0 }));
                 }
             }
