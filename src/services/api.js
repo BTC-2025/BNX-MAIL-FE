@@ -139,9 +139,9 @@ export const authAPI = {
 };
 // Mail APIs
 export const mailAPI = {
-    getInbox: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.INBOX}?limit=${limit}`),
-    getSent: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.SENT}?limit=${limit}`),
-    getDrafts: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.DRAFTS}?limit=${limit}`),
+    getInbox: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.INBOX}?page=${page}&limit=${limit}`),
+    getSent: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SENT}?page=${page}&limit=${limit}`),
+    getDrafts: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.DRAFTS}?page=${page}&limit=${limit}`),
     getStorageQuota: () => api.get('/api/mail/storage-quota'),
     saveDraft: (data) => api.post(API_ENDPOINTS.MAIL.DRAFTS, data),
     downloadAttachment: (uid, fileName, folder = 'INBOX') => api.get(`/api/mail/${uid}/attachments/${fileName}?folder=${folder}`, { responseType: 'blob' }),
@@ -151,10 +151,10 @@ export const mailAPI = {
     }),
     removeDraftAttachment: (id, fileName) => api.delete(`/api/mail/drafts/${id}/attachments/${fileName}`),
     sendDbDraft: (id) => api.post(`/api/mail/drafts/${id}/send`),
-    getStarred: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.STARRED}?limit=${limit}`),
-    getTrash: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.TRASH}?limit=${limit}`),
-    getSpam: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.SPAM}?limit=${limit}`),
-    getSnoozed: (limit = 999999) => api.get(`${API_ENDPOINTS.MAIL.SNOOZED}?limit=${limit}`),
+    getStarred: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.STARRED}?page=${page}&limit=${limit}`),
+    getTrash: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.TRASH}?page=${page}&limit=${limit}`),
+    getSpam: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SPAM}?page=${page}&limit=${limit}`),
+    getSnoozed: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.SNOOZED}?page=${page}&limit=${limit}`),
     send: (data) => api.post(API_ENDPOINTS.MAIL.SEND, data),
     scheduleEmail: (data, sendAt) => api.post(`/api/mail/schedule?sendAt=${sendAt}`, data),
     getScheduled: () => api.get('/api/mail/scheduled'),

@@ -2,24 +2,31 @@ import React, { createContext, useState, useContext, useEffect, useCallback, use
 import { mailAPI, api } from '../services/api';
 import { API_ENDPOINTS } from '../Data/constants';
 import { useAuth } from './AuthContext';
+import { useTheme } from './ThemeContext';
 import toast from 'react-hot-toast';
 
 const MailContext = createContext();
 
 export const MailProvider = ({ children }) => {
     const { user } = useAuth();
+    const { emailsPerPage: limit } = useTheme();
     const [emails, setEmails] = useState([]);
     const [currentFolder, setCurrentFolder] = useState('inbox');
     const currentFolderRef = useRef('inbox');
     const [loading, setLoading] = useState(false);
     const [unreadCounts, setUnreadCounts] = useState({ inbox: 0, spam: 0, trash: 0 });
     const [labels, setLabels] = useState([]);
+    const [totalEmails, setTotalEmails] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
 
     useEffect(() => {
         currentFolderRef.current = currentFolder;
     }, [currentFolder]);
 
-    const fetchLabelEmails = useCallback(async (labelId, silent = false) => {
+    const fetchLabelEmails = useCallback(async (labelId, silent = false, page = 1) => {
+        
+        if (currentFolder !== `label-${labelId}`) setCurrentPage(1);
+        else setCurrentPage(page);
         if (!user) return;
         if (!silent) setLoading(true);
         // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
@@ -28,9 +35,10 @@ export const MailProvider = ({ children }) => {
         try {
             // Fetching all emails for a specific label
             // Assuming the endpoint follows the pattern /api/mail/labels/{id}
-            const res = await api.get(`${API_ENDPOINTS.MAIL.LABELS}/${labelId}`);
+            const res = await api.get(`${API_ENDPOINTS.MAIL.LABELS}/${labelId}?page=${page}&limit=${limit}`);
             if (res.data?.success) {
                 const data = res.data.data;
+                setTotalEmails(data.totalCount || 0);
                 const normalizedEmails = (data.emails || data || []).map(m => ({
                     ...m,
                     starred: m.starred ?? m.isStarred ?? false
@@ -50,27 +58,30 @@ export const MailProvider = ({ children }) => {
         } finally {
             if (!silent) setLoading(false);
         }
-    }, [user, currentFolder]);
+    }, [user, currentFolder, limit]);
 
-    const fetchEmails = useCallback(async (folder = currentFolder, silent = false) => {
+    const fetchEmails = useCallback(async (folder = currentFolder, silent = false, page = 1) => {
+        
+        if (currentFolder !== folder) setCurrentPage(1);
+        else setCurrentPage(page);
         if (!user) return;
         if (!silent) setLoading(true);
         // Only clear if the folder actually changed to avoid flashing on auto-polling/refresh
-        setEmails(prev => (currentFolder === folder ? prev : []));
+        setEmails(prev => (currentFolder === folder && page === 1 ? prev : (currentFolder === folder ? prev : [])));
         setCurrentFolder(folder);
         currentFolderRef.current = folder;
         try {
             let res;
             switch (folder.toLowerCase()) {
-                case 'inbox': res = await mailAPI.getInbox(); break;
-                case 'sent': res = await mailAPI.getSent(); break;
+                case 'inbox': res = await mailAPI.getInbox(page, limit); break;
+                case 'sent': res = await mailAPI.getSent(page, limit); break;
                 case 'draft':
-                case 'drafts': res = await mailAPI.getDrafts(); break;
-                case 'starred': res = await mailAPI.getStarred(); break;
-                case 'trash': res = await mailAPI.getTrash(); break;
-                case 'spam': res = await mailAPI.getSpam(); break;
-                case 'snoozed': res = await mailAPI.getSnoozed(); break;
-                case 'archive': res = await mailAPI.getArchive(); break;
+                case 'drafts': res = await mailAPI.getDrafts(page, limit); break;
+                case 'starred': res = await mailAPI.getStarred(page, limit); break;
+                case 'trash': res = await mailAPI.getTrash(page, limit); break;
+                case 'spam': res = await mailAPI.getSpam(page, limit); break;
+                case 'snoozed': res = await mailAPI.getSnoozed(page, limit); break;
+                case 'archive': res = await mailAPI.getArchive(page, limit); break;
                 case 'all-inbox':
                 case 'allinbox': {
                     const sessionsStr = localStorage.getItem('bnx_sessions');
@@ -81,7 +92,7 @@ export const MailProvider = ({ children }) => {
                     
                     const sessionKeys = Object.keys(sessions);
                     if (sessionKeys.length === 0) {
-                        res = await mailAPI.getInbox();
+                        res = await mailAPI.getInbox(page, limit);
                         break;
                     }
                     
@@ -175,12 +186,13 @@ export const MailProvider = ({ children }) => {
                     };
                     break;
                 }
-                default: res = await mailAPI.getInbox();
+                default: res = await mailAPI.getInbox(page, limit);
             }
 
             if (res.data?.success) {
                 if (currentFolderRef.current === folder) {
                     const data = res.data.data;
+                    setTotalEmails(data.totalCount || 0);
                     let normalizedEmails = (data.emails || []).map(m => ({
                         ...m,
                         starred: m.starred ?? m.isStarred ?? false
@@ -199,7 +211,7 @@ export const MailProvider = ({ children }) => {
         } finally {
             if (!silent) setLoading(false);
         }
-    }, [user, currentFolder]);
+    }, [user, currentFolder, limit]);
 
     const fetchLabels = useCallback(async () => {
         if (!user) return;
@@ -493,6 +505,9 @@ export const MailProvider = ({ children }) => {
             handleToggleStar,
             handleMarkRead,
             handleMarkUnread,
+            totalEmails,
+            currentPage,
+            handlePageChange,
             handleMoveToTrash,
             handleDeletePermanently,
             handleSnooze,

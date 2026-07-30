@@ -20,25 +20,17 @@ const EmailList = ({
 }) => {
   const { user } = useAuth();
   const { emailsPerPage } = useTheme();
-  const { isComposeOpen } = useMail();
+  const { isComposeOpen, totalEmails, currentPage, handlePageChange } = useMail();
   
-  const [currentPage, setCurrentPage] = useState(1);
-  const [snoozeOpenUid, setSnoozeOpenUid] = useState(null);
+    const [snoozeOpenUid, setSnoozeOpenUid] = useState(null);
   const [customPickerUid, setCustomPickerUid] = useState(null);
   const [customDateTime, setCustomDateTime] = useState("");
   const [snoozeCoords, setSnoozeCoords] = useState({ top: 0, right: 0 });
 
   // Pagination logic
-  const totalPages = Math.ceil(emails.length / emailsPerPage) || 1;
+  const totalPages = Math.ceil(totalEmails / emailsPerPage) || 1;
   const startIndex = (currentPage - 1) * emailsPerPage;
-  const displayedEmails = emails.slice(startIndex, startIndex + emailsPerPage);
-  
-  // Reset page if emails change drastically (e.g. switching folders)
-  React.useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [emails.length, totalPages, currentPage]);
+  const displayedEmails = emails;
 
   const getSnoozeOptions = () => {
     const now = new Date();
@@ -99,13 +91,13 @@ const EmailList = ({
         <span className="font-medium text-gray-700 dark:text-gray-300">{startIndex + 1}</span>
         <span className="hidden sm:inline"> to </span>
         <span className="sm:hidden">-</span>
-        <span className="font-medium text-gray-700 dark:text-gray-300">{Math.min(startIndex + emailsPerPage, emails.length)}</span>
-        {' '}of <span className="font-medium text-gray-700 dark:text-gray-300">{emails.length}</span>
+        <span className="font-medium text-gray-700 dark:text-gray-300">{Math.min(startIndex + emailsPerPage, totalEmails)}</span>
+        {' '}of <span className="font-medium text-gray-700 dark:text-gray-300">{totalEmails}</span>
         <span className="hidden sm:inline"> emails</span>
       </div>
       <div className="flex items-center gap-1 sm:gap-2 shrink-0">
         <button
-          onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+          onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
           disabled={currentPage === 1}
           className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
@@ -115,7 +107,7 @@ const EmailList = ({
           {currentPage} / {totalPages}
         </span>
         <button
-          onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+          onClick={() => handlePageChange(Math.min(totalPages, currentPage + 1))}
           disabled={currentPage === totalPages}
           className="p-1.5 rounded-lg border border-gray-200 dark:border-gray-700 text-gray-500 hover:bg-black/5 dark:hover:bg-white/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
         >
