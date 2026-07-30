@@ -231,6 +231,15 @@ export const MailProvider = ({ children }) => {
         }
     }, [user, fetchLabels]);
 
+    const handlePageChange = useCallback((newPage) => {
+        if (currentFolder.startsWith('label-')) {
+            const labelId = currentFolder.replace('label-', '');
+            fetchLabelEmails(labelId, false, newPage);
+        } else {
+            fetchEmails(currentFolder, false, newPage);
+        }
+    }, [currentFolder, fetchLabelEmails, fetchEmails]);
+
     // Background auto-polling for new emails every 30 seconds
     useEffect(() => {
         if (!user) return;
