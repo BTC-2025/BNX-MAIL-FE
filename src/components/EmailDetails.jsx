@@ -897,9 +897,21 @@ const EmailDetails = ({
                   </button>
                 )}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                to <span className="font-medium text-gray-700 dark:text-gray-300">{email.to || "me"}</span>
-              </p>
+              <div className="flex flex-col gap-0.5">
+                <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                  to <span className="font-medium text-gray-700 dark:text-gray-300">{email.to || "me"}</span>
+                </p>
+                {email.cc && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                    cc <span className="font-medium text-gray-700 dark:text-gray-300">{email.cc}</span>
+                  </p>
+                )}
+                {email.bcc && (
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-tight">
+                    bcc <span className="font-medium text-gray-700 dark:text-gray-300">{email.bcc}</span>
+                  </p>
+                )}
+              </div>
             </div>
           </div>
 
