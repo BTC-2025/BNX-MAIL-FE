@@ -12,7 +12,7 @@ import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
 const Trash = ({ searchQuery }) => {
   const { theme, readingPaneMode } = useTheme();
-  const { emails, loading, fetchEmails } = useMail();
+  const { emails, loading, fetchEmails, handleDeletePermanently } = useMail();
   const [selectedEmail, setSelectedEmail] = useState(null);
 
   const [selectedIds, setSelectedIds] = useState(new Set());
@@ -49,21 +49,15 @@ const Trash = ({ searchQuery }) => {
   };
 
   const handlePermanentDelete = async (uid) => {
-    try {
-      await mailAPI.permanentDelete(uid);
-      toast.success("Permanently deleted");
-      fetchEmails('trash');
-      setSelectedEmail(null);
-    } catch (error) {
-      toast.error("Failed to delete permanently");
-    }
+    await handleDeletePermanently(uid);
+    setSelectedEmail(null);
   };
 
   const handleRestore = async (uid) => {
     try {
       await mailAPI.restore(uid);
       toast.success("Email restored");
-      fetchEmails('trash');
+      fetchEmails('trash', true);
       setSelectedEmail(null);
     } catch (error) {
       toast.error("Failed to restore email");

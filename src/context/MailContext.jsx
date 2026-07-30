@@ -344,6 +344,8 @@ export const MailProvider = ({ children }) => {
         try {
             await mailAPI.trash(uid, folder);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            delete pagesCache.current['trash'];
+            if (folder) delete pagesCache.current[folder.toLowerCase()];
             if (!silent) toast.success('Moved to trash');
         } catch (error) {
             if (!silent) toast.error('Failed to move to trash');
@@ -354,6 +356,8 @@ export const MailProvider = ({ children }) => {
         try {
             await mailAPI.permanentDelete(uid);
             setEmails(prev => prev.filter(m => String(m.uid) !== String(uid)));
+            delete pagesCache.current['trash'];
+            if (currentFolder) delete pagesCache.current[currentFolder.toLowerCase()];
             if (!silent) toast.success('Permanently deleted');
         } catch (error) {
             if (!silent) toast.error('Failed to delete permanently');
