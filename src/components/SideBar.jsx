@@ -309,10 +309,11 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
                 return children.map(label => (
                   <div key={label.id} className="group">
                     <div
+                      onClick={() => handleNavigation(`/label/${label.id}`)}
                       className="w-[calc(100%-16px)] mx-2 flex items-center justify-between pr-3 py-1 rounded-full hover:bg-black/[0.04] dark:hover:bg-white/[0.04] transition-all cursor-pointer btn-collapse"
                       style={{ color: theme.sidebarText, paddingLeft: `${16 + (depth * 16)}px` }}
                     >
-                      <div className="flex items-center" onClick={() => handleNavigation(`/label/${label.id}`)}>
+                      <div className="flex items-center flex-1 min-w-0">
                         <MdLabel style={{ color: label.colorHex }} size={18} className="shrink-0" />
                         <span className="text-sm truncate hide-on-collapse pl-1.5">{label.name}</span>
                       </div>
