@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { createPortal } from "react-dom";
 import { 
   MdArchive, 
   MdUnarchive, 
@@ -1125,7 +1126,7 @@ const EmailDetails = ({
       </div>
 
       {/* INLINE PREVIEW OVERLAY */}
-      {previewFile && (
+      {previewFile && createPortal(
         <div className="fixed inset-0 bg-black/90 z-[1000] flex flex-col animate-fade-in">
           {/* HEADER */}
           <div className="flex items-center justify-between px-6 py-4 bg-black/30 border-b border-white/5 text-white select-none">
@@ -1187,12 +1188,13 @@ const EmailDetails = ({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body
       )}
 
       {/* Report Modal */}
-      {showReportModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+      {showReportModal && createPortal(
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
           <div className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col transform transition-all">
             <div className="px-6 py-4 border-b border-gray-100 dark:border-neutral-800 flex justify-between items-center bg-orange-50 dark:bg-orange-900/20">
               <h2 className="text-lg font-bold text-orange-700 dark:text-orange-500 flex items-center">
@@ -1244,7 +1246,8 @@ const EmailDetails = ({
               </div>
             </div>
           </div>
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );
