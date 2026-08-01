@@ -26,12 +26,13 @@ import {
   MdMoreVert,
   MdMarkEmailUnread,
   MdBlock,
-  MdAdd
+  MdAdd,
+  MdReport
 } from "react-icons/md";
 import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
-import { mailAPI } from "../services/api";
+import { mailAPI, reportAPI } from "../services/api";
 import toast from "react-hot-toast";
 import logo from "../assets/bnx-remove.png";
 import html2pdf from "html2pdf.js";
@@ -156,6 +157,35 @@ const EmailDetails = ({
   const [customSnooze, setCustomSnooze] = useState(false);
   const [customDateTime, setCustomDateTime] = useState("");
   const [imagePreviews, setImagePreviews] = useState({});
+
+  // Report Modal State
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [reportReason, setReportReason] = useState("");
+  const [reportLoading, setReportLoading] = useState(false);
+
+  const handleReportSubmit = async () => {
+    if (!reportReason) {
+      toast.error("Please select a reason for reporting");
+      return;
+    }
+    
+    setReportLoading(true);
+    try {
+      await reportAPI.submitReport({
+        reportedEmail: cleanSenderEmail,
+        subject: email.subject || "(No Subject)",
+        reason: reportReason
+      });
+      toast.success("Report submitted successfully. Our team will review this.");
+      setShowReportModal(false);
+      setReportReason("");
+    } catch (err) {
+      console.error("Failed to submit report:", err);
+      toast.error("Failed to submit report. Please try again.");
+    } finally {
+      setReportLoading(false);
+    }
+  };
 
   const handlePrint = () => {
     const iframe = document.createElement('iframe');
@@ -798,6 +828,13 @@ const EmailDetails = ({
                   <span className="text-sm font-medium truncate">Unsubscribe from {cleanSenderEmail || "sender"}</span>
                 </button>
                 <button
+                  onClick={() => { setShowReportModal(true); setShowMoreOptions(false); }}
+                  className="w-full text-left px-4 py-2 hover:bg-orange-50 dark:hover:bg-orange-900/10 flex items-center gap-3 cursor-pointer text-orange-600 dark:text-orange-400 transition-colors"
+                >
+                  <MdReport size={18} className="shrink-0" />
+                  <span className="text-sm font-medium">Report Spam / Abuse</span>
+                </button>
+                <button
                   onClick={handlePrint}
                   className="w-full text-left px-4 py-2 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] flex items-center gap-3 cursor-pointer text-gray-700 dark:text-gray-200 transition-colors"
                 >
@@ -1149,6 +1186,63 @@ const EmailDetails = ({
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Report Modal */}
+      {showReportModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
+          <div className="bg-white dark:bg-neutral-900 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl flex flex-col transform transition-all">
+            <div className="px-6 py-4 border-b border-gray-100 dark:border-neutral-800 flex justify-between items-center bg-orange-50 dark:bg-orange-900/20">
+              <h2 className="text-lg font-bold text-orange-700 dark:text-orange-500 flex items-center">
+                <MdReport className="mr-2" size={24} /> Report Spam / Abuse
+              </h2>
+              <button 
+                onClick={() => { setShowReportModal(false); setReportReason(""); }}
+                className="p-2 text-gray-500 hover:bg-black/5 dark:hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+              >
+                <MdClose size={20} />
+              </button>
+            </div>
+            
+            <div className="p-6">
+              <p className="text-sm text-gray-600 dark:text-gray-300 mb-4">
+                You are reporting the email from <strong className="text-gray-900 dark:text-gray-100">{cleanSenderEmail}</strong>. Please select the primary reason for this report:
+              </p>
+              
+              <div className="space-y-3 mb-6">
+                {["Spam", "Phishing / Scam", "Harassment", "Illegal Content", "Other"].map((reason) => (
+                  <label key={reason} className="flex items-center p-3 border border-gray-200 dark:border-neutral-700 rounded-lg cursor-pointer hover:bg-orange-50/50 dark:hover:bg-orange-900/10 transition-colors">
+                    <input 
+                      type="radio" 
+                      name="reportReason"
+                      value={reason} 
+                      checked={reportReason === reason}
+                      onChange={(e) => setReportReason(e.target.value)}
+                      className="w-4 h-4 text-orange-600 border-gray-300 focus:ring-orange-500 dark:bg-neutral-800 dark:border-neutral-600"
+                    />
+                    <span className="ml-3 text-sm font-medium text-gray-700 dark:text-gray-200">{reason}</span>
+                  </label>
+                ))}
+              </div>
+              
+              <div className="flex justify-end gap-3 pt-4 border-t border-gray-100 dark:border-neutral-800">
+                <button
+                  onClick={() => { setShowReportModal(false); setReportReason(""); }}
+                  className="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-neutral-800 rounded-lg transition-colors cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleReportSubmit}
+                  disabled={reportLoading || !reportReason}
+                  className="px-5 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:bg-orange-400 disabled:cursor-not-allowed rounded-lg transition-colors shadow-sm flex items-center cursor-pointer"
+                >
+                  {reportLoading ? "Submitting..." : "Submit Report"}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}

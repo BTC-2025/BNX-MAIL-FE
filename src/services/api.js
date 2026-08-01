@@ -279,3 +279,8 @@ export const casboxAPI = {
     updateStatus: (data) => api.patch('/api/casbox/status', data),
     markAsDelivered: () => api.post('/api/casbox/delivered'),
 };
+
+// Report APIs
+export const reportAPI = {
+    submitReport: (data) => api.post('/api/reports', data),
+};
