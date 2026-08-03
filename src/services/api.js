@@ -45,6 +45,11 @@ api.interceptors.response.use(
     async (error) => {
         const originalRequest = error.config;
 
+        if (error.response?.status === 503 && error.response?.data?.error === 'maintenance_mode') {
+            window.location.href = '/maintenance';
+            return Promise.reject(error);
+        }
+
         if (error.response?.status === 401 || error.response?.status === 403) {
             const isAuthPage = ['/login', '/register', '/forgot-password', '/reset-password', '/create-mailbox'].includes(window.location.pathname);
 
@@ -86,6 +91,11 @@ const getDeviceName = () => {
     if (ua.includes('Windows')) return 'Windows PC';
     if (ua.includes('Linux')) return 'Linux PC';
     return 'Web Browser';
+};
+
+// System APIs
+export const systemAPI = {
+    getStatus: () => axios.get(`${API_BASE_URL}/api/auth/system-status`)
 };
 
 // Auth APIs

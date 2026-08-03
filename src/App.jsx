@@ -42,6 +42,7 @@ import Snoozed from "./pages/Snoozed";
 import Subscriptions from "./pages/Subscriptions";
 import Vault from "./pages/Vault";
 import Casbox from "./pages/Casbox";
+import Maintenance from "./pages/Maintenance";
 
 /* Signup Pages */
 import SignupLayout from "./pages/signup/SignupLayout";
@@ -284,6 +285,7 @@ const App = () => (
                 <Route path="/terms" element={<Terms />} />
                 <Route path="/privacy" element={<Privacy />} />
                 <Route path="/verify-domain" element={<VerifyDomain />} />
+                <Route path="/maintenance" element={<Maintenance />} />
 
                 {/* Protected Business Onboarding */}
                 <Route 
