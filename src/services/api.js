@@ -46,7 +46,9 @@ api.interceptors.response.use(
         const originalRequest = error.config;
 
         if (error.response?.status === 503 && error.response?.data?.error === 'maintenance_mode') {
-            window.location.href = '/maintenance';
+            if (window.location.pathname !== '/maintenance') {
+                window.location.href = '/maintenance';
+            }
             return Promise.reject(error);
         }
 
