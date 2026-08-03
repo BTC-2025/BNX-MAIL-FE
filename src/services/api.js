@@ -75,10 +75,35 @@ api.interceptors.response.use(
                 }
             }
 
-            // If refresh fails or it's a second 401, redirect to login
+            // If refresh fails or it's a second 401, remove current session
             if (!isAuthPage) {
-                localStorage.clear();
-                window.location.href = '/login';
+                const activeEmail = localStorage.getItem('bnx_active_email');
+                let sessionsStr = localStorage.getItem('bnx_sessions');
+                let sessions = {};
+                try {
+                    sessions = sessionsStr ? JSON.parse(sessionsStr) : {};
+                } catch(e) {}
+                
+                if (activeEmail && sessions[activeEmail]) {
+                    delete sessions[activeEmail];
+                    localStorage.setItem('bnx_sessions', JSON.stringify(sessions));
+                }
+
+                const remainingEmails = Object.keys(sessions);
+                if (remainingEmails.length > 0) {
+                    const nextEmail = remainingEmails[0];
+                    const nextSession = sessions[nextEmail];
+                    
+                    localStorage.setItem('bnx_active_email', nextEmail);
+                    localStorage.setItem('accessToken', nextSession.accessToken);
+                    localStorage.setItem('refreshToken', nextSession.refreshToken || '');
+                    localStorage.setItem('userProfile', JSON.stringify(nextSession.userProfile));
+                    
+                    window.location.href = '/inbox';
+                } else {
+                    localStorage.clear();
+                    window.location.href = '/login';
+                }
             }
         }
         return Promise.reject(error);
