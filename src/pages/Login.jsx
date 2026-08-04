@@ -168,6 +168,23 @@ const Login = () => {
         }
     };
 
+    const handleAppealSubmit = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+
+        try {
+            const response = await authAPI.submitAppeal(formData.email, appealMessage);
+            if (response.data.success) {
+                setAppealSuccess(true);
+            }
+        } catch (err) {
+            setError(err.response?.data?.message || 'Failed to submit appeal. Please try again.');
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-indigo-50 to-white py-12 px-4 sm:px-6 lg:px-8 dark:from-slate-900 dark:via-slate-800 dark:to-slate-900">
             <div className="max-w-md w-full space-y-8 bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-2xl border border-gray-100 dark:border-slate-700 transition-all duration-500">
