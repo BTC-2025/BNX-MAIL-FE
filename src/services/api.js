@@ -170,6 +170,7 @@ export const authAPI = {
     sendOTP: (data) => api.post(API_ENDPOINTS.AUTH.SEND_OTP, data),
     verifyOTP: (data) => api.post(API_ENDPOINTS.AUTH.VERIFY_OTP, data),
     resetPassword: (data) => api.post(API_ENDPOINTS.AUTH.RESET_PASSWORD, data),
+    submitAppeal: (email, message) => api.post('/api/auth/appeal', { email, message }),
     getUsernameSuggestions: (params) => api.get('/api/auth/username-suggestions', { params }),
     sendParentOtp: (data) => api.post('/api/auth/child/send-parent-otp', data),
     verifyParentOtp: (data) => api.post('/api/auth/child/verify-parent-otp', data),

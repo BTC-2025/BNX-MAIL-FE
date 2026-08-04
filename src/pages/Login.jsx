@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { ArrowLeft, Mail, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Mail, CheckCircle2, Shield, Loader2 } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 // import logo from '../assets/bnx.jpeg';
 
 import logo from "../assets/bnx-remove.png";
@@ -14,7 +15,9 @@ const Login = () => {
     const [error, setError] = useState('');
 
     // 2FA state variables
-    const [step, setStep] = useState('login'); // 'login', '2fa', 'recovery'
+    const [step, setStep] = useState('login'); // 'login', '2fa', 'recovery', 'appeal'
+    const [appealMessage, setAppealMessage] = useState('');
+    const [appealSuccess, setAppealSuccess] = useState(false);
     const [tempToken, setTempToken] = useState('');
     const [otp, setOtp] = useState('');
     const [successMessage, setSuccessMessage] = useState('');
@@ -74,7 +77,13 @@ const Login = () => {
                 }
             }
         } catch (err) {
-            setError(err.response?.data?.message || 'Login failed. Please check your credentials.');
+            const errorMessage = err.response?.data?.message || 'Login failed. Please check your credentials.';
+            setError(errorMessage);
+            
+            // If the account is suspended/banned due to reports, transition to the appeal step.
+            if (err.response?.status === 403 && errorMessage.toLowerCase().includes('suspended')) {
+                setStep('appeal');
+            }
         } finally {
             setLoading(false);
         }
@@ -153,13 +162,15 @@ const Login = () => {
                     <img src={logo} alt="BNX Mail" className="mx-auto h-24 w-auto drop-shadow-md" />
                     <h2 className="mt-3 text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">
                         {step === 'login' && 'Welcome Back'}
-                        {step === '2fa' && 'Two-Step Verification'}
-                        {step === 'recovery' && 'Account Recovery'}
+                        {step === '2fa' && 'Two-Factor Authentication'}
+                        {step === 'recovery' && 'Recovery Code Verification'}
+                        {step === 'appeal' && 'Account Suspended'}
                     </h2>
                     <p className="mt-2 text-sm text-gray-500 dark:text-slate-400 font-medium px-4">
                         {step === 'login' && 'Securely access your BNX Mail account.'}
-                        {step === '2fa' && 'To help keep your account safe, BNX Mail wants to make sure it\'s really you.'}
-                        {step === 'recovery' && 'We will send a 6-digit recovery code to your registered secondary email address.'}
+                        {step === '2fa' && 'Enter the 6-digit code from your authenticator app.'}
+                        {step === 'recovery' && 'Enter a backup recovery code to access your account.'}
+                        {step === 'appeal' && 'Your account has been restricted. You can submit an appeal below.'}
                     </p>
                 </div>
 
@@ -176,9 +187,10 @@ const Login = () => {
                     </div>
                 )}
 
+                <AnimatePresence mode="wait">
                 {/* Form Switcher */}
                 {step === 'login' && (
-                    <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+                    <motion.form key="login" className="mt-8 space-y-6" onSubmit={handleSubmit} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <div className="space-y-4">
                             <div>
                                 <label htmlFor="email" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-1">
@@ -256,11 +268,11 @@ const Login = () => {
                                 </Link>
                             </div>
                         </div>
-                    </form>
+                    </motion.form>
                 )}
 
                 {step === '2fa' && (
-                    <form className="mt-8 space-y-6" onSubmit={handleVerify2fa}>
+                    <motion.form key="2fa" className="mt-8 space-y-6" onSubmit={handleVerify2fa} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <div className="space-y-4">
                             <div>
                                 <label htmlFor="otp" className="block text-sm font-semibold text-gray-700 dark:text-slate-300 mb-3 text-center">
@@ -312,11 +324,11 @@ const Login = () => {
                                 <ArrowLeft size={16} /> Back to Sign In
                             </button>
                         </div>
-                    </form>
+                    </motion.form>
                 )}
 
                 {step === 'recovery' && (
-                    <form className="mt-8 space-y-6" onSubmit={handleVerifyRecoveryOtp}>
+                    <motion.form key="recovery" className="mt-8 space-y-6" onSubmit={handleVerifyRecoveryOtp} initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}>
                         <div className="space-y-4">
                             {!successMessage ? (
                                 <div className="text-center py-2">
@@ -395,8 +407,81 @@ const Login = () => {
                                 <ArrowLeft size={16} /> Back to Sign In
                             </button>
                         </div>
-                    </form>
+                    </motion.form>
                 )}
+
+                {step === 'appeal' && (
+                    <motion.div
+                        key="appeal"
+                        initial={{ opacity: 0, x: 20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        exit={{ opacity: 0, x: -20 }}
+                        transition={{ duration: 0.3 }}
+                    >
+                        {appealSuccess ? (
+                            <div className="text-center p-6 bg-green-50/50 dark:bg-green-900/10 rounded-2xl border border-green-100 dark:border-green-800">
+                                <div className="w-12 h-12 bg-green-100 dark:bg-green-800/50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Shield className="w-6 h-6 text-green-600 dark:text-green-400" />
+                                </div>
+                                <h3 className="text-lg font-semibold text-green-800 dark:text-green-300 mb-2">Appeal Submitted</h3>
+                                <p className="text-sm text-green-600 dark:text-green-400 mb-6">
+                                    Your appeal has been received. Our moderation team will review it and notify you of the outcome.
+                                </p>
+                                <button
+                                    onClick={() => { setStep('login'); setAppealSuccess(false); setAppealMessage(''); setError(''); }}
+                                    className="px-6 py-2 bg-indigo-600 text-white rounded-xl hover:bg-indigo-700 transition-colors text-sm font-medium"
+                                >
+                                    Back to Login
+                                </button>
+                            </div>
+                        ) : (
+                            <form onSubmit={handleAppealSubmit} className="space-y-6">
+                                <div className="p-4 bg-rose-50/50 dark:bg-rose-900/10 border border-rose-100 dark:border-rose-900/50 rounded-xl mb-6">
+                                    <p className="text-sm text-rose-800 dark:text-rose-300">
+                                        Your account has been suspended due to violations of our Terms of Service (e.g., multiple abuse reports).
+                                        If you believe this is an error, please provide a detailed explanation below.
+                                    </p>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                                        Appeal Message <span className="text-rose-500">*</span>
+                                    </label>
+                                    <div className="relative group">
+                                        <textarea
+                                            value={appealMessage}
+                                            onChange={(e) => setAppealMessage(e.target.value)}
+                                            rows="5"
+                                            required
+                                            placeholder="Explain why your account should be reinstated..."
+                                            className="w-full px-4 py-3 bg-gray-50/50 dark:bg-slate-900/50 border border-gray-200 dark:border-gray-700 rounded-xl focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none transition-all resize-none"
+                                        />
+                                    </div>
+                                </div>
+
+                                <button
+                                    type="submit"
+                                    disabled={loading || !appealMessage.trim()}
+                                    className="w-full bg-gradient-to-r from-indigo-600 to-indigo-500 text-white font-semibold py-3.5 px-4 rounded-xl hover:from-indigo-700 hover:to-indigo-600 focus:ring-4 focus:ring-indigo-500/20 transition-all shadow-sm flex items-center justify-center space-x-2 disabled:opacity-70 disabled:cursor-not-allowed group"
+                                >
+                                    {loading ? (
+                                        <Loader2 className="w-5 h-5 animate-spin" />
+                                    ) : (
+                                        <span>Submit Appeal</span>
+                                    )}
+                                </button>
+
+                                <button
+                                    type="button"
+                                    onClick={() => { setStep('login'); setError(''); }}
+                                    className="w-full text-center text-sm text-gray-500 dark:text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 font-medium transition-colors mt-4"
+                                >
+                                    Cancel and return to login
+                                </button>
+                            </form>
+                        )}
+                    </motion.div>
+                )}
+                </AnimatePresence>
             </div>
         </div>
     );
