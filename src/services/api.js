@@ -43,6 +43,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
     (response) => response,
     async (error) => {
+        console.log("=== API ERROR INTERCEPTOR ===");
+        console.log("Status:", error.response?.status);
+        console.log("Data:", error.response?.data);
+        console.log("Error string:", error.response?.data?.error);
+        console.log("=============================");
+
         const originalRequest = error.config;
 
         if (error.response?.status === 503 && error.response?.data?.error === 'maintenance_mode') {
