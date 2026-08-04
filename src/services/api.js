@@ -106,6 +106,38 @@ api.interceptors.response.use(
                 }
             }
         }
+        
+        if (error.response?.status === 403 && error.response?.data?.error === 'Account suspended') {
+            const activeEmail = localStorage.getItem('bnx_active_email');
+            let sessionsStr = localStorage.getItem('bnx_sessions');
+            let sessions = {};
+            try {
+                sessions = sessionsStr ? JSON.parse(sessionsStr) : {};
+            } catch(e) {}
+            
+            if (activeEmail && sessions[activeEmail]) {
+                delete sessions[activeEmail];
+                localStorage.setItem('bnx_sessions', JSON.stringify(sessions));
+            }
+
+            const remainingEmails = Object.keys(sessions);
+            if (remainingEmails.length > 0) {
+                // If they have other active sessions, just switch to one of them
+                const nextEmail = remainingEmails[0];
+                const nextSession = sessions[nextEmail];
+                
+                localStorage.setItem('bnx_active_email', nextEmail);
+                localStorage.setItem('accessToken', nextSession.accessToken);
+                localStorage.setItem('refreshToken', nextSession.refreshToken || '');
+                localStorage.setItem('userProfile', JSON.stringify(nextSession.userProfile));
+                
+                window.location.href = '/inbox';
+            } else {
+                localStorage.clear();
+                window.location.href = `/login?suspended=true&email=${encodeURIComponent(activeEmail || '')}`;
+            }
+        }
+
         return Promise.reject(error);
     }
 );

@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import { authAPI } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { ArrowLeft, Mail, CheckCircle2, Shield, Loader2 } from 'lucide-react';
@@ -9,8 +9,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import logo from "../assets/bnx-remove.png";
 
 const Login = () => {
-    const navigate = useNavigate();
     const { login } = useAuth();
+    const navigate = useNavigate();
+    const location = useLocation();
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -26,6 +27,19 @@ const Login = () => {
         email: '',
         password: ''
     });
+
+    useEffect(() => {
+        const queryParams = new URLSearchParams(location.search);
+        const isSuspended = queryParams.get('suspended');
+        const emailParam = queryParams.get('email');
+        
+        if (isSuspended === 'true') {
+            setStep('appeal');
+            if (emailParam) {
+                setFormData(prev => ({ ...prev, email: emailParam }));
+            }
+        }
+    }, [location]);
 
     const handleChange = (e) => {
         setFormData({
