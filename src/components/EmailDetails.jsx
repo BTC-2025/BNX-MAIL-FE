@@ -960,7 +960,7 @@ const EmailDetails = ({
 
         {/* BODY */}
         <div className="max-w-none prose prose-slate dark:prose-invert prose-p:leading-relaxed text-[15px] leading-relaxed">
-          {email.htmlBody || (email.isHtml && email.body) ? (
+          {email.htmlBody || (email.isHtml && email.body) || (email.folderName === 'scheduled' && email.body && email.body.includes('</p>')) ? (
             <div dangerouslySetInnerHTML={{ __html: email.htmlBody || email.body }} style={{ color: theme.text }} />
           ) : (
             <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200" style={{ color: theme.text }}>

@@ -545,9 +545,9 @@ const FloatingCompose = () => {
         to: formData.to,
         subject: formData.subject,
         body: formData.body,
-        attachments: attachments
+        attachments: attachments,
+        isHtml: true
       };
-
       if (formData.cc) payload.cc = formData.cc;
       if (formData.bcc) payload.bcc = formData.bcc;
 
