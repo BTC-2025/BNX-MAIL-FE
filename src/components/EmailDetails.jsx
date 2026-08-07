@@ -960,8 +960,8 @@ const EmailDetails = ({
 
         {/* BODY */}
         <div className="max-w-none prose prose-slate dark:prose-invert prose-p:leading-relaxed text-[15px] leading-relaxed">
-          {email.htmlBody ? (
-            <div dangerouslySetInnerHTML={{ __html: email.htmlBody }} style={{ color: theme.text }} />
+          {email.htmlBody || (email.isHtml && email.body) ? (
+            <div dangerouslySetInnerHTML={{ __html: email.htmlBody || email.body }} style={{ color: theme.text }} />
           ) : (
             <p className="whitespace-pre-wrap text-gray-800 dark:text-gray-200" style={{ color: theme.text }}>
               {email.body || email.textPlain || "(No content available)"}
