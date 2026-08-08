@@ -43,6 +43,7 @@ import Subscriptions from "./pages/Subscriptions";
 import Vault from "./pages/Vault";
 import Casbox from "./pages/Casbox";
 import Maintenance from "./pages/Maintenance";
+import Support from "./pages/Support";
 
 /* Signup Pages */
 import SignupLayout from "./pages/signup/SignupLayout";
@@ -215,6 +216,7 @@ const AppContent = () => {
               <Route path="/subscriptions" element={<Subscriptions searchQuery={searchQuery} />} />
               <Route path="/vault" element={<Vault />} />
               <Route path="/casbox" element={<Casbox />} />
+              <Route path="/support" element={<Support />} />
             </Routes>
           </main>
 
