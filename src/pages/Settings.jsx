@@ -528,10 +528,6 @@ const Settings = () => {
   const handleSaveAppearanceSettings = async (e) => {
     e.preventDefault();
     
-    // Apply locally first so it updates immediately and persists in localStorage
-    if (themeMode === "Dark") changeTheme("Dark");
-    else if (themeMode === "Light") changeTheme("Classic");
-    
     updateCustomAccentColor(accentColor);
     updateCustomFontSize(fontSize);
     setEmailsPerPageState(localEmailsPerPage);
