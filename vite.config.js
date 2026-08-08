@@ -29,4 +29,15 @@ export default defineConfig({
       },
     }, */
   },
+  build: {
+    chunkSizeWarningLimit: 3000,
+    rollupOptions: {
+      onwarn(warning, defaultHandler) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') {
+          return;
+        }
+        defaultHandler(warning);
+      },
+    },
+  },
 });
