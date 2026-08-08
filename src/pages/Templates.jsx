@@ -14,8 +14,6 @@ import {
   MdAssignment,
 } from "react-icons/md";
 import toast from "react-hot-toast";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
 
 export const DEFAULT_TEMPLATES = [
   {
@@ -60,28 +58,6 @@ export const DEFAULT_TEMPLATES = [
   },
 ];
 
-const quillModules = {
-  toolbar: [
-    [{ 'font': [] }],
-    [{ 'size': [] }],
-    ['bold', 'italic', 'underline', 'strike'],
-    [{ 'color': [] }, { 'background': [] }],
-    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
-    ['clean']
-  ]
-};
-
-const getBodyPreview = (html) => {
-  if (!html) return "";
-  try {
-    const tempDiv = document.createElement("div");
-    tempDiv.innerHTML = html;
-    return tempDiv.textContent || tempDiv.innerText || "";
-  } catch (e) {
-    return html;
-  }
-};
-
 const Templates = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -91,7 +67,6 @@ const Templates = () => {
   const [customTemplates, setCustomTemplates] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("All"); // All, Default, Custom
-  const [categoryFilter, setCategoryFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
 
@@ -141,9 +116,6 @@ const Templates = () => {
     if (activeTab === "Default" && !t.isDefault) return false;
     if (activeTab === "Custom" && t.isDefault) return false;
 
-    // Category Filter
-    if (categoryFilter !== "All" && t.category !== categoryFilter) return false;
-
     // Search Query Filter
     const query = searchQuery.toLowerCase();
     return (
@@ -175,28 +147,14 @@ const Templates = () => {
   // Handle Save
   const handleSave = (e) => {
     e.preventDefault();
-    if (!formTitle.trim()) {
-      toast.error("Template Title is required");
-      return;
-    }
-    if (!formCategory) {
-      toast.error("Category is required");
-      return;
-    }
-    if (!formSubject.trim()) {
-      toast.error("Subject is required");
-      return;
-    }
-    const isBodyEmpty = !formBody || formBody.trim() === "" || formBody === "<p><br></p>";
-    if (isBodyEmpty) {
-      toast.error("Template content is required");
+    if (!formTitle.trim() || !formSubject.trim() || !formBody.trim()) {
+      toast.error("Please fill out all fields");
       return;
     }
 
     if (editingTemplate) {
       // Edit Custom Template
-      const isBackendTemplate = typeof editingTemplate.id === 'number' || (typeof editingTemplate.id === 'string' && !editingTemplate.id.startsWith('custom-'));
-      if (user?.email && isBackendTemplate) {
+      if (user?.email && typeof editingTemplate.id === 'number') {
         templateAPI.updateTemplate(editingTemplate.id, {
           title: formTitle,
           name: formTitle,
@@ -259,8 +217,7 @@ const Templates = () => {
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this template?")) {
-      const isBackendTemplate = typeof id === 'number' || (typeof id === 'string' && !id.startsWith('custom-'));
-      if (user?.email && isBackendTemplate) {
+      if (user?.email && typeof id === 'number') {
         templateAPI.deleteTemplate(id, user.email)
           .then(() => {
             const updated = customTemplates.filter((t) => t.id !== id);
@@ -280,7 +237,7 @@ const Templates = () => {
   const handleUseTemplate = (template) => {
     openCompose({
       subject: template.subject,
-      body: template.body ? (template.body.includes('<') && template.body.includes('>') ? template.body : template.body.replace(/\n/g, '<br/>')) : '',
+      body: template.body ? template.body.replace(/\n/g, '<br/>') : '',
     });
   };
 
@@ -341,45 +298,24 @@ const Templates = () => {
           ))}
         </div>
 
-        {/* SEARCH & CATEGORY FILTER */}
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-          {/* CATEGORY FILTER */}
-          <select
-            value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
-            className="w-full sm:w-40 px-3 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
+        {/* SEARCH */}
+        <div className="relative w-full sm:w-72">
+          <input
+            type="text"
+            placeholder="Search templates..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
             style={{
               backgroundColor: theme.cardBg,
               borderColor: theme.border,
               color: theme.text,
             }}
-          >
-            <option value="All">All Categories</option>
-            <option value="Business">Business</option>
-            <option value="Personal">Personal</option>
-            <option value="Out of Office">Out of Office</option>
-            <option value="Other">Other</option>
-          </select>
-
-          {/* SEARCH */}
-          <div className="relative w-full sm:w-72">
-            <input
-              type="text"
-              placeholder="Search templates..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
-              style={{
-                backgroundColor: theme.cardBg,
-                borderColor: theme.border,
-                color: theme.text,
-              }}
-            />
-            <MdSearch
-              className="absolute left-3 top-2.5 text-lg"
-              style={{ color: theme.subText }}
-            />
-          </div>
+          />
+          <MdSearch
+            className="absolute left-3 top-2.5 text-lg"
+            style={{ color: theme.subText }}
+          />
         </div>
       </div>
 
@@ -446,7 +382,7 @@ const Templates = () => {
                     className="text-sm mt-3 line-clamp-4 leading-relaxed opacity-85"
                     style={{ color: theme.subText }}
                   >
-                    {getBodyPreview(t.body)}
+                    {t.body}
                   </p>
                 </div>
 
@@ -603,24 +539,26 @@ const Templates = () => {
               </div>
 
               {/* Body */}
-              <div className="flex flex-col gap-1.5 compose-quill">
+              <div className="flex flex-col gap-1.5">
                 <label
                   className="text-xs font-bold uppercase tracking-wider"
                   style={{ color: theme.subText }}
                 >
                   Email Body
                 </label>
-                <div className="rounded-xl overflow-hidden border" style={{ borderColor: theme.border }}>
-                  <ReactQuill
-                    theme="snow"
-                    modules={quillModules}
-                    value={formBody}
-                    onChange={setFormBody}
-                    placeholder="Type your prefilled email body here..."
-                    className="bg-white text-black"
-                    style={{ height: "200px" }}
-                  />
-                </div>
+                <textarea
+                  required
+                  rows={8}
+                  value={formBody}
+                  onChange={(e) => setFormBody(e.target.value)}
+                  placeholder="Type your prefilled email body here..."
+                  className="px-4 py-2.5 rounded-xl border outline-none text-sm resize-none transition-all focus:ring-1"
+                  style={{
+                    backgroundColor: theme.bg,
+                    borderColor: theme.border,
+                    color: theme.text,
+                  }}
+                />
               </div>
 
               {/* Modal Actions */}
