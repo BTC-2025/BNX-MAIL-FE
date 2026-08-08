@@ -166,8 +166,8 @@ const Settings = () => {
         setReadingPaneMode(activeReadingPane);
         
         // Update local context for reading pane immediately on load
-        if (d.readingPaneMode) {
-          setReadingPaneModeState?.(d.readingPaneMode);
+        if (activeReadingPane) {
+          setReadingPaneModeState?.(activeReadingPane);
         }
       }
     } catch (err) {
@@ -525,25 +525,26 @@ const Settings = () => {
 
   const handleSaveAppearanceSettings = async (e) => {
     e.preventDefault();
-    const ok = await saveBackendSettings({
+    
+    // Apply locally first so it updates immediately and persists in localStorage
+    if (themeMode === "Dark") changeTheme("Dark");
+    else if (themeMode === "Light") changeTheme("Classic");
+    
+    updateCustomAccentColor(accentColor);
+    updateCustomFontSize(fontSize);
+    setEmailsPerPageState(localEmailsPerPage);
+    
+    if (setReadingPaneModeState) {
+      setReadingPaneModeState(readingPaneMode);
+    }
+
+    await saveBackendSettings({
       themeMode,
       accentColor,
       fontSize,
       density,
       readingPaneMode
     });
-    if (ok) {
-      if (themeMode === "Dark") changeTheme("Dark");
-      else if (themeMode === "Light") changeTheme("Classic");
-      
-      updateCustomAccentColor(accentColor);
-      updateCustomFontSize(fontSize);
-      setEmailsPerPageState(localEmailsPerPage);
-      
-      if (setReadingPaneModeState) {
-        setReadingPaneModeState(readingPaneMode);
-      }
-    }
   };
 
   const handleSaveSecuritySettings = async (e) => {
