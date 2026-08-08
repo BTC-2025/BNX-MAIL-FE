@@ -366,11 +366,27 @@ const Settings = () => {
 
   const handleUpdateRecovery = async (e) => {
     e.preventDefault();
+    const email = recoveryInfo.recoveryEmail?.trim();
+    const phone = recoveryInfo.phoneNumber?.trim();
+
+    if (!email) {
+      toast.error("Recovery Email Address is required");
+      return;
+    }
+    if (!phone) {
+      toast.error("Backup Phone Number is required");
+      return;
+    }
+
     try {
       setLoading(true);
-      const res = await userAPI.updateRecovery(recoveryInfo);
+      const res = await userAPI.updateRecovery({
+        recoveryEmail: email,
+        phoneNumber: phone
+      });
       if (res.data?.success) {
         toast.success("Recovery info updated successfully");
+        setRecoveryInfo({ recoveryEmail: email, phoneNumber: phone });
       }
     } catch (err) {
       toast.error(err.response?.data?.message || "Failed to update recovery info");
