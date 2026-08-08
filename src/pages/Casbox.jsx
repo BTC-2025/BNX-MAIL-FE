@@ -627,7 +627,7 @@ const Casbox = () => {
   return (
     <div className="flex flex-col h-full w-full bg-white dark:bg-[#121212] relative overflow-hidden">
       <ReadingPaneLayout
-        mode={theme?.readingPaneMode || 'no_split'}
+        mode={readingPaneMode || 'no_split'}
         hasSelection={!!selectedMessage}
         headerComponent={headerComponent}
         listComponent={listComponent}

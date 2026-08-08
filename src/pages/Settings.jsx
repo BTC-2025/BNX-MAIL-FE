@@ -57,6 +57,7 @@ const Settings = () => {
   const { 
     theme, changeTheme, currentThemeName, 
     backgroundImage, setBackgroundImage, clearBackgroundImage, 
+    readingPaneMode: globalReadingPaneMode,
     setReadingPaneModeState, 
     emailsPerPage, setEmailsPerPageState, 
     sidebarPreferences, setSidebarPreferences,
@@ -161,7 +162,8 @@ const Settings = () => {
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
         setUndoSendDelay(d.undoSendDelay || 0);
-        setReadingPaneMode(d.readingPaneMode || "no_split");
+        const activeReadingPane = d.readingPaneMode || globalReadingPaneMode || "no_split";
+        setReadingPaneMode(activeReadingPane);
         
         // Update local context for reading pane immediately on load
         if (d.readingPaneMode) {
@@ -1055,7 +1057,13 @@ const Settings = () => {
                 <label className="text-sm font-semibold" style={{ color: theme.text }}>Reading Pane</label>
                 <select 
                   value={readingPaneMode}
-                  onChange={e => setReadingPaneMode(e.target.value)}
+                  onChange={e => {
+                    const val = e.target.value;
+                    setReadingPaneMode(val);
+                    if (setReadingPaneModeState) {
+                      setReadingPaneModeState(val);
+                    }
+                  }}
                   className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
                   style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                 >

@@ -88,7 +88,7 @@ export const ThemeProvider = ({ children }) => {
   const [currentThemeName, setCurrentThemeName] = useState("Classic");
   const [backgroundImage, setBackgroundImageState] = useState(null);
   const [dynamicTextColor, setDynamicTextColor] = useState(null);
-  const [readingPaneMode, setReadingPaneMode] = useState("right");
+  const [readingPaneMode, setReadingPaneMode] = useState("no_split");
   const [isLandscapeImage, setIsLandscapeImage] = useState(true);
   const [emailsPerPage, setEmailsPerPage] = useState(20);
   const [customAccentColor, setCustomAccentColor] = useState(null);
