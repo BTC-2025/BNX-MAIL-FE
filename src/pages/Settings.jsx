@@ -530,12 +530,24 @@ const Settings = () => {
 
   const handleSaveSecuritySettings = async (e) => {
     e.preventDefault();
+    if (!jobTitle || !jobTitle.trim()) {
+      toast.error("Job Title is required");
+      return;
+    }
+    if (!location || !location.trim()) {
+      toast.error("Location is required");
+      return;
+    }
+    if (!phoneNumber || !phoneNumber.trim()) {
+      toast.error("Phone Contact is required");
+      return;
+    }
     await saveBackendSettings({
       twoFactorEnabled,
       biometricsEnabled,
-      phoneNumber,
-      location,
-      jobTitle
+      phoneNumber: phoneNumber.trim(),
+      location: location.trim(),
+      jobTitle: jobTitle.trim()
     });
   };
 
