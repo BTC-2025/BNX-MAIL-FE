@@ -162,7 +162,7 @@ const Settings = () => {
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
         setUndoSendDelay(d.undoSendDelay || 0);
-        const activeReadingPane = d.readingPaneMode || globalReadingPaneMode || "no_split";
+        const activeReadingPane = globalReadingPaneMode || d.readingPaneMode || "no_split";
         setReadingPaneMode(activeReadingPane);
         
         // Update local context for reading pane immediately on load
