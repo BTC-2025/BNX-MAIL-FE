@@ -274,7 +274,7 @@ const FloatingCompose = () => {
       setFormData((prev) => ({
         ...prev,
         subject: template.subject,
-        body: template.body ? template.body.replace(/\n/g, '<br/>') : '',
+        body: template.body ? (template.body.includes('<') && template.body.includes('>') ? template.body : template.body.replace(/\n/g, '<br/>')) : '',
       }));
       setShowTemplates(false);
     }

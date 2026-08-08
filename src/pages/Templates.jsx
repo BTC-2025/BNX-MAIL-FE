@@ -14,6 +14,8 @@ import {
   MdAssignment,
 } from "react-icons/md";
 import toast from "react-hot-toast";
+import ReactQuill from "react-quill";
+import "react-quill/dist/quill.snow.css";
 
 export const DEFAULT_TEMPLATES = [
   {
@@ -58,6 +60,29 @@ export const DEFAULT_TEMPLATES = [
   },
 ];
 
+const quillModules = {
+  toolbar: [
+    [{ 'font': [] }, { 'size': [] }],
+    ['bold', 'italic', 'underline', 'strike'],
+    [{ 'color': [] }, { 'background': [] }],
+    [{ 'align': [] }],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+    ['link', 'image'],
+    ['clean']
+  ]
+};
+
+const getBodyPreview = (html) => {
+  if (!html) return "";
+  try {
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+    return tempDiv.textContent || tempDiv.innerText || "";
+  } catch (e) {
+    return html;
+  }
+};
+
 const Templates = () => {
   const navigate = useNavigate();
   const { theme } = useTheme();
@@ -67,14 +92,15 @@ const Templates = () => {
   const [customTemplates, setCustomTemplates] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [activeTab, setActiveTab] = useState("All"); // All, Default, Custom
+  const [categoryFilter, setCategoryFilter] = useState("All");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
+  const [previewTemplate, setPreviewTemplate] = useState(null);
 
   // Form Fields
-  const [formTitle, setFormTitle] = useState("");
   const [formSubject, setFormSubject] = useState("");
   const [formBody, setFormBody] = useState("");
-  const [formCategory, setFormCategory] = useState("Business");
+  const [formCategory, setFormCategory] = useState("");
 
   // Load Custom Templates
   useEffect(() => {
@@ -116,13 +142,16 @@ const Templates = () => {
     if (activeTab === "Default" && !t.isDefault) return false;
     if (activeTab === "Custom" && t.isDefault) return false;
 
+    // Category Filter
+    if (categoryFilter !== "All" && t.category !== categoryFilter) return false;
+
     // Search Query Filter
     const query = searchQuery.toLowerCase();
     return (
       t.title.toLowerCase().includes(query) ||
       t.subject.toLowerCase().includes(query) ||
       t.body.toLowerCase().includes(query) ||
-      t.category.toLowerCase().includes(query)
+      (t.category && t.category.toLowerCase().includes(query))
     );
   });
 
@@ -130,16 +159,14 @@ const Templates = () => {
   const handleOpenModal = (template = null) => {
     if (template) {
       setEditingTemplate(template);
-      setFormTitle(template.title);
       setFormSubject(template.subject);
       setFormBody(template.body);
-      setFormCategory(template.category || "Business");
+      setFormCategory(template.category || "");
     } else {
       setEditingTemplate(null);
-      setFormTitle("");
       setFormSubject("");
       setFormBody("");
-      setFormCategory("Business");
+      setFormCategory("");
     }
     setIsModalOpen(true);
   };
@@ -147,23 +174,35 @@ const Templates = () => {
   // Handle Save
   const handleSave = (e) => {
     e.preventDefault();
-    if (!formTitle.trim() || !formSubject.trim() || !formBody.trim()) {
-      toast.error("Please fill out all fields");
+    if (!formSubject.trim()) {
+      toast.error("Subject is required");
+      return;
+    }
+    if (!formCategory) {
+      toast.error("Category is required");
+      return;
+    }
+    const isBodyEmpty = !formBody || formBody.trim() === "" || formBody === "<p><br></p>";
+    if (isBodyEmpty) {
+      toast.error("Template content is required");
       return;
     }
 
+    const templateTitle = formSubject;
+
     if (editingTemplate) {
       // Edit Custom Template
-      if (user?.email && typeof editingTemplate.id === 'number') {
+      const isBackendTemplate = typeof editingTemplate.id === 'number' || (typeof editingTemplate.id === 'string' && !editingTemplate.id.startsWith('custom-'));
+      if (user?.email && isBackendTemplate) {
         templateAPI.updateTemplate(editingTemplate.id, {
-          title: formTitle,
-          name: formTitle,
+          title: templateTitle,
+          name: templateTitle,
           subject: formSubject,
           body: formBody,
           category: formCategory,
         }, user.email).then((res) => {
           const resObj = res.data?.data || res.data;
-          const updatedItem = { ...resObj, title: resObj.title || resObj.name || formTitle, category: resObj.category || formCategory };
+          const updatedItem = { ...resObj, title: resObj.title || resObj.name || templateTitle, category: resObj.category || formCategory };
           const updated = customTemplates.map((t) => t.id === editingTemplate.id ? updatedItem : t);
           saveCustomTemplates(updated);
           toast.success("Template updated successfully");
@@ -173,7 +212,7 @@ const Templates = () => {
       } else {
         const updated = customTemplates.map((t) =>
           t.id === editingTemplate.id
-            ? { ...t, title: formTitle, subject: formSubject, body: formBody, category: formCategory }
+            ? { ...t, title: templateTitle, subject: formSubject, body: formBody, category: formCategory }
             : t
         );
         saveCustomTemplates(updated);
@@ -183,14 +222,14 @@ const Templates = () => {
       // Create Custom Template
       if (user?.email) {
         templateAPI.createTemplate({
-          title: formTitle,
-          name: formTitle,
+          title: templateTitle,
+          name: templateTitle,
           subject: formSubject,
           body: formBody,
           category: formCategory,
         }, user.email).then((res) => {
           const resObj = res.data?.data || res.data;
-          const newItem = { ...resObj, title: resObj.title || resObj.name || formTitle, category: resObj.category || formCategory };
+          const newItem = { ...resObj, title: resObj.title || resObj.name || templateTitle, category: resObj.category || formCategory };
           saveCustomTemplates([...customTemplates, newItem]);
           toast.success("Template created successfully");
         }).catch((err) => {
@@ -199,7 +238,7 @@ const Templates = () => {
       } else {
         const newTemplate = {
           id: "custom-" + Date.now(),
-          title: formTitle,
+          title: templateTitle,
           subject: formSubject,
           body: formBody,
           category: formCategory,
@@ -217,7 +256,8 @@ const Templates = () => {
   const handleDelete = (id, e) => {
     e.stopPropagation();
     if (window.confirm("Are you sure you want to delete this template?")) {
-      if (user?.email && typeof id === 'number') {
+      const isBackendTemplate = typeof id === 'number' || (typeof id === 'string' && !id.startsWith('custom-'));
+      if (user?.email && isBackendTemplate) {
         templateAPI.deleteTemplate(id, user.email)
           .then(() => {
             const updated = customTemplates.filter((t) => t.id !== id);
@@ -237,7 +277,7 @@ const Templates = () => {
   const handleUseTemplate = (template) => {
     openCompose({
       subject: template.subject,
-      body: template.body ? template.body.replace(/\n/g, '<br/>') : '',
+      body: template.body ? (template.body.includes('<') && template.body.includes('>') ? template.body : template.body.replace(/\n/g, '<br/>')) : '',
     });
   };
 
@@ -269,7 +309,7 @@ const Templates = () => {
             background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)`,
           }}
         >
-          <MdAdd size={20} /> Add Template
+          <MdAdd size={20} /> Create Custom Template
         </button>
       </div>
 
@@ -298,24 +338,45 @@ const Templates = () => {
           ))}
         </div>
 
-        {/* SEARCH */}
-        <div className="relative w-full sm:w-72">
-          <input
-            type="text"
-            placeholder="Search templates..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
+        {/* SEARCH & CATEGORY FILTER */}
+        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
+          {/* CATEGORY FILTER */}
+          <select
+            value={categoryFilter}
+            onChange={(e) => setCategoryFilter(e.target.value)}
+            className="w-full sm:w-40 px-3 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
             style={{
               backgroundColor: theme.cardBg,
               borderColor: theme.border,
               color: theme.text,
             }}
-          />
-          <MdSearch
-            className="absolute left-3 top-2.5 text-lg"
-            style={{ color: theme.subText }}
-          />
+          >
+            <option value="All">All Categories</option>
+            <option value="Business">Business</option>
+            <option value="Personal">Personal</option>
+            <option value="Out of Office">Out of Office</option>
+            <option value="Other">Other</option>
+          </select>
+
+          {/* SEARCH */}
+          <div className="relative w-full sm:w-72">
+            <input
+              type="text"
+              placeholder="Search templates..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-xl text-sm outline-none border focus:ring-1 transition-all duration-300"
+              style={{
+                backgroundColor: theme.cardBg,
+                borderColor: theme.border,
+                color: theme.text,
+              }}
+            />
+            <MdSearch
+              className="absolute left-3 top-2.5 text-lg"
+              style={{ color: theme.subText }}
+            />
+          </div>
         </div>
       </div>
 
@@ -339,8 +400,8 @@ const Templates = () => {
             {filteredTemplates.map((t) => (
               <div
                 key={t.id}
-                onClick={() => handleUseTemplate(t)}
-                className="group relative flex flex-col justify-between p-5 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white/40 dark:bg-gray-850/40 backdrop-blur-md"
+                onClick={() => setPreviewTemplate(t)}
+                className="group relative flex flex-col justify-between p-5 rounded-2xl border cursor-pointer transition-all duration-300 hover:shadow-xl hover:-translate-y-1 bg-white/40 dark:bg-gray-850/40 backdrop-blur-md animate-in fade-in slide-in-from-bottom-3 duration-200"
                 style={{
                   backgroundColor: theme.cardBg,
                   borderColor: theme.border,
@@ -382,7 +443,7 @@ const Templates = () => {
                     className="text-sm mt-3 line-clamp-4 leading-relaxed opacity-85"
                     style={{ color: theme.subText }}
                   >
-                    {t.body}
+                    {getBodyPreview(t.body)}
                   </p>
                 </div>
 
@@ -402,27 +463,39 @@ const Templates = () => {
                     <MdSend size={16} /> Use Template
                   </button>
 
-                  {!t.isDefault && (
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleOpenModal(t);
-                        }}
-                        className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-                        title="Edit Template"
-                      >
-                        <MdEdit size={18} />
-                      </button>
-                      <button
-                        onClick={(e) => handleDelete(t.id, e)}
-                        className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-500 hover:text-red-700"
-                        title="Delete Template"
-                      >
-                        <MdDeleteOutline size={18} />
-                      </button>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPreviewTemplate(t);
+                      }}
+                      className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 text-xs font-semibold"
+                      title="Preview Template"
+                    >
+                      Preview
+                    </button>
+                    {!t.isDefault && (
+                      <>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleOpenModal(t);
+                          }}
+                          className="p-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+                          title="Edit Template"
+                        >
+                          <MdEdit size={18} />
+                        </button>
+                        <button
+                          onClick={(e) => handleDelete(t.id, e)}
+                          className="p-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-red-500 hover:text-red-700"
+                          title="Delete Template"
+                        >
+                          <MdDeleteOutline size={18} />
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -453,7 +526,7 @@ const Templates = () => {
                 className="text-xl font-bold tracking-tight"
                 style={{ color: theme.text }}
               >
-                {editingTemplate ? "Edit Template" : "Create Custom Template"}
+                Create Template
               </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
@@ -465,70 +538,20 @@ const Templates = () => {
 
             {/* Modal Form */}
             <form onSubmit={handleSave} className="p-6 flex flex-col gap-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {/* Title */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    className="text-xs font-bold uppercase tracking-wider"
-                    style={{ color: theme.subText }}
-                  >
-                    Template Title
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={formTitle}
-                    onChange={(e) => setFormTitle(e.target.value)}
-                    placeholder="e.g. Meeting Request"
-                    className="px-4 py-2.5 rounded-xl border outline-none text-sm transition-all focus:ring-1"
-                    style={{
-                      backgroundColor: theme.bg,
-                      borderColor: theme.border,
-                      color: theme.text,
-                    }}
-                  />
-                </div>
-
-                {/* Category */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    className="text-xs font-bold uppercase tracking-wider"
-                    style={{ color: theme.subText }}
-                  >
-                    Category
-                  </label>
-                  <select
-                    value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
-                    className="px-4 py-2.5 rounded-xl border outline-none text-sm transition-all focus:ring-1"
-                    style={{
-                      backgroundColor: theme.bg,
-                      borderColor: theme.border,
-                      color: theme.text,
-                    }}
-                  >
-                    <option value="Business">Business</option>
-                    <option value="Personal">Personal</option>
-                    <option value="Out of Office">Out of Office</option>
-                    <option value="Other">Other</option>
-                  </select>
-                </div>
-              </div>
-
               {/* Subject */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className="text-xs font-bold uppercase tracking-wider"
                   style={{ color: theme.subText }}
                 >
-                  Email Subject
+                  Subject
                 </label>
                 <input
                   type="text"
                   required
                   value={formSubject}
                   onChange={(e) => setFormSubject(e.target.value)}
-                  placeholder="e.g. Schedule sync call"
+                  placeholder="Enter Subject"
                   className="px-4 py-2.5 rounded-xl border outline-none text-sm transition-all focus:ring-1"
                   style={{
                     backgroundColor: theme.bg,
@@ -538,27 +561,61 @@ const Templates = () => {
                 />
               </div>
 
-              {/* Body */}
+              {/* Select Category */}
               <div className="flex flex-col gap-1.5">
                 <label
                   className="text-xs font-bold uppercase tracking-wider"
                   style={{ color: theme.subText }}
                 >
-                  Email Body
+                  Select Category
                 </label>
-                <textarea
-                  required
-                  rows={8}
-                  value={formBody}
-                  onChange={(e) => setFormBody(e.target.value)}
-                  placeholder="Type your prefilled email body here..."
-                  className="px-4 py-2.5 rounded-xl border outline-none text-sm resize-none transition-all focus:ring-1"
-                  style={{
-                    backgroundColor: theme.bg,
-                    borderColor: theme.border,
-                    color: theme.text,
-                  }}
-                />
+                <div className="flex items-center gap-3">
+                  <select
+                    value={formCategory}
+                    onChange={(e) => setFormCategory(e.target.value)}
+                    className="flex-1 px-4 py-2.5 rounded-xl border outline-none text-sm transition-all focus:ring-1 cursor-pointer"
+                    style={{
+                      backgroundColor: theme.bg,
+                      borderColor: theme.border,
+                      color: theme.text,
+                    }}
+                  >
+                    <option value="">Select Category</option>
+                    <option value="Business">Business</option>
+                    <option value="Personal">Personal</option>
+                    <option value="Out of Office">Out of Office</option>
+                    <option value="Other">Other</option>
+                  </select>
+                  <button
+                    type="button"
+                    onClick={() => setFormCategory("")}
+                    className="text-sm font-semibold hover:underline cursor-pointer"
+                    style={{ color: theme.accent }}
+                  >
+                    Clear
+                  </button>
+                </div>
+              </div>
+
+              {/* Template Content */}
+              <div className="flex flex-col gap-1.5 compose-quill">
+                <label
+                  className="text-xs font-bold uppercase tracking-wider"
+                  style={{ color: theme.subText }}
+                >
+                  Template Content
+                </label>
+                <div className="rounded-xl overflow-hidden border bg-white" style={{ borderColor: theme.border }}>
+                  <ReactQuill
+                    theme="snow"
+                    modules={quillModules}
+                    value={formBody}
+                    onChange={setFormBody}
+                    placeholder="Type your prefilled email body here..."
+                    className="text-black"
+                    style={{ height: "200px" }}
+                  />
+                </div>
               </div>
 
               {/* Modal Actions */}
@@ -581,10 +638,83 @@ const Templates = () => {
                     background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)`,
                   }}
                 >
-                  {editingTemplate ? "Save Changes" : "Create"}
+                  Save
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* TEMPLATE PREVIEW MODAL */}
+      {previewTemplate && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+            onClick={() => setPreviewTemplate(null)}
+          />
+          <div
+            className="relative w-full max-w-2xl rounded-2xl shadow-2xl overflow-hidden border animate-in fade-in zoom-in duration-200 animate-out duration-150"
+            style={{
+              backgroundColor: theme.cardBg,
+              borderColor: theme.border,
+            }}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between p-5 border-b" style={{ borderColor: theme.border }}>
+              <h2 className="text-xl font-bold" style={{ color: theme.text }}>Template Preview</h2>
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-900 dark:hover:text-gray-100"
+              >
+                <MdClose size={22} />
+              </button>
+            </div>
+            
+            {/* Body */}
+            <div className="p-6 overflow-y-auto max-h-[60vh] flex flex-col gap-4">
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1 opacity-60" style={{ color: theme.text }}>Subject</label>
+                <p className="text-base font-semibold" style={{ color: theme.text }}>{previewTemplate.subject}</p>
+              </div>
+              <div>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-1 opacity-60" style={{ color: theme.text }}>Category</label>
+                <span className="text-xs px-2.5 py-1 rounded-md font-semibold bg-gray-100 dark:bg-gray-800" style={{ color: theme.text }}>
+                  {previewTemplate.category || "General"}
+                </span>
+              </div>
+              <div className="border-t pt-4" style={{ borderColor: theme.border }}>
+                <label className="text-xs font-bold uppercase tracking-wider block mb-2 opacity-60" style={{ color: theme.text }}>Content</label>
+                <div 
+                  className="p-4 rounded-xl border bg-white text-black min-h-[150px] max-h-[300px] overflow-y-auto"
+                  style={{ borderColor: theme.border }}
+                  dangerouslySetInnerHTML={{ __html: previewTemplate.body }}
+                />
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="flex items-center justify-end gap-3 p-5 border-t bg-gray-50/50 dark:bg-gray-900/50" style={{ borderColor: theme.border }}>
+              <button
+                onClick={() => setPreviewTemplate(null)}
+                className="px-5 py-2.5 rounded-xl text-sm font-semibold hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                style={{ color: theme.subText }}
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  handleUseTemplate(previewTemplate);
+                  setPreviewTemplate(null);
+                }}
+                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-sm font-semibold text-white shadow-md hover:shadow-lg transition-all"
+                style={{
+                  background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)`,
+                }}
+              >
+                <MdSend size={16} /> Use Template
+              </button>
+            </div>
           </div>
         </div>
       )}
