@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { MdEmail } from 'react-icons/md';
 
 const ReadingPaneLayout = ({ 
   mode = 'no_split', // 'no_split', 'right', 'below'
@@ -60,14 +61,14 @@ const ReadingPaneLayout = ({
     document.body.style.cursor = 'default';
   };
 
-  if (effectiveMode === 'no_split' || !hasSelection) {
+  if (effectiveMode === 'no_split') {
     return (
       <div className="flex flex-col h-full overflow-hidden bg-transparent relative">
-        <div className={`flex flex-col h-full overflow-hidden ${hasSelection && effectiveMode === 'no_split' ? 'hidden' : 'flex'}`}>
+        <div className={`flex flex-col h-full overflow-hidden ${hasSelection ? 'hidden' : 'flex'}`}>
           {headerComponent}
           {listComponent}
         </div>
-        {hasSelection && effectiveMode === 'no_split' && detailsComponent}
+        {hasSelection && detailsComponent}
       </div>
     );
   }
@@ -107,7 +108,12 @@ const ReadingPaneLayout = ({
 
       {/* Detail View (Email content) */}
       <div className="flex-1 overflow-hidden bg-transparent">
-        {detailsComponent}
+        {detailsComponent || (
+          <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-600 bg-gray-50/30 dark:bg-[#1e1e1e]/30 border-l border-gray-100 dark:border-gray-800">
+            <MdEmail className="text-6xl mb-4 opacity-30 text-gray-400" />
+            <p className="text-base font-medium opacity-50">Select an email to read</p>
+          </div>
+        )}
       </div>
     </div>
   );
