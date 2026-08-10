@@ -95,7 +95,7 @@ export const ThemeProvider = ({ children }) => {
   const [customFontSize, setCustomFontSize] = useState(1.0);
   
   const defaultSidebarPrefs = {
-    Inbox: true, Starred: true, Snoozed: true, Sent: true, Draft: true, Trash: true, "Bulk Mail": true, "Notification": true
+    Inbox: true, Starred: true, Snoozed: true, Sent: true, Draft: true, Trash: true, "Bulk Mail": true, "Notification": true, "Archive": true
   };
   const [sidebarPreferences, setSidebarPreferencesState] = useState(defaultSidebarPrefs);
 
