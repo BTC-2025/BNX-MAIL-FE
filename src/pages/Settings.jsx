@@ -109,6 +109,7 @@ const Settings = () => {
   const [undoSendDelay, setUndoSendDelay] = useState(0);
   const [readingPaneMode, setReadingPaneMode] = useState("no_split");
   const [bulkMailEnabled, setBulkMailEnabled] = useState(() => localStorage.getItem("bnx_bulk_mail_filter") !== "false");
+  const [notificationEnabled, setNotificationEnabled] = useState(() => localStorage.getItem("bnx_notification_filter") !== "false");
 
   // Fetch initial data based on active tab
   useEffect(() => {
@@ -166,6 +167,10 @@ const Settings = () => {
         if (d.bulkMailEnabled !== undefined && d.bulkMailEnabled !== null) {
           setBulkMailEnabled(d.bulkMailEnabled);
           localStorage.setItem("bnx_bulk_mail_filter", d.bulkMailEnabled ? "true" : "false");
+        }
+        if (d.notificationEnabled !== undefined && d.notificationEnabled !== null) {
+          setNotificationEnabled(d.notificationEnabled);
+          localStorage.setItem("bnx_notification_filter", d.notificationEnabled ? "true" : "false");
         }
         const activeReadingPane = (d.readingPaneMode !== undefined && d.readingPaneMode !== null && d.readingPaneMode !== "")
           ? d.readingPaneMode
@@ -497,7 +502,7 @@ const Settings = () => {
     if (user?.email) {
       setLoading(true);
       try {
-        const ok = await saveBackendSettings({ undoSendDelay, bulkMailEnabled });
+        const ok = await saveBackendSettings({ undoSendDelay, bulkMailEnabled, notificationEnabled });
         
         // Save all signatures to ensure any name or content changes are persisted
         for (const sig of signatures) {
@@ -505,6 +510,8 @@ const Settings = () => {
         }
         
         if (ok) {
+          localStorage.setItem("bnx_bulk_mail_filter", bulkMailEnabled ? "true" : "false");
+          localStorage.setItem("bnx_notification_filter", notificationEnabled ? "true" : "false");
           toast.success("Composing & Signature preferences saved to cloud");
         }
       } catch (err) {
@@ -760,6 +767,26 @@ const Settings = () => {
                     >
                       <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
                     </button>
+                  </div>
+
+                  <div className="flex items-center justify-between py-2.5 border-t border-gray-150/10 dark:border-gray-800/10 mt-1">
+                    <div className="flex flex-col gap-1 pr-4">
+                      <span className="text-sm font-medium" style={{ color: theme.text }}>Notification</span>
+                      <span className="text-xs text-gray-500">Automatically organize notification and alert emails into the Notification folder.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setNotificationEnabled(!notificationEnabled)}
+                      className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${notificationEnabled ? 'justify-end' : 'justify-start'}`}
+                      style={{ backgroundColor: notificationEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
+                    >
+                      <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
+                    </button>
+                  </div>
+
+                  <div className="text-xs text-gray-500 bg-blue-50/50 dark:bg-blue-950/10 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/20 mt-3 flex items-start gap-2 max-w-xl">
+                    <span className="shrink-0 text-blue-600 dark:text-blue-400">ℹ️</span>
+                    <span>BNX Mail can automatically identify notification and alert emails and organize them separately from your regular emails.</span>
                   </div>
                 </div>
               </div>

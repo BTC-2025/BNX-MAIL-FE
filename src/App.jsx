@@ -45,6 +45,7 @@ import Casbox from "./pages/Casbox";
 import Maintenance from "./pages/Maintenance";
 import Support from "./pages/Support";
 import BulkMail from "./pages/BulkMail";
+import Notification from "./pages/Notification";
 
 /* Signup Pages */
 import SignupLayout from "./pages/signup/SignupLayout";
@@ -204,6 +205,7 @@ const AppContent = () => {
               <Route path="/scheduled" element={<Scheduled searchQuery={searchQuery} />} />
               <Route path="/spam" element={<Spam searchQuery={searchQuery} />} />
               <Route path="/bulk-mail" element={<BulkMail searchQuery={searchQuery} />} />
+              <Route path="/notification" element={<Notification searchQuery={searchQuery} />} />
               <Route path="/trash" element={<Trash searchQuery={searchQuery} />} />
               <Route path="/archive" element={<Archive searchQuery={searchQuery} />} />
               <Route path="/all-mail" element={<AllMail searchQuery={searchQuery} />} />

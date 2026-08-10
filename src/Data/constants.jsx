@@ -17,7 +17,8 @@ import {
   MdTrendingUp,
   MdAllInbox,
   MdLayers,
-  MdMailOutline
+  MdMailOutline,
+  MdNotificationsNone
 } from 'react-icons/md';
 
 export const SIDEBAR_ITEMS = [
@@ -121,6 +122,12 @@ export const SIDEBAR_ITEMS = [
     name: 'Bulk Mail',
     icon: <MdMailOutline size={20} />,
     path: '/bulk-mail',
+    count: 0
+  },
+  {
+    name: 'Notification',
+    icon: <MdNotificationsNone size={20} />,
+    path: '/notification',
     count: 0
   }
 ];
