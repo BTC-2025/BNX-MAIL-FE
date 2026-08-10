@@ -451,6 +451,9 @@ export const MailProvider = ({ children }) => {
             } else {
                 setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'Archive' } : m));
             }
+            // Invalidate cache
+            if (folder) delete pagesCache.current[folder.toLowerCase()];
+            delete pagesCache.current['archive'];
             if (!silent) toast.success('Email archived');
         } catch (error) {
             console.error('Failed to archive:', error);
@@ -466,6 +469,9 @@ export const MailProvider = ({ children }) => {
             } else {
                 setEmails(prev => prev.map(m => String(m.uid) === String(uid) ? { ...m, folderName: 'INBOX' } : m));
             }
+            // Invalidate cache
+            delete pagesCache.current['archive'];
+            delete pagesCache.current['inbox'];
             if (!silent) toast.success('Email restored');
         } catch (error) {
             console.error('Failed to unarchive:', error);

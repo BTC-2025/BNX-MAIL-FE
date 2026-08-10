@@ -251,7 +251,7 @@ export const mailAPI = {
     restore: (uid) => api.post(`${API_ENDPOINTS.MAIL.RESTORE}/${uid}`),
     permanentDelete: (uid) => api.delete(`${API_ENDPOINTS.MAIL.PERMANENT}/${uid}`),
     snooze: (uid, wakeUpAt, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.SNOOZE}/${uid}?wakeUpAt=${wakeUpAt}&folder=${folder}`),
-    getArchive: (limit = 50) => api.get(`${API_ENDPOINTS.MAIL.ARCHIVE}?limit=${limit}`),
+    getArchive: (page = 1, limit = 50) => api.get(`${API_ENDPOINTS.MAIL.ARCHIVE}?page=${page}&limit=${limit}`),
     archive: (uid, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.MOVE_ARCHIVE}/${uid}?folder=${folder}`),
     unarchive: (uid) => api.post(`${API_ENDPOINTS.MAIL.UNARCHIVE}/${uid}`),
     markSpam: (uid, folder = 'INBOX') => api.post(`${API_ENDPOINTS.MAIL.SPAM}/${uid}?folder=${folder}`),
