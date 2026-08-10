@@ -3,6 +3,7 @@ import {
   MdClose, MdMinimize, MdOutlinePushPin, MdDeleteOutline, 
   MdPalette, MdPlaylistAddCheck, MdAdd, MdOutlineNoteAlt, MdOutlineFolderOpen
 } from "react-icons/md";
+import { useTheme } from "../context/ThemeContext";
 
 // Color options mapping
 export const NOTE_COLORS = [
