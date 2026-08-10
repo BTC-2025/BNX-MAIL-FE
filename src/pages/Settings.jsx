@@ -108,6 +108,7 @@ const Settings = () => {
   const [editingSignatureId, setEditingSignatureId] = useState(null);
   const [undoSendDelay, setUndoSendDelay] = useState(0);
   const [readingPaneMode, setReadingPaneMode] = useState("no_split");
+  const [bulkMailEnabled, setBulkMailEnabled] = useState(() => localStorage.getItem("bnx_bulk_mail_filter") !== "false");
 
   // Fetch initial data based on active tab
   useEffect(() => {
@@ -162,6 +163,10 @@ const Settings = () => {
         setBiometricsEnabled(d.biometricsEnabled ?? true);
         setLanguage(d.language || "en_US");
         setUndoSendDelay(d.undoSendDelay || 0);
+        if (d.bulkMailEnabled !== undefined && d.bulkMailEnabled !== null) {
+          setBulkMailEnabled(d.bulkMailEnabled);
+          localStorage.setItem("bnx_bulk_mail_filter", d.bulkMailEnabled ? "true" : "false");
+        }
         const activeReadingPane = (d.readingPaneMode !== undefined && d.readingPaneMode !== null && d.readingPaneMode !== "")
           ? d.readingPaneMode
           : (globalReadingPaneMode || "no_split");
@@ -492,7 +497,7 @@ const Settings = () => {
     if (user?.email) {
       setLoading(true);
       try {
-        const ok = await saveBackendSettings({ undoSendDelay });
+        const ok = await saveBackendSettings({ undoSendDelay, bulkMailEnabled });
         
         // Save all signatures to ensure any name or content changes are persisted
         for (const sig of signatures) {
@@ -736,6 +741,27 @@ const Settings = () => {
                   <option value={30}>30 seconds</option>
                 </select>
                 <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
+              </div>
+
+              {/* Smart Filters */}
+              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Smart Filters</h4>
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center justify-between py-2.5">
+                    <div className="flex flex-col gap-1 pr-4">
+                      <span className="text-sm font-medium" style={{ color: theme.text }}>Bulk Mail</span>
+                      <span className="text-xs text-gray-500">Automatically organize bulk and mass-mail emails into the Bulk Mail folder.</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setBulkMailEnabled(!bulkMailEnabled)}
+                      className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${bulkMailEnabled ? 'justify-end' : 'justify-start'}`}
+                      style={{ backgroundColor: bulkMailEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
+                    >
+                      <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
+                    </button>
+                  </div>
+                </div>
               </div>
 
               <button 
