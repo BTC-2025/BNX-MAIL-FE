@@ -46,6 +46,7 @@ import Maintenance from "./pages/Maintenance";
 import Support from "./pages/Support";
 import BulkMail from "./pages/BulkMail";
 import Notification from "./pages/Notification";
+import { StickyNote, NotesManager } from "./components/StickyNotes";
 
 /* Signup Pages */
 import SignupLayout from "./pages/signup/SignupLayout";
@@ -121,6 +122,68 @@ const AppContent = () => {
   const [isBitToolSidebarOpen, setIsBitToolSidebarOpen] = useState(false);
   const { theme, backgroundImage, isLandscapeImage } = useTheme();
 
+  // Sticky Notes State Management
+  const [notes, setNotes] = useState(() => {
+    try {
+      const stored = localStorage.getItem("bnx_sticky_notes");
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const [openNoteIds, setOpenNoteIds] = useState(() => {
+    try {
+      const stored = localStorage.getItem("bnx_open_note_ids");
+      return stored ? JSON.parse(stored) : [];
+    } catch (e) {
+      return [];
+    }
+  });
+
+  const [showNotesManager, setShowNotesManager] = useState(false);
+
+  useEffect(() => {
+    localStorage.setItem("bnx_sticky_notes", JSON.stringify(notes));
+  }, [notes]);
+
+  useEffect(() => {
+    localStorage.setItem("bnx_open_note_ids", JSON.stringify(openNoteIds));
+  }, [openNoteIds]);
+
+  const handleCreateNote = () => {
+    const newNote = {
+      id: "note_" + Date.now(),
+      title: "",
+      content: "",
+      color: "yellow",
+      category: "Personal",
+      type: "text",
+      isMinimized: false
+    };
+    setNotes(prev => [newNote, ...prev]);
+    setOpenNoteIds(prev => [...prev, newNote.id]);
+  };
+
+  const handleUpdateNote = (id, updates) => {
+    setNotes(prev => prev.map(note => note.id === id ? { ...note, ...updates } : note));
+  };
+
+  const handleDeleteNote = (id) => {
+    setNotes(prev => prev.filter(note => note.id !== id));
+    setOpenNoteIds(prev => prev.filter(noteId => noteId !== id));
+  };
+
+  const handleOpenNote = (id) => {
+    if (!openNoteIds.includes(id)) {
+      setOpenNoteIds(prev => [...prev, id]);
+    }
+  };
+
+  const handleCloseNote = (id) => {
+    setOpenNoteIds(prev => prev.filter(noteId => noteId !== id));
+  };
+
   const isLandscapeTheme = isLandscapeImage;
   const rootStyle = { backgroundColor: theme.bg };
 
@@ -163,6 +226,7 @@ const AppContent = () => {
           }
           onOpenMenu={() => setIsMobileSidebarOpen(true)}
           onToggleBitToolSidebar={() => setIsBitToolSidebarOpen(v => !v)}
+          onOpenNotes={() => setShowNotesManager(v => !v)}
         />
 
         <div className="flex-1 flex overflow-hidden relative">
@@ -177,6 +241,7 @@ const AppContent = () => {
             isDesktopOpen={isDesktopSidebarOpen}
             isMobileOpen={isMobileSidebarOpen}
             onCloseMobile={() => setIsMobileSidebarOpen(false)}
+            onOpenNotes={() => setShowNotesManager(v => !v)}
           />
 
           <main
@@ -225,8 +290,37 @@ const AppContent = () => {
           </main>
 
           <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
+          
+          {showNotesManager && (
+            <div className="fixed inset-y-0 right-0 w-80 z-50 animate-slide-in shadow-2xl">
+              <NotesManager
+                notes={notes}
+                openNoteIds={openNoteIds}
+                onOpenNote={handleOpenNote}
+                onCreateNote={handleCreateNote}
+                onDeleteNote={handleDeleteNote}
+                onClose={() => setShowNotesManager(false)}
+              />
+            </div>
+          )}
         </div>
       </div>
+      
+      {/* Floating Sticky Notes Container */}
+      <div className="fixed inset-0 pointer-events-none z-[1000]">
+        {notes.filter(note => openNoteIds.includes(note.id)).map((note, idx) => (
+          <div key={note.id} className="pointer-events-auto">
+            <StickyNote
+              note={note}
+              index={idx}
+              onUpdate={handleUpdateNote}
+              onDelete={handleDeleteNote}
+              onClose={handleCloseNote}
+            />
+          </div>
+        ))}
+      </div>
+      
       <FloatingCompose />
       <Toaster
         position="bottom-center"

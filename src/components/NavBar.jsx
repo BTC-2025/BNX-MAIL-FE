@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { useMail } from "../context/MailContext";
-import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu, MdAdd, MdApps } from "react-icons/md";
+import { MdSettings, MdEmail, MdLogout, MdLightMode, MdDarkMode, MdNotifications, MdCheckCircle, MdManageAccounts, MdPersonAdd, MdPhotoCamera, MdMenu, MdAdd, MdApps, MdOutlineNoteAlt } from "react-icons/md";
 import { userAPI } from "../services/api";
 import toast from "react-hot-toast";
 // import logo from "../assets/bnx.jpeg";
@@ -12,7 +12,7 @@ import logo from "../assets/bnx-remove.png";
 import bitToolLogo from "../assets/BIT-TOOL-2.png";
 import AppLauncher from "./AppLauncher";
 
-const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar }) => {
+const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSidebar, onToggleBitToolSidebar, onOpenNotes }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout, logoutAll, switchAccount, getSessions } = useAuth();
@@ -365,6 +365,14 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
               </div>
             )}
           </div>
+
+          <button
+            onClick={onOpenNotes}
+            className="h-9 w-9 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 text-white cursor-pointer"
+            title="Sticky Notes"
+          >
+            <MdOutlineNoteAlt size={20} />
+          </button>
 
           <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
 

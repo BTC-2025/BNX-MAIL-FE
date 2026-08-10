@@ -6,9 +6,9 @@ import { useMail } from "../context/MailContext";
 import { useAuth } from "../context/AuthContext";
 import { chatAPI } from "../services/api";
 import StorageWidget from './StorageWidget';
-import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit, MdGroup, MdChat, MdCloudUpload } from "react-icons/md";
+import { MdLabel, MdAdd, MdClose, MdCheck, MdDelete, MdExpandMore, MdExpandLess, MdHelpOutline, MdContactSupport, MdSettings, MdMoreVert, MdEdit, MdGroup, MdChat, MdCloudUpload, MdOutlineNoteAlt } from "react-icons/md";
 
-const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
+const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const { theme, backgroundImage, sidebarPreferences } = useTheme();
@@ -385,6 +385,15 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile }) => {
           >
             <span className="text-[18px]"><MdSettings size={22} /></span>
             <span className="hide-on-collapse">Settings</span>
+          </button>
+
+          <button
+            onClick={onOpenNotes}
+            className="w-[calc(100%-16px)] mx-2 my-0.5 flex items-center gap-3 pl-4 pr-3 py-1 rounded-full transition-all duration-200 hover:bg-black/[0.04] dark:hover:bg-white/[0.04] cursor-pointer text-sm tracking-wide btn-collapse"
+            style={{ color: theme.sidebarText, fontWeight: 500 }}
+          >
+            <span className="text-[18px]"><MdOutlineNoteAlt size={22} /></span>
+            <span className="hide-on-collapse">Sticky Notes</span>
           </button>
 
           <button
