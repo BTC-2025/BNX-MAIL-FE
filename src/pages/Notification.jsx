@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useMail } from "../context/MailContext";
-import { MdNotificationsNone } from "react-icons/md";
+import { MdNotificationsNone, MdRefresh, MdMoreVert } from "react-icons/md";
 import EmailList from "../components/EmailList";
 import EmailDetails from "../components/EmailDetails";
 import { useTheme } from "../context/ThemeContext";
@@ -15,6 +15,13 @@ const Notification = ({ searchQuery }) => {
   const { handleToggleStar, handleMoveToTrash, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
   
+  // Zoho-style elements state variables
+  const [activeView, setActiveView] = useState("All");
+  const [showViewsDropdown, setShowViewsDropdown] = useState(false);
+  const [activeAttachmentFilter, setActiveAttachmentFilter] = useState("All Files");
+  const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false);
+  const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+
   // Empty state requirements: no dummy emails, no fake counts
   const emails = [];
   const visibleEmails = [];
@@ -81,19 +88,181 @@ const Notification = ({ searchQuery }) => {
       folder="notification"
     />
   ) : (
-    <div
-      className="p-4 sm:p-5 border-b flex flex-col justify-between shrink-0 bg-transparent gap-1"
-      style={{ borderColor: theme.border }}
-    >
-      <h2
-        className="text-base font-bold flex items-center gap-2"
-        style={{ color: theme.text }}
-      >
-        <MdNotificationsNone size={20} style={{ color: theme.accent || "#135bec" }} /> Notification
-      </h2>
-      <p className="text-xs" style={{ color: theme.subText }}>
-        Keep notification and alert emails organized in one place.
-      </p>
+    <div className="flex flex-col border-b border-gray-100 dark:border-gray-800 bg-transparent shrink-0">
+      {/* Title & Description row */}
+      <div className="p-4 sm:p-5 flex items-center justify-between border-b border-gray-100/50 dark:border-gray-800/50">
+        <div className="flex items-center gap-3">
+          <span
+            className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
+            style={{ background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)` }}
+          >
+            <MdNotificationsNone size={15} /> Notification
+          </span>
+          <button
+            onClick={() => {}}
+            disabled={true}
+            className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center cursor-pointer"
+            title="Refresh mail"
+          >
+            <MdRefresh size={18} />
+          </button>
+        </div>
+      </div>
+
+      {/* Zoho-style Toolbar row */}
+      <div className="px-4 py-2 flex items-center justify-between border-b border-gray-100/50 dark:border-gray-800/50 text-sm select-none gap-2 flex-wrap">
+        {/* Left Toolbar actions */}
+        <div className="flex items-center gap-3">
+          {/* Select Checkbox */}
+          <div className="flex items-center justify-center p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-all cursor-pointer">
+            <input 
+              type="checkbox" 
+              className="rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary cursor-pointer w-4 h-4 shrink-0" 
+              disabled={true}
+            />
+          </div>
+
+          {/* Views Dropdown */}
+          <div className="relative">
+            <button
+              onClick={() => setShowViewsDropdown(!showViewsDropdown)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+              style={{ borderColor: theme.border, color: theme.text }}
+            >
+              <span>View: {activeView}</span>
+              <span className="text-[10px] opacity-75">▼</span>
+            </button>
+            {showViewsDropdown && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowViewsDropdown(false)} />
+                <div 
+                  className="absolute left-0 top-full mt-1 w-44 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
+                  style={{ borderColor: theme.border }}
+                >
+                  {["All", "Unread", "Starred", "Has Attachments"].map(v => (
+                    <button
+                      key={v}
+                      onClick={() => {
+                        setActiveView(v);
+                        setShowViewsDropdown(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                      style={{ color: theme.text }}
+                    >
+                      {v}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Attachment Options */}
+          <div className="relative">
+            <button
+              onClick={() => setShowAttachmentDropdown(!showAttachmentDropdown)}
+              className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg border transition-all cursor-pointer hover:bg-black/5 dark:hover:bg-white/5"
+              style={{ borderColor: theme.border, color: theme.text }}
+            >
+              <span>📎 Attachments: {activeAttachmentFilter}</span>
+              <span className="text-[10px] opacity-75">▼</span>
+            </button>
+            {showAttachmentDropdown && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowAttachmentDropdown(false)} />
+                <div 
+                  className="absolute left-0 top-full mt-1 w-44 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
+                  style={{ borderColor: theme.border }}
+                >
+                  {["All Files", "Images", "Documents", "PDFs", "Archives"].map(af => (
+                    <button
+                      key={af}
+                      onClick={() => {
+                        setActiveAttachmentFilter(af);
+                        setShowAttachmentDropdown(false);
+                      }}
+                      className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                      style={{ color: theme.text }}
+                    >
+                      {af}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+
+        {/* Right Toolbar actions */}
+        <div className="flex items-center gap-2">
+          {/* More options */}
+          <div className="relative">
+            <button
+              onClick={() => setShowMoreDropdown(!showMoreDropdown)}
+              className="p-1.5 rounded-lg border transition-all cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 flex items-center justify-center"
+              style={{ borderColor: theme.border, color: theme.text }}
+              title="More Actions"
+            >
+              <MdMoreVert size={16} />
+            </button>
+            {showMoreDropdown && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowMoreDropdown(false)} />
+                <div 
+                  className="absolute right-0 top-full mt-1 w-48 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
+                  style={{ borderColor: theme.border }}
+                >
+                  <button
+                    onClick={() => { setShowMoreDropdown(false); }}
+                    className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.text }}
+                  >
+                    Mark folder as read
+                  </button>
+                  <button
+                    onClick={() => { setShowMoreDropdown(false); }}
+                    className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer text-red-500 hover:text-red-600"
+                  >
+                    Clear folder (Delete all)
+                  </button>
+                  <hr className="border-gray-100 dark:border-gray-700 my-1" />
+                  <button
+                    onClick={() => { navigate("/settings"); setShowMoreDropdown(false); }}
+                    className="w-full text-left px-3 py-2 hover:bg-black/5 dark:hover:bg-white/5 cursor-pointer"
+                    style={{ color: theme.text }}
+                  >
+                    Manage filter settings
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Smart Filter banner */}
+      <div className="px-4 py-2 bg-blue-50/30 dark:bg-blue-950/10 border-b border-gray-100/50 dark:border-gray-800/50 flex flex-wrap items-center justify-between text-xs gap-3">
+        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+          <span className="text-blue-500">💡</span>
+          <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Filter:</span>
+          <span>Smart filter classifies notification emails and alerts automatically to this folder.</span>
+        </div>
+        <div className="flex items-center gap-3">
+          <button 
+            onClick={() => {}} 
+            className="text-red-500 hover:text-red-600 hover:underline font-medium cursor-pointer"
+          >
+            Disable automatic Notification classification
+          </button>
+          <span className="text-gray-300 dark:text-gray-700">|</span>
+          <button 
+            onClick={() => {}} 
+            className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline font-medium cursor-pointer"
+          >
+            Do not ask again
+          </button>
+        </div>
+      </div>
     </div>
   );
 
