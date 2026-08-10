@@ -366,13 +366,6 @@ const NavBar = ({ searchQuery, setSearchQuery, onOpenMenu, onToggleDesktopSideba
             )}
           </div>
 
-          <button
-            onClick={onOpenNotes}
-            className="h-9 w-9 rounded-full hover:bg-white/10 transition-colors flex items-center justify-center shrink-0 text-white cursor-pointer"
-            title="Sticky Notes"
-          >
-            <MdOutlineNoteAlt size={20} />
-          </button>
 
           <div className="h-6 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1 hidden sm:block" />
 
