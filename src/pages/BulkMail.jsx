@@ -21,6 +21,11 @@ const BulkMail = ({ searchQuery }) => {
   const [activeAttachmentFilter, setActiveAttachmentFilter] = useState("All Files");
   const [showAttachmentDropdown, setShowAttachmentDropdown] = useState(false);
   const [showMoreDropdown, setShowMoreDropdown] = useState(false);
+  const [showSmartFilter, setShowSmartFilter] = useState(true);
+
+  const handleDoNotAskAgain = () => {
+    setShowSmartFilter(false);
+  };
 
   // Empty state requirements: no dummy emails, no fake counts
   const emails = [];
@@ -241,13 +246,30 @@ const BulkMail = ({ searchQuery }) => {
       </div>
 
       {/* Smart Filter banner */}
-      <div className="px-4 py-2 bg-blue-50/30 dark:bg-blue-950/10 border-b border-gray-100/50 dark:border-gray-800/50 flex items-center justify-between text-xs gap-3">
-        <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
-          <span className="text-blue-500">💡</span>
-          <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Filter:</span>
-          <span>Mass-mail,and promotional alerts are automatically redirected here to keep your primary inbox uncluttered.</span>
+      {showSmartFilter && (
+        <div className="px-4 py-2 bg-blue-50/30 dark:bg-blue-950/10 border-b border-gray-100/50 dark:border-gray-800/50 flex flex-wrap items-center justify-between text-xs gap-3">
+          <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
+            <span className="text-blue-500">💡</span>
+            <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Filter:</span>
+            <span>Mass-mail, newsletters, and promotional alerts are automatically redirected here to keep your primary inbox uncluttered.</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => { }}
+              className="text-red-500 hover:text-red-600 hover:underline font-medium cursor-pointer"
+            >
+              Disable automatic Bulk Mail classification
+            </button>
+            <span className="text-gray-300 dark:text-gray-700">|</span>
+            <button
+              onClick={handleDoNotAskAgain}
+              className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline font-medium cursor-pointer"
+            >
+              Do not ask again
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 
