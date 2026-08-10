@@ -14,7 +14,7 @@ const Notification = ({ searchQuery }) => {
   const { theme, readingPaneMode } = useTheme();
   const { handleToggleStar, handleMoveToTrash, handleArchive, openCompose } = useMail();
   const [selectedEmailUid, setSelectedEmailUid] = useState(null);
-  
+
   // Zoho-style elements state variables
   const [activeView, setActiveView] = useState("All");
   const [showViewsDropdown, setShowViewsDropdown] = useState(false);
@@ -59,7 +59,7 @@ const Notification = ({ searchQuery }) => {
   };
 
   /* ---------------- MAIN UI ---------------- */
-  
+
   const detailsComponent = selectedEmail ? (
     <EmailDetails
       emailList={visibleEmails}
@@ -99,7 +99,7 @@ const Notification = ({ searchQuery }) => {
             <MdNotificationsNone size={15} /> Notification
           </span>
           <button
-            onClick={() => {}}
+            onClick={() => { }}
             disabled={true}
             className="p-1.5 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 disabled:opacity-50 flex items-center justify-center cursor-pointer"
             title="Refresh mail"
@@ -115,9 +115,9 @@ const Notification = ({ searchQuery }) => {
         <div className="flex items-center gap-3">
           {/* Select Checkbox */}
           <div className="flex items-center justify-center p-1 hover:bg-black/5 dark:hover:bg-white/5 rounded transition-all cursor-pointer">
-            <input 
-              type="checkbox" 
-              className="rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary cursor-pointer w-4 h-4 shrink-0" 
+            <input
+              type="checkbox"
+              className="rounded border-gray-300 dark:border-gray-700 text-primary focus:ring-primary cursor-pointer w-4 h-4 shrink-0"
               disabled={true}
             />
           </div>
@@ -135,7 +135,7 @@ const Notification = ({ searchQuery }) => {
             {showViewsDropdown && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowViewsDropdown(false)} />
-                <div 
+                <div
                   className="absolute left-0 top-full mt-1 w-44 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
                   style={{ borderColor: theme.border }}
                 >
@@ -170,7 +170,7 @@ const Notification = ({ searchQuery }) => {
             {showAttachmentDropdown && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowAttachmentDropdown(false)} />
-                <div 
+                <div
                   className="absolute left-0 top-full mt-1 w-44 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
                   style={{ borderColor: theme.border }}
                 >
@@ -208,7 +208,7 @@ const Notification = ({ searchQuery }) => {
             {showMoreDropdown && (
               <>
                 <div className="fixed inset-0 z-40" onClick={() => setShowMoreDropdown(false)} />
-                <div 
+                <div
                   className="absolute right-0 top-full mt-1 w-48 py-1 bg-white dark:bg-gray-800 rounded-xl shadow-xl border z-50 text-xs overflow-hidden"
                   style={{ borderColor: theme.border }}
                 >
@@ -248,15 +248,15 @@ const Notification = ({ searchQuery }) => {
           <span>Smart filter classifies notification emails and alerts automatically to this folder.</span>
         </div>
         <div className="flex items-center gap-3">
-          <button 
-            onClick={() => {}} 
+          <button
+            onClick={() => { }}
             className="text-red-500 hover:text-red-600 hover:underline font-medium cursor-pointer"
           >
             Disable automatic Notification classification
           </button>
           <span className="text-gray-300 dark:text-gray-700">|</span>
-          <button 
-            onClick={() => {}} 
+          <button
+            onClick={() => handleDoNotAskAgain()}
             className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300 hover:underline font-medium cursor-pointer"
           >
             Do not ask again
