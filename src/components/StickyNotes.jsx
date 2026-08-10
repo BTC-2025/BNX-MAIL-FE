@@ -172,8 +172,13 @@ export const StickyNote = ({
             type="text"
             value={note.title || ""}
             onChange={(e) => handleTitleChange(e.target.value)}
-            placeholder="Name your note"
-            className="w-full bg-transparent font-bold text-xs outline-none border-b border-transparent focus:border-black/10 placeholder:text-black/30 truncate"
+            onFocus={(e) => {
+              if (e.target.value === "New Note") {
+                e.target.select();
+              }
+            }}
+            placeholder="New Note"
+            className="w-full bg-transparent font-bold text-xs outline-none border-b border-transparent focus:border-black/10 placeholder:text-black/40 truncate"
             style={{ color: selectedColor.text }}
           />
         </div>
