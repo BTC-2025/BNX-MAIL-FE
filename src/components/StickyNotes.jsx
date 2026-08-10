@@ -372,6 +372,19 @@ export const NotesManager = ({
           notes.map(note => {
             const colorOption = NOTE_COLORS.find(c => c.id === note.color) || NOTE_COLORS[0];
             const isOpen = openNoteIds.includes(note.id);
+            let displayTitle = note.title;
+            if (!displayTitle?.trim()) {
+              if (note.type === "checklist") {
+                try {
+                  const items = JSON.parse(note.content || "[]");
+                  const firstItem = items.find(i => i.text.trim());
+                  displayTitle = firstItem ? `Checklist: ${firstItem.text}` : "New Checklist";
+                } catch(e) { displayTitle = "New Checklist"; }
+              } else {
+                const firstLine = (note.content || "").split("\n")[0]?.trim();
+                displayTitle = firstLine ? firstLine.substring(0, 20) : "New Note";
+              }
+            }
             
             // Generate clean snippet preview
             let previewText = "";
@@ -399,7 +412,7 @@ export const NotesManager = ({
                 
                 <div className="flex items-center justify-between gap-2">
                   <span className="font-bold text-xs truncate" style={{ color: theme.text }}>
-                    {note.title || "Unnamed Note"}
+                    {displayTitle}
                   </span>
                   <div className="flex items-center gap-1.5 shrink-0 opacity-0 group-hover:opacity-100 transition-opacity">
                     <button

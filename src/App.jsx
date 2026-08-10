@@ -154,7 +154,7 @@ const AppContent = () => {
   const handleCreateNote = () => {
     const newNote = {
       id: "note_" + Date.now(),
-      title: "",
+      title: "New Note",
       content: "",
       color: "yellow",
       category: "Personal",
