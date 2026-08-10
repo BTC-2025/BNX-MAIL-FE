@@ -34,6 +34,16 @@ export const StickyNote = ({
 
   // Position drag handling
   const handleMouseDown = (e) => {
+    // Ignore drag if clicking input, buttons or selectors inside header
+    if (
+      e.target.tagName === "INPUT" || 
+      e.target.tagName === "BUTTON" || 
+      e.target.closest("button") || 
+      e.target.closest("input")
+    ) {
+      return;
+    }
+
     if (e.target.closest(".note-header-drag")) {
       e.preventDefault();
       const startX = e.clientX - position.x;
