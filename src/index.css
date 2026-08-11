@@ -333,3 +333,34 @@ aside.sidebar-collapsed hr {
   content: 'Times New Roman' !important;
   font-family: 'Times New Roman', serif !important;
 }
+
+/* Custom styling for ReactQuill inside Colab Broadcast modal to blend it in seamlessly */
+.custom-broadcast-quill .ql-container.ql-snow {
+  border: none !important;
+  background: transparent !important;
+  font-family: inherit !important;
+}
+
+.custom-broadcast-quill .ql-editor {
+  padding: 12px !important;
+  min-height: 180px;
+  max-height: 240px;
+  overflow-y: auto;
+  font-size: 0.875rem !important; /* 14px */
+  line-height: 1.5;
+  color: inherit !important;
+}
+
+.custom-broadcast-quill .ql-editor.ql-blank::before {
+  left: 12px !important;
+  color: #9ca3af !important; /* gray-400 */
+  font-style: normal;
+}
+
+/* Fix text and caret colors in dark mode for ReactQuill */
+.dark .custom-broadcast-quill .ql-editor {
+  color: #f3f4f6 !important; /* text-gray-100 */
+}
+.dark .custom-broadcast-quill .ql-editor.ql-blank::before {
+  color: #6b7280 !important; /* text-gray-500 */
+}
