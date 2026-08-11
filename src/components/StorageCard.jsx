@@ -4,6 +4,7 @@ import { useTheme } from '../context/ThemeContext';
 const StorageCard = ({ 
   name, 
   icon: Icon, 
+  logo,
   usedStorage, 
   totalStorage = 5368709120, // 5 GB in bytes
   usagePercentage, 
@@ -43,14 +44,21 @@ const StorageCard = ({
       {/* Icon + Application Name + Status Badge */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          {Icon && (
+          {logo ? (
+            <div 
+              className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 overflow-hidden"
+              style={{ backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)' }}
+            >
+              <img src={logo} alt={name} className="w-full h-full object-contain p-1" />
+            </div>
+          ) : Icon ? (
             <div 
               className="p-2.5 rounded-xl flex items-center justify-center shrink-0"
               style={{ backgroundColor: theme.mode === 'dark' ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.03)' }}
             >
               <Icon size={20} style={{ color: theme.accent }} />
             </div>
-          )}
+          ) : null}
           <span className="font-bold text-sm sm:text-base">{name}</span>
         </div>
 

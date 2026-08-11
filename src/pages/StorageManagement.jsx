@@ -2,7 +2,10 @@ import React from 'react';
 import { useTheme } from '../context/ThemeContext';
 import StorageCard from '../components/StorageCard';
 import logo from '../assets/bluechat_logo.webp';
-import { MdBusiness, MdTouchApp, MdVerifiedUser, MdConstruction } from 'react-icons/md';
+import cliksBusinessLogo from '../assets/cliks-business.png';
+import cliksLogo from '../assets/cliks.png';
+import b2authLogo from '../assets/b2auth.png';
+import bittoolLogo from '../assets/BIT-TOOL-2.png';
 
 const StorageManagement = () => {
   const { theme } = useTheme();
@@ -54,10 +57,10 @@ const StorageManagement = () => {
 
         {/* 2-Column Responsive Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StorageCard name="Cliks Business" icon={MdBusiness} />
-          <StorageCard name="Cliks" icon={MdTouchApp} />
-          <StorageCard name="B2Auth" icon={MdVerifiedUser} />
-          <StorageCard name="BitTool" icon={MdConstruction} />
+          <StorageCard name="Cliks Business" logo={cliksBusinessLogo} />
+          <StorageCard name="Cliks" logo={cliksLogo} />
+          <StorageCard name="B2Auth" logo={b2authLogo} />
+          <StorageCard name="BitTool" logo={bittoolLogo} />
         </div>
 
       </div>
