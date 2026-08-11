@@ -26,6 +26,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useTheme } from "../context/ThemeContext";
 import toast from "react-hot-toast";
+import { DEFAULT_TEMPLATES } from "./Templates";
 
 
 const ChatRoom = () => {
@@ -277,15 +278,56 @@ const ChatRoom = () => {
   };
 
   const fetchTemplates = async () => {
-    if (!user?.email) return;
-    try {
-      const res = await templateAPI.getTemplates(user.email);
-      if (res.data?.success) {
-        setTemplates(res.data.data || []);
+    const defaultMapped = DEFAULT_TEMPLATES.map(t => ({
+      ...t,
+      name: t.title || t.name,
+      isDefault: true
+    }));
+
+    let customMapped = [];
+    if (user?.email) {
+      try {
+        const res = await templateAPI.getTemplates(user.email);
+        const dataList = res.data?.data || res.data || [];
+        customMapped = dataList.map(t => ({
+          ...t,
+          name: t.title || t.name,
+          isDefault: false
+        }));
+      } catch (err) {
+        console.error("Error loading templates from backend:", err);
+        // Fallback to local storage
+        const saved = localStorage.getItem("bnx_mail_custom_templates");
+        if (saved) {
+          try {
+            const parsed = JSON.parse(saved);
+            customMapped = parsed.map(t => ({
+              ...t,
+              name: t.title || t.name,
+              isDefault: false
+            }));
+          } catch (e) {
+            console.error("Error parsing templates from local storage:", e);
+          }
+        }
       }
-    } catch (err) {
-      console.error("Error loading templates:", err);
+    } else {
+      const saved = localStorage.getItem("bnx_mail_custom_templates");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          customMapped = parsed.map(t => ({
+            ...t,
+            name: t.title || t.name,
+            isDefault: false
+          }));
+        } catch (e) {
+          console.error("Error parsing templates from local storage:", e);
+        }
+      }
     }
+
+    setTemplates([...defaultMapped, ...customMapped]);
   };
 
 
@@ -433,12 +475,13 @@ const ChatRoom = () => {
   const handleSelectTemplate = (templateId) => {
     setSelectedTemplate(templateId);
     if (!templateId) {
+      setEmailSubject("");
       setEmailBody("");
       return;
     }
     const selected = templates.find(t => String(t.id) === String(templateId));
     if (selected) {
-      setEmailSubject(selected.name || "");
+      setEmailSubject(selected.subject || selected.title || selected.name || "");
       setEmailBody(selected.body || "");
     }
   };
