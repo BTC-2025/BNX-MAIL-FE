@@ -214,8 +214,8 @@ const FloatingCompose = () => {
               cc: "",
               bcc: "",
               subject: composeData.subject || "",
-              body: composeData.originalBody
-                ? `<br/><br/><div>--- ${composeData.forward ? "Forwarded Message" : "Original Message"} ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
+              body: composeData.originalBody && composeData.forward
+                ? `<br/><br/><div>--- Forwarded Message ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
                 : "",
             });
           } else if (composeData.draft) {
