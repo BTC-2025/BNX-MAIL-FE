@@ -984,10 +984,22 @@ const Settings = () => {
                         changeTheme(t);
                         setThemeMode(t === "Dark" ? "Dark" : "Light");
                       }} 
-                      className={`p-4 text-sm font-medium rounded-2xl border cursor-pointer transition-all shadow-sm ${currentThemeName === t ? "border-primary ring-2 ring-primary" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
+                      className={`p-4 text-sm font-medium rounded-2xl border cursor-pointer transition-all shadow-sm flex items-center justify-center gap-1.5 ${currentThemeName === t ? "border-primary ring-2 ring-primary" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
                       style={currentThemeName === t ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                     >
-                      {t}
+                      <span>{t}</span>
+                      {t === "Classic" && (
+                        <span 
+                          className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md"
+                          style={
+                            currentThemeName === "Classic" 
+                              ? { backgroundColor: `${theme.accent}15`, color: theme.accent }
+                              : { backgroundColor: "rgba(100, 116, 139, 0.15)", color: "rgba(100, 116, 139, 0.75)" }
+                          }
+                        >
+                          Default
+                        </span>
+                      )}
                     </button>
                   ))}
                 </div>
