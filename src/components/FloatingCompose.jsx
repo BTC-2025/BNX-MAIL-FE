@@ -214,7 +214,7 @@ const FloatingCompose = () => {
               cc: "",
               bcc: "",
               subject: composeData.subject || "",
-              body: composeData.originalBody
+              body: composeData.originalBody && composeData.mode !== 'casbox'
                 ? `<br/><br/><div>--- ${composeData.forward ? "Forwarded Message" : "Original Message"} ---<br/>${composeData.originalBody.replace(/\n/g, '<br/>')}</div>`
                 : "",
             });
