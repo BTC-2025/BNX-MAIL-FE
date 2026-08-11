@@ -97,9 +97,9 @@ const Casbox = () => {
       try {
         const res = await userAPI.getSettings();
         if (res.data?.success) {
-           const s = res.data.data;
-           setAcceptedContacts(s.casboxAccepted || []);
-           setBlockedContacts(s.casboxBlocked || []);
+          const s = res.data.data;
+          setAcceptedContacts(s.casboxAccepted || []);
+          setBlockedContacts(s.casboxBlocked || []);
         }
       } catch (e) {
         console.error("Failed to load casbox settings", e);
@@ -110,7 +110,7 @@ const Casbox = () => {
 
   useEffect(() => {
     const contacts = new Set();
-    
+
     // Auto-accept contacts from regular emails
     if (emails && emails.length > 0) {
       emails.forEach(email => {
@@ -157,8 +157,8 @@ const Casbox = () => {
 
   useEffect(() => {
     if (selectedMessage) {
-      const otherEmail = selectedMessage.senderEmail === user?.email 
-        ? selectedMessage.receiverEmail 
+      const otherEmail = selectedMessage.senderEmail === user?.email
+        ? selectedMessage.receiverEmail
         : selectedMessage.senderEmail;
       selectedContactRef.current = otherEmail;
       fetchThread(otherEmail);
@@ -213,7 +213,7 @@ const Casbox = () => {
       toast.loading(`Loading preview...`, { id: "preview-casbox-attachment" });
       const res = await api.get(urlPath, { responseType: 'blob' });
       const mime = getMimeType(fileName);
-      
+
       let textContent = "";
       if (mime === "text/plain") {
         const reader = new FileReader();
@@ -264,7 +264,7 @@ const Casbox = () => {
           if (prev.some(m => m.id === newMsg.id)) return prev;
           return [newMsg, ...prev];
         });
-        
+
         // Append to threadMessages if it's the active contact
         const activeContact = selectedContactRef.current;
         if (activeContact && (newMsg.senderEmail === activeContact || newMsg.receiverEmail === activeContact)) {
@@ -351,17 +351,17 @@ const Casbox = () => {
 
   const sentMessages = unblockedMessages.filter(msg => msg.senderEmail === user?.email);
   const allReceived = unblockedMessages.filter(msg => msg.receiverEmail === user?.email);
-  
-  const receivedMessages = allReceived.filter(msg => 
+
+  const receivedMessages = allReceived.filter(msg =>
     knownContacts.has(msg.senderEmail) || acceptedContacts.includes(msg.senderEmail)
   );
-  const requestMessages = allReceived.filter(msg => 
+  const requestMessages = allReceived.filter(msg =>
     !knownContacts.has(msg.senderEmail) && !acceptedContacts.includes(msg.senderEmail)
   );
 
-  const filteredMessages = activeTab === 'received' ? receivedMessages 
-                         : activeTab === 'sent' ? sentMessages 
-                         : requestMessages;
+  const filteredMessages = activeTab === 'received' ? receivedMessages
+    : activeTab === 'sent' ? sentMessages
+      : requestMessages;
 
   // Group messages by conversation contact
   const conversationGroups = {};
@@ -390,10 +390,10 @@ const Casbox = () => {
 
     try {
       setSendingChat(true);
-      const otherEmail = selectedMessage.senderEmail === user?.email 
-        ? selectedMessage.receiverEmail 
+      const otherEmail = selectedMessage.senderEmail === user?.email
+        ? selectedMessage.receiverEmail
         : selectedMessage.senderEmail;
-      
+
       const payload = {
         receiverEmail: otherEmail,
         subject: selectedMessage.subject || "Casbox Message",
@@ -402,20 +402,20 @@ const Casbox = () => {
       };
 
       const res = await casboxAPI.sendMessage(payload);
-      
+
       setNewChatText("");
-      
+
       const newMsg = res.data;
       setThreadMessages(prev => {
         if (prev.some(m => m.id === newMsg.id)) return prev;
         return [...prev, newMsg];
       });
-      
+
       setMessages(prev => {
         if (prev.some(m => m.id === newMsg.id)) return prev;
         return [newMsg, ...prev];
       });
-      
+
     } catch (err) {
       console.error("Failed to send Casbox message", err);
       toast.error("Failed to send message");
@@ -428,28 +428,28 @@ const Casbox = () => {
     <div className="flex flex-col shrink-0">
       <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 shrink-0 bg-transparent">
         <div className="flex items-center bg-gray-100/80 dark:bg-gray-800/80 p-1 rounded-lg shrink-0">
-          <button 
+          <button
             onClick={() => { setActiveTab('received'); setSelectedMessage(null); }}
             className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${activeTab === 'received' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             Received <span className={`font-normal hidden sm:inline ${activeTab === 'received' ? 'opacity-80' : 'opacity-60'}`}>({receivedMessages.length})</span>
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab('sent'); setSelectedMessage(null); }}
             className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${activeTab === 'sent' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             Sent <span className={`font-normal hidden sm:inline ${activeTab === 'sent' ? 'opacity-80' : 'opacity-60'}`}>({sentMessages.length})</span>
           </button>
-          <button 
+          <button
             onClick={() => { setActiveTab('requests'); setSelectedMessage(null); }}
             className={`px-3 sm:px-4 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-1.5 ${activeTab === 'requests' ? 'bg-white dark:bg-gray-700 text-blue-600 dark:text-blue-400 shadow-sm' : 'text-gray-500 hover:text-gray-700 dark:hover:text-gray-300'}`}
           >
             Requests {requestMessages.length > 0 && <span className="flex h-2 w-2 rounded-full bg-red-500"></span>}
           </button>
         </div>
-        
+
         <div className="flex-1"></div>
-        
+
         <button
           onClick={() => openCompose({ mode: 'casbox' })}
           className="px-4 py-1.5 rounded-full text-sm font-bold text-white transition-transform hover:shadow-md active:scale-95"
@@ -489,7 +489,7 @@ const Casbox = () => {
         const isSelected = selectedMessage && (
           (selectedMessage.senderEmail === user?.email ? selectedMessage.receiverEmail : selectedMessage.senderEmail) === otherEmail
         );
-        
+
         const unreadCount = chat.messages.filter(m => m.receiverEmail === user?.email && m.status !== 'SEEN').length;
 
         return (
@@ -501,7 +501,7 @@ const Casbox = () => {
             {isSelected && (
               <div className="absolute left-0 top-0 bottom-0 w-1 rounded-r bg-blue-500"></div>
             )}
-            
+
             <div className="shrink-0 mr-3.5">
               <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
                 {otherEmail.charAt(0).toUpperCase()}
@@ -517,12 +517,12 @@ const Casbox = () => {
                   {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
-              
+
               <div className="flex items-center justify-between gap-2">
                 <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px] font-normal">
                   {isMe ? "You: " : ""}{msg.body}
                 </span>
-                
+
                 {unreadCount > 0 ? (
                   <span className="bg-blue-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full shrink-0">
                     {unreadCount}
@@ -589,15 +589,15 @@ const Casbox = () => {
             const fileName = fileObj.fileName || fileObj.name || (typeof fileObj === 'string' ? fileObj.split('/').pop() : "Attachment");
             const fileInfo = getFileIcon(fileName);
             return (
-              <div 
-                key={i} 
+              <div
+                key={i}
                 className="flex items-center justify-between gap-3 p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-[11px]"
               >
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-base shrink-0">{fileInfo.icon}</span>
                   <span className="font-medium truncate max-w-[120px]">{fileName}</span>
                 </div>
-                <button 
+                <button
                   onClick={(e) => { e.stopPropagation(); handleDownloadAttachment(fileObj); }}
                   className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 text-current cursor-pointer shrink-0"
                 >
@@ -608,7 +608,7 @@ const Casbox = () => {
           })}
         </div>
       );
-    } catch(e) {
+    } catch (e) {
       return null;
     }
   };
@@ -626,7 +626,7 @@ const Casbox = () => {
     return (
       <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden">
         {/* Header */}
-        <div 
+        <div
           className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
@@ -639,11 +639,11 @@ const Casbox = () => {
               <MdClose size={22} className="hidden md:block" />
               <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
             </button>
-            
+
             <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-base">
               {otherUserEmail.charAt(0).toUpperCase()}
             </div>
-            
+
             <div className="flex flex-col">
               <span className="font-bold text-sm text-gray-900 dark:text-gray-100">{otherUserEmail.split('@')[0]}</span>
               <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{otherUserEmail}</span>
@@ -666,7 +666,7 @@ const Casbox = () => {
             sortedThread.map((msg, index) => {
               const isMe = msg.senderEmail === user?.email;
               const senderLabel = isMe ? "You" : msg.senderEmail.split('@')[0];
-              
+
               return (
                 <div key={msg.id || index} className={`flex flex-col max-w-[70%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
                   <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
@@ -677,8 +677,8 @@ const Casbox = () => {
                       {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-                  
-                  <div 
+
+                  <div
                     className={`px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
                     style={{
                       backgroundColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#1e1e1e' : '#f3f4f6'),
@@ -689,7 +689,7 @@ const Casbox = () => {
                     <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.body}</p>
                     {renderBubbleAttachments(msg)}
                   </div>
-                  
+
                   {isMe && index === sortedThread.length - 1 && (
                     <div className="mt-1 mr-1">
                       {getStatusIcon(msg.status)}
@@ -703,7 +703,7 @@ const Casbox = () => {
         </div>
 
         {/* Footer Accept Request or Message Input */}
-        <div 
+        <div
           className="p-4 border-t bg-white dark:bg-[#121212] shrink-0"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
@@ -724,12 +724,12 @@ const Casbox = () => {
               </button>
             </div>
           ) : (
-            <form 
+            <form
               onSubmit={handleSendChatMessage}
               className="flex items-center gap-3 bg-transparent w-full"
             >
-              <input 
-                type="text" 
+              <input
+                type="text"
                 placeholder="Type a message..."
                 value={newChatText}
                 onChange={(e) => setNewChatText(e.target.value)}
@@ -837,14 +837,14 @@ const Casbox = () => {
               <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
                 <MdBlock className="text-red-500" size={20} /> Blocked Users
               </h3>
-              <button 
+              <button
                 onClick={() => setShowBlockedModal(false)}
                 className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 transition-colors"
               >
                 <MdClose size={20} />
               </button>
             </div>
-            
+
             <div className="flex-1 overflow-y-auto p-2">
               {blockedContacts.length === 0 ? (
                 <div className="p-8 text-center text-gray-500 dark:text-gray-400">
@@ -855,7 +855,7 @@ const Casbox = () => {
                 blockedContacts.map((email) => (
                   <div key={email} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors mx-2 my-1">
                     <span className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate pr-4">{email}</span>
-                    <button 
+                    <button
                       onClick={() => handleUnblockUser(email)}
                       className="px-4 py-1.5 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shrink-0"
                     >

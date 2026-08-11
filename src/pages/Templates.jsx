@@ -20,17 +20,17 @@ import "react-quill/dist/quill.snow.css";
 // Register custom fonts in Quill
 const Font = Quill.import('formats/font');
 Font.whitelist = [
-  'sans-serif', 
-  'serif', 
-  'monospace', 
-  'roboto', 
-  'lato', 
-  'montserrat', 
-  'playfair-display', 
-  'inter', 
-  'arial', 
-  'courier-new', 
-  'comic-sans', 
+  'sans-serif',
+  'serif',
+  'monospace',
+  'roboto',
+  'lato',
+  'montserrat',
+  'playfair-display',
+  'inter',
+  'arial',
+  'courier-new',
+  'comic-sans',
   'times-new-roman'
 ];
 Quill.register(Font, true);
@@ -79,17 +79,17 @@ export const DEFAULT_TEMPLATES = [
 ];
 
 const fontList = [
-  'sans-serif', 
-  'serif', 
-  'monospace', 
-  'roboto', 
-  'lato', 
-  'montserrat', 
-  'playfair-display', 
-  'inter', 
-  'arial', 
-  'courier-new', 
-  'comic-sans', 
+  'sans-serif',
+  'serif',
+  'monospace',
+  'roboto',
+  'lato',
+  'montserrat',
+  'playfair-display',
+  'inter',
+  'arial',
+  'courier-new',
+  'comic-sans',
   'times-new-roman'
 ];
 
@@ -149,13 +149,13 @@ const Templates = () => {
           console.error("Failed to fetch templates from backend, falling back to local storage", err);
           const saved = localStorage.getItem("bnx_mail_custom_templates");
           if (saved) {
-            try { setCustomTemplates(JSON.parse(saved)); } catch (e) {}
+            try { setCustomTemplates(JSON.parse(saved)); } catch (e) { }
           }
         });
     } else {
       const saved = localStorage.getItem("bnx_mail_custom_templates");
       if (saved) {
-        try { setCustomTemplates(JSON.parse(saved)); } catch (e) {}
+        try { setCustomTemplates(JSON.parse(saved)); } catch (e) { }
       }
     }
   }, [user]);
@@ -357,11 +357,10 @@ const Templates = () => {
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
-              className={`flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${
-                activeTab === tab
+              className={`flex-1 sm:flex-none px-5 py-2 rounded-lg text-sm font-semibold transition-all duration-300 ${activeTab === tab
                   ? "bg-white dark:bg-gray-800 shadow-sm"
                   : "opacity-60 hover:opacity-100"
-              }`}
+                }`}
               style={{
                 color: activeTab === tab ? theme.accent : theme.text,
               }}
@@ -443,11 +442,10 @@ const Templates = () => {
                 {/* Badges */}
                 <div className="flex items-center justify-between mb-4">
                   <span
-                    className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                      t.isDefault
+                    className={`text-xs px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider ${t.isDefault
                         ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
                         : "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400"
-                    }`}
+                      }`}
                   >
                     {t.isDefault ? "Default" : "Custom"}
                   </span>
@@ -703,7 +701,7 @@ const Templates = () => {
                 <MdClose size={22} />
               </button>
             </div>
-            
+
             {/* Body */}
             <div className="p-6 overflow-y-auto max-h-[60vh] flex flex-col gap-4">
               <div>
@@ -718,7 +716,7 @@ const Templates = () => {
               </div>
               <div className="border-t pt-4" style={{ borderColor: theme.border }}>
                 <label className="text-xs font-bold uppercase tracking-wider block mb-2 opacity-60" style={{ color: theme.text }}>Content</label>
-                <div 
+                <div
                   className="p-4 rounded-xl border bg-white text-black min-h-[150px] max-h-[300px] overflow-y-auto"
                   style={{ borderColor: theme.border }}
                   dangerouslySetInnerHTML={{ __html: previewTemplate.body }}

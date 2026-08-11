@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { MdEmail } from 'react-icons/md';
 
-const ReadingPaneLayout = ({ 
+const ReadingPaneLayout = ({
   mode = 'no_split', // 'no_split', 'right', 'below'
   hasSelection = false,
   listComponent,
@@ -40,7 +40,7 @@ const ReadingPaneLayout = ({
   const handleMouseMove = (e) => {
     if (!isResizing.current || !containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
-    
+
     if (effectiveMode === 'right') {
       const newPercentage = ((e.clientX - rect.left) / rect.width) * 100;
       if (newPercentage > 20 && newPercentage < 80) {
@@ -87,14 +87,14 @@ const ReadingPaneLayout = ({
   const isRight = effectiveMode === 'right';
 
   return (
-    <div 
+    <div
       className={`flex h-full w-full overflow-hidden bg-transparent relative ${isRight ? 'flex-row' : 'flex-col'}`}
       ref={containerRef}
     >
       {/* Master View (List) */}
-      <div 
+      <div
         className="flex flex-col overflow-hidden bg-transparent shrink-0 relative"
-        style={{ 
+        style={{
           flexBasis: `${listFlex}%`,
           borderRight: isRight ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
           borderBottom: !isRight ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
@@ -106,11 +106,10 @@ const ReadingPaneLayout = ({
 
       {/* Resizer Handle */}
       <div
-        className={`hover:bg-primary/20 hover:opacity-100 transition-all z-10 shrink-0 ${
-          isRight 
-            ? 'w-1 cursor-col-resize h-full -ml-[2px]' 
+        className={`hover:bg-primary/20 hover:opacity-100 transition-all z-10 shrink-0 ${isRight
+            ? 'w-1 cursor-col-resize h-full -ml-[2px]'
             : 'h-1 cursor-row-resize w-full -mt-[2px]'
-        }`}
+          }`}
         onMouseDown={handleMouseDown}
         style={{
           backgroundColor: 'transparent'
