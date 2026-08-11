@@ -290,7 +290,15 @@ const AppContent = () => {
             </Routes>
           </main>
 
-          <BitToolSidebar isOpen={isBitToolSidebarOpen} onClose={() => setIsBitToolSidebarOpen(false)} />
+          <BitToolSidebar 
+            isOpen={isBitToolSidebarOpen} 
+            onClose={() => setIsBitToolSidebarOpen(false)} 
+            notes={notes}
+            openNoteIds={openNoteIds}
+            onOpenNote={handleOpenNote}
+            onCreateNote={handleCreateNote}
+            onDeleteNote={handleDeleteNote}
+          />
           
           {showNotesManager && (
             <div className="fixed inset-y-0 right-0 w-80 z-50 animate-slide-in shadow-2xl">

@@ -2,10 +2,11 @@ import React, { useState } from "react";
 import { 
   MdCalendarToday, MdCalculate, MdPeople, MdSecurity, MdKeyboard, 
   MdTranslate, MdFilterCenterFocus, MdCloudQueue, MdNewspaper, 
-  MdAdd, MdCheck, MdClose, MdOutlineEdit, MdTune, MdApps
+  MdAdd, MdCheck, MdClose, MdOutlineEdit, MdTune, MdApps, MdOutlineNoteAlt
 } from "react-icons/md";
 import { useTheme } from "../context/ThemeContext";
 import AppLauncher from "./AppLauncher";
+import { NotesManager } from "./StickyNotes";
 import betalogo from '../assets/beta2.png'
 
 // Tools Definition
@@ -14,6 +15,7 @@ const ALL_TOOLS = [
   { id: "calculator", name: "Calculator", icon: MdCalculate, color: "#10b981", ringClass: "border-[#10b981]", textClass: "text-[#10b981]", bgClass: "bg-emerald-50 dark:bg-emerald-950/20" },
   { id: "contacts", name: "Contacts", icon: MdPeople, color: "#3b82f6", ringClass: "border-[#3b82f6]", textClass: "text-[#3b82f6]", bgClass: "bg-blue-50 dark:bg-blue-950/20" },
   { id: "security", name: "Security", icon: MdSecurity, color: "#0d9488", ringClass: "border-[#0d9488]", textClass: "text-[#0d9488]", bgClass: "bg-teal-50 dark:bg-teal-950/20" },
+  { id: "notes", name: "Sticky Notes", icon: MdOutlineNoteAlt, color: "#eab308", ringClass: "border-[#eab308]", textClass: "text-[#eab308]", bgClass: "bg-yellow-50 dark:bg-yellow-950/20" },
   { id: "keyboard", name: "Keyboard", icon: MdKeyboard, color: "#6366f1", ringClass: "border-[#6366f1]", textClass: "text-[#6366f1]", bgClass: "bg-indigo-50 dark:bg-indigo-950/20" },
   { id: "translator", name: "Translator", icon: MdTranslate, color: "#ec4899", ringClass: "border-[#ec4899]", textClass: "text-[#ec4899]", bgClass: "bg-pink-50 dark:bg-pink-950/20" },
   { id: "lens", name: "Lens", icon: MdFilterCenterFocus, color: "#8b5cf6", ringClass: "border-[#8b5cf6]", textClass: "text-[#8b5cf6]", bgClass: "bg-purple-50 dark:bg-purple-950/20" },
@@ -21,9 +23,17 @@ const ALL_TOOLS = [
   { id: "news", name: "News", icon: MdNewspaper, color: "#6b7280", ringClass: "border-[#6b7280]", textClass: "text-[#6b7280]", bgClass: "bg-gray-50 dark:bg-gray-800/30" }
 ];
 
-const BitToolSidebar = ({ isOpen, onClose }) => {
+const BitToolSidebar = ({ 
+  isOpen, 
+  onClose,
+  notes,
+  openNoteIds,
+  onOpenNote,
+  onCreateNote,
+  onDeleteNote
+}) => {
   const { theme, backgroundImage } = useTheme();
-  const [pinnedTools, setPinnedTools] = useState(["calendar", "calculator", "contacts", "security"]);
+  const [pinnedTools, setPinnedTools] = useState(["calendar", "calculator", "contacts", "security", "notes"]);
   const [isEditing, setIsEditing] = useState(false);
   const [selectedTool, setSelectedTool] = useState(null);
   const [showAppLauncher, setShowAppLauncher] = useState(false);
@@ -373,6 +383,15 @@ const BitToolSidebar = ({ isOpen, onClose }) => {
         {selectedTool && (
           selectedTool === 'apps' ? (
             <AppLauncher onClose={() => setSelectedTool(null)} onToggleBitToolSidebar={() => {}} />
+          ) : selectedTool === 'notes' ? (
+            <NotesManager 
+              notes={notes}
+              openNoteIds={openNoteIds}
+              onOpenNote={onOpenNote}
+              onCreateNote={onCreateNote}
+              onDeleteNote={onDeleteNote}
+              onClose={() => setSelectedTool(null)}
+            />
           ) : (
             <>
               <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex justify-between items-center bg-black/[0.01] dark:bg-white/[0.01] shrink-0">
