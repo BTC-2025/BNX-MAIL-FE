@@ -43,7 +43,13 @@ const StorageWidget = ({ isDesktopOpen }) => {
   if (loading) return null;
 
   return (
-    <div className={`px-4 py-3 mb-2 flex flex-col gap-2 ${!isDesktopOpen ? 'items-center hide-on-collapse' : ''}`}>
+    <a 
+      href="/storage-management"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={`px-4 py-3 mb-2 flex flex-col gap-2 hover:bg-black/5 dark:hover:bg-white/5 rounded-xl transition-all cursor-pointer block ${!isDesktopOpen ? 'items-center hide-on-collapse' : ''}`}
+      style={{ textDecoration: 'none', color: 'inherit' }}
+    >
       <div className="flex items-center justify-between text-xs font-medium" style={{ color: theme.sidebarText || theme.text }}>
         <div className="flex items-center gap-1.5">
           <MdCloudQueue size={16} />
@@ -64,7 +70,7 @@ const StorageWidget = ({ isDesktopOpen }) => {
       <div className="text-[11px] hide-on-collapse opacity-70" style={{ color: theme.sidebarText || theme.text }}>
         {formatSize(storageData.used)} of {formatSize(storageData.limit)} used
       </div>
-    </div>
+    </a>
   );
 };
 

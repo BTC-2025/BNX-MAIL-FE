@@ -46,6 +46,7 @@ import Maintenance from "./pages/Maintenance";
 import Support from "./pages/Support";
 import BulkMail from "./pages/BulkMail";
 import Notification from "./pages/Notification";
+import StorageManagement from "./pages/StorageManagement";
 import { StickyNote, NotesManager } from "./components/StickyNotes";
 
 /* Signup Pages */
@@ -393,6 +394,15 @@ const App = () => (
                   element={
                     <ProtectedRoute>
                       <SignupBusinessOnboarding />
+                    </ProtectedRoute>
+                  } 
+                />
+
+                <Route 
+                  path="/storage-management" 
+                  element={
+                    <ProtectedRoute>
+                      <StorageManagement />
                     </ProtectedRoute>
                   } 
                 />
