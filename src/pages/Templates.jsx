@@ -14,8 +14,26 @@ import {
   MdAssignment,
 } from "react-icons/md";
 import toast from "react-hot-toast";
-import ReactQuill from "react-quill";
+import ReactQuill, { Quill } from "react-quill";
 import "react-quill/dist/quill.snow.css";
+
+// Register custom fonts in Quill
+const Font = Quill.import('formats/font');
+Font.whitelist = [
+  'sans-serif', 
+  'serif', 
+  'monospace', 
+  'roboto', 
+  'lato', 
+  'montserrat', 
+  'playfair-display', 
+  'inter', 
+  'arial', 
+  'courier-new', 
+  'comic-sans', 
+  'times-new-roman'
+];
+Quill.register(Font, true);
 
 export const DEFAULT_TEMPLATES = [
   {
@@ -60,9 +78,24 @@ export const DEFAULT_TEMPLATES = [
   },
 ];
 
+const fontList = [
+  'sans-serif', 
+  'serif', 
+  'monospace', 
+  'roboto', 
+  'lato', 
+  'montserrat', 
+  'playfair-display', 
+  'inter', 
+  'arial', 
+  'courier-new', 
+  'comic-sans', 
+  'times-new-roman'
+];
+
 const quillModules = {
   toolbar: [
-    [{ 'font': [] }, { 'size': [] }],
+    [{ 'font': fontList }, { 'size': [] }],
     ['bold', 'italic', 'underline', 'strike'],
     [{ 'color': [] }, { 'background': [] }],
     [{ 'align': [] }],

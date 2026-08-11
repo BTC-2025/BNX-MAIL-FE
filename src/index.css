@@ -1,11 +1,20 @@
 @import url("https://fonts.googleapis.com/css2?family=Saira+Stencil+One&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 @layer base {
   body {
-    @apply antialiased text-slate-900 bg-background-light selection:bg-primary selection:text-white transition-colors duration-300;
+    @apply antialiased text-slate-900 bg-background-light transition-colors duration-300;
+  }
+  body::selection {
+    @apply bg-primary text-white;
   }
   .dark body {
     @apply text-slate-100 bg-background-dark;
@@ -247,4 +256,80 @@ aside.sidebar-collapsed hr {
     margin-left: 16px !important;
     margin-right: 16px !important;
   }
+}
+
+/* Quill Custom Fonts styling */
+.ql-font-roboto {
+  font-family: 'Roboto', sans-serif !important;
+}
+.ql-font-lato {
+  font-family: 'Lato', sans-serif !important;
+}
+.ql-font-montserrat {
+  font-family: 'Montserrat', sans-serif !important;
+}
+.ql-font-playfair-display {
+  font-family: 'Playfair Display', serif !important;
+}
+.ql-font-inter {
+  font-family: 'Inter', sans-serif !important;
+}
+.ql-font-arial {
+  font-family: Arial, sans-serif !important;
+}
+.ql-font-courier-new {
+  font-family: 'Courier New', monospace !important;
+}
+.ql-font-comic-sans {
+  font-family: 'Comic Sans MS', cursive !important;
+}
+.ql-font-times-new-roman {
+  font-family: 'Times New Roman', serif !important;
+}
+
+/* Set font family styles for the dropdown selector items in Quill toolbar */
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="roboto"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="roboto"]::before {
+  content: 'Roboto' !important;
+  font-family: 'Roboto', sans-serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="lato"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="lato"]::before {
+  content: 'Lato' !important;
+  font-family: 'Lato', sans-serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="montserrat"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="montserrat"]::before {
+  content: 'Montserrat' !important;
+  font-family: 'Montserrat', sans-serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="playfair-display"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="playfair-display"]::before {
+  content: 'Playfair Display' !important;
+  font-family: 'Playfair Display', serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="inter"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="inter"]::before {
+  content: 'Inter' !important;
+  font-family: 'Inter', sans-serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="arial"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="arial"]::before {
+  content: 'Arial' !important;
+  font-family: Arial, sans-serif !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="courier-new"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="courier-new"]::before {
+  content: 'Courier New' !important;
+  font-family: 'Courier New', monospace !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="comic-sans"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="comic-sans"]::before {
+  content: 'Comic Sans' !important;
+  font-family: 'Comic Sans MS', cursive !important;
+}
+.ql-snow .ql-picker.ql-font .ql-picker-label[data-value="times-new-roman"]::before,
+.ql-snow .ql-picker.ql-font .ql-picker-item[data-value="times-new-roman"]::before {
+  content: 'Times New Roman' !important;
+  font-family: 'Times New Roman', serif !important;
 }
