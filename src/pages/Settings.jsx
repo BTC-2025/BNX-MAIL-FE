@@ -591,7 +591,7 @@ const Settings = () => {
   ];
 
   return (
-    <div className="flex h-screen overflow-hidden" style={{ background: theme.bg }}>
+    <div className="flex h-full overflow-hidden" style={{ background: theme.bg }}>
       {/* Side Tabs Bar */}
       <aside 
         className="w-72 border-r p-6 flex flex-col gap-2 shrink-0" 
@@ -619,7 +619,7 @@ const Settings = () => {
       </aside>
 
       {/* Settings Options Pane */}
-      <main className="flex-1 p-10 overflow-y-auto hidden-scrollbar flex justify-center">
+      <main className="flex-1 pt-5 pb-10 px-10 overflow-y-auto hidden-scrollbar flex justify-center">
         <div className="w-full max-w-5xl">
           {/* accounts Tab */}
           {activeTab === "accounts" && (
