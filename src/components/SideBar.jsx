@@ -128,8 +128,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
                </button>
             </div>
           ) : !isChatMode ? (
-            ["All Inbox", "Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
-              .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
+            ["Inbox", "Starred", "Snoozed", "Sent", "Draft", "Trash"]
               .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
               .filter(Boolean)
               .filter(item => sidebarPreferences?.[item.name] !== false)
@@ -139,43 +138,36 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
                 const count = unreadCounts[unreadKey] || 0;
 
                 return (
-                  <React.Fragment key={item.name}>
-                    <button
-                      onClick={() => handleNavigation(item.path)}
-                      className={`w-[calc(100%-16px)] mx-2 my-0.5 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse shrink-0
-                        ${isActive
-                          ? "bg-primary/10 dark:bg-primary/20"
-                          : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
-                        }
-                      `}
-                      style={{
-                        color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
-                        fontWeight: isActive ? 400 : 300,
-                      }}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
-                          {item.icon}
-                        </span>
-                        <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
-                      </div>
+                  <button
+                    key={item.name}
+                    onClick={() => handleNavigation(item.path)}
+                    className={`w-[calc(100%-16px)] mx-2 my-0.5 flex items-center justify-between pl-4 pr-3 py-1 rounded-full transition-all duration-200 group cursor-pointer btn-collapse shrink-0
+                      ${isActive
+                        ? "bg-primary/10 dark:bg-primary/20"
+                        : "hover:bg-black/[0.04] dark:hover:bg-white/[0.04]"
+                      }
+                    `}
+                    style={{
+                      color: isActive ? (theme.accent || "#135bec") : theme.sidebarText,
+                      fontWeight: isActive ? 400 : 300,
+                    }}
+                  >
+                    <div className="flex items-center gap-3">
+                      <span className={`text-[18px] transition-transform duration-200 ${isActive ? "scale-105" : "group-hover:scale-105"}`}>
+                        {item.icon}
+                      </span>
+                      <span className="text-sm tracking-wide hide-on-collapse">{item.name}</span>
+                    </div>
 
-                      {count > 0 && (
-                        <span
-                          className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
-                          style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
-                        >
-                          {count}
-                        </span>
-                      )}
-                    </button>
-                    {item.name === "All Inbox" && (
-                      <>
-                        <hr className="mx-4 mt-2 border-gray-300 dark:border-gray-700" />
-                        <div className="h-2" />
-                      </>
+                    {count > 0 && (
+                      <span
+                        className="text-xs font-bold px-2 py-0.5 rounded-full shadow-sm hide-on-collapse"
+                        style={{ backgroundColor: theme.accent || "#135bec", color: "#fff" }}
+                      >
+                        {count}
+                      </span>
                     )}
-                  </React.Fragment>
+                  </button>
                 );
               })
           ) : (
@@ -212,7 +204,8 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
             </div>
           )}
 
-          {!isChatMode && !isVaultMode && ["Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates", "Analytics", "Bulk Mail", "Notification"]
+          {!isChatMode && !isVaultMode && ["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates", "Analytics", "Bulk Mail", "Notification"]
+            .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
             .filter(Boolean)
             .filter(item => sidebarPreferences?.[item.name] !== false)
@@ -233,13 +226,15 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
 
               {isMoreOpen && (
                 <div className="mt-1 space-y-0 animate-fade-in origin-top">
-                  {["Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Templates", "Analytics", "Bulk Mail", "Notification"]
+                  {["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Templates", "Analytics", "Bulk Mail", "Notification"]
+                    .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
                     .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
                     .filter(Boolean)
                     .filter(item => sidebarPreferences?.[item.name] !== false)
                     .map((item) => {
                       const isActive = location.pathname === item.path;
-                      const count = unreadCounts[item.name.toLowerCase()] || 0;
+                      const unreadKey = item.name.toLowerCase().replace(' ', '').replace('-', '');
+                      const count = unreadCounts[unreadKey] || 0;
 
                       return (
                         <button
