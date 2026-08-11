@@ -8,12 +8,12 @@ const StorageManagement = () => {
   const { theme } = useTheme();
 
   return (
-    <div 
+    <div
       className="min-h-screen flex flex-col font-sans overflow-y-auto"
       style={{ backgroundColor: theme.bg, color: theme.text }}
     >
       {/* Top Header Bar */}
-      <div 
+      <div
         className="px-6 py-4 border-b flex items-center justify-between bg-white/30 dark:bg-gray-900/30 backdrop-blur-md sticky top-0 z-10"
         style={{ borderColor: theme.border }}
       >
@@ -22,9 +22,9 @@ const StorageManagement = () => {
           <span className="h-4 w-px bg-gray-300 dark:bg-gray-700" />
           <span className="text-xs font-bold uppercase tracking-wider opacity-75">Storage Control Center</span>
         </div>
-        
+
         {/* Close Tab Button */}
-        <button 
+        <button
           onClick={() => window.close()}
           className="px-3.5 py-1.5 rounded-xl border text-xs font-bold transition-all hover:bg-black/5 dark:hover:bg-white/5 active:scale-[0.98] cursor-pointer"
           style={{ borderColor: theme.border, color: theme.text }}
@@ -35,7 +35,7 @@ const StorageManagement = () => {
 
       {/* Main Content Area */}
       <div className="flex-1 max-w-5xl mx-auto w-full px-6 py-10 space-y-8">
-        
+
         {/* Page Header Titles */}
         <div className="flex flex-col gap-2">
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">Storage Management</h1>
@@ -43,7 +43,7 @@ const StorageManagement = () => {
             View and manage storage usage across your applications.
           </p>
           <div className="mt-2.5">
-            <span 
+            <span
               className="inline-flex items-center px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider"
               style={{ backgroundColor: `${theme.accent}15`, color: theme.accent }}
             >
@@ -54,8 +54,8 @@ const StorageManagement = () => {
 
         {/* 2-Column Responsive Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StorageCard name="Cliiks Business" icon={MdBusiness} />
-          <StorageCard name="Cliiks" icon={MdTouchApp} />
+          <StorageCard name="Cliks Business" icon={MdBusiness} />
+          <StorageCard name="Cliks" icon={MdTouchApp} />
           <StorageCard name="B2Auth" icon={MdVerifiedUser} />
           <StorageCard name="BitTool" icon={MdConstruction} />
         </div>
