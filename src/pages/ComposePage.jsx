@@ -51,8 +51,8 @@ const ComposePage = () => {
           ...prev,
           to: location.state.replyTo,
           subject: location.state.subject || "",
-          body: location.state.originalBody && location.state.forward
-            ? `\n\n--- Forwarded Message ---\n${location.state.originalBody}`
+          body: location.state.originalBody
+            ? `\n\n--- Original Message ---\n${location.state.originalBody}`
             : "",
         }));
       } else if (location.state.draft) {
