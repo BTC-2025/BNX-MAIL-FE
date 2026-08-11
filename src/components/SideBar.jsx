@@ -204,7 +204,7 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
             </div>
           )}
 
-          {!isChatMode && !isVaultMode && ["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates", "Analytics", "Bulk Mail", "Notification"]
+          {!isChatMode && !isVaultMode && ["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Chat", "Templates", "Analytics", "Bulk Mail", "NotifyHub"]
             .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
             .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
             .filter(Boolean)
@@ -226,14 +226,14 @@ const SideBar = ({ isDesktopOpen, isMobileOpen, onCloseMobile, onOpenNotes }) =>
 
               {isMoreOpen && (
                 <div className="mt-1 space-y-0 animate-fade-in origin-top">
-                  {["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Templates", "Analytics", "Bulk Mail", "Notification"]
+                  {["All Inbox", "Scheduled", "Spam", "All Mail", "Archive", "Subscriptions", "Templates", "Analytics", "Bulk Mail", "NotifyHub"]
                     .filter(name => name !== "All Inbox" || (getSessions && getSessions().length > 1))
                     .map(name => SIDEBAR_ITEMS.find(item => item.name === name))
                     .filter(Boolean)
                     .filter(item => sidebarPreferences?.[item.name] !== false)
                     .map((item) => {
                       const isActive = location.pathname === item.path;
-                      const unreadKey = item.name.toLowerCase().replace(' ', '').replace('-', '');
+                      const unreadKey = item.name === "NotifyHub" ? "notification" : item.name.toLowerCase().replace(' ', '').replace('-', '');
                       const count = unreadCounts[unreadKey] || 0;
 
                       return (

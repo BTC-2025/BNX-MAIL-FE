@@ -101,7 +101,7 @@ const Notification = ({ searchQuery }) => {
             className="px-4 py-1.5 text-xs font-bold rounded-full shadow-sm text-white tracking-wide flex items-center gap-1.5 uppercase select-none"
             style={{ background: `linear-gradient(135deg, ${theme.accent || "#135bec"} 0%, #3b82f6 100%)` }}
           >
-            <MdNotificationsNone size={15} /> Notification
+            <MdNotificationsNone size={15} /> NotifyHub
           </span>
           <button
             onClick={() => { }}
@@ -251,14 +251,14 @@ const Notification = ({ searchQuery }) => {
           <div className="flex items-center gap-2 text-gray-500 dark:text-gray-400">
             <span className="text-blue-500">💡</span>
             <span className="font-semibold text-blue-600 dark:text-blue-400">Smart Filter:</span>
-            <span>Smart filter classifies notification emails and alerts automatically to this folder.</span>
+            <span>Smart filter classifies notification emails and alerts automatically to this NotifyHub folder.</span>
           </div>
           <div className="flex items-center gap-3">
             <button
               onClick={() => { }}
               className="text-red-500 hover:text-red-600 hover:underline font-medium cursor-pointer"
             >
-              Disable automatic Notification classification
+              Disable automatic NotifyHub classification
             </button>
             <span className="text-gray-300 dark:text-gray-700">|</span>
             <button
@@ -281,10 +281,10 @@ const Notification = ({ searchQuery }) => {
           className="text-base font-semibold mb-1"
           style={{ color: theme.text }}
         >
-          No notification emails yet.
+          No NotifyHub emails yet.
         </p>
         <p className="text-sm max-w-sm" style={{ color: theme.subText }}>
-          Notification and alert emails identified by BNX Mail will appear here automatically.
+          Notification and alert emails identified by BNX Mail will appear in NotifyHub automatically.
         </p>
       </div>
     </div>

@@ -125,9 +125,9 @@ export const SIDEBAR_ITEMS = [
     count: 0
   },
   {
-    name: 'Notification',
+    name: 'NotifyHub',
     icon: <MdNotificationsNone size={20} />,
-    path: '/notification',
+    path: '/notifyhub',
     count: 0
   }
 ];

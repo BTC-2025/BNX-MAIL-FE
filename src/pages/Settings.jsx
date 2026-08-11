@@ -771,8 +771,8 @@ const Settings = () => {
 
                   <div className="flex items-center justify-between py-2.5 border-t border-gray-150/10 dark:border-gray-800/10 mt-1">
                     <div className="flex flex-col gap-1 pr-4">
-                      <span className="text-sm font-medium" style={{ color: theme.text }}>Notification</span>
-                      <span className="text-xs text-gray-500">Automatically organize notification and alert emails into the Notification folder.</span>
+                      <span className="text-sm font-medium" style={{ color: theme.text }}>NotifyHub</span>
+                      <span className="text-xs text-gray-500">Automatically organize notification and alert emails into the NotifyHub folder.</span>
                     </div>
                     <button
                       type="button"
