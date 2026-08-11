@@ -67,6 +67,7 @@ const ChatRoom = () => {
   // Broadcast Email Form State
   const [emailSubject, setEmailSubject] = useState("");
   const [emailBody, setEmailBody] = useState("");
+  const emailBodyRef = useRef(null);
   const [sendingEmail, setSendingEmail] = useState(false);
   const [broadcastAttachments, setBroadcastAttachments] = useState([]);
 
@@ -443,7 +444,9 @@ const ChatRoom = () => {
   // Broadcast Email Action
   const handleSendBroadcast = async (e) => {
     e.preventDefault();
-    if (!emailSubject.trim() || !emailBody.trim()) {
+    const bodyContent = emailBodyRef.current ? emailBodyRef.current.innerHTML : emailBody;
+    const cleanContent = bodyContent.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
+    if (!emailSubject.trim() || !cleanContent) {
       toast.error("Subject and body are required");
       return;
     }
@@ -454,13 +457,14 @@ const ChatRoom = () => {
       
       await chatAPI.sendBroadcast(chatId, {
         subject: emailSubject,
-        body: emailBody,
+        body: bodyContent,
         attachmentsJson: broadcastAttachments.length > 0 ? JSON.stringify(broadcastAttachments) : null
       });
       
       toast.success("Broadcast sent successfully", { id: "send-broadcast" });
       setEmailSubject("");
       setEmailBody("");
+      if (emailBodyRef.current) emailBodyRef.current.innerHTML = "";
       setSelectedTemplate("");
       setBroadcastAttachments([]);
       setShowComposeModal(false);
@@ -477,12 +481,17 @@ const ChatRoom = () => {
     if (!templateId) {
       setEmailSubject("");
       setEmailBody("");
+      if (emailBodyRef.current) emailBodyRef.current.innerHTML = "";
       return;
     }
     const selected = templates.find(t => String(t.id) === String(templateId));
     if (selected) {
       setEmailSubject(selected.subject || selected.title || selected.name || "");
-      setEmailBody(selected.body || "");
+      const bodyContent = selected.body || "";
+      setEmailBody(bodyContent);
+      if (emailBodyRef.current) {
+        emailBodyRef.current.innerHTML = bodyContent;
+      }
     }
   };
 
@@ -901,14 +910,14 @@ const ChatRoom = () => {
                   className="flex flex-col border rounded-xl overflow-hidden transition-all bg-white dark:bg-gray-900"
                   style={{ borderColor: theme.border }}
                 >
-                  {/* Textarea */}
-                  <textarea
+                  {/* ContentEditable Div for HTML support without raw tags */}
+                  <div
+                    ref={emailBodyRef}
+                    contentEditable
+                    onInput={(e) => setEmailBody(e.currentTarget.innerHTML)}
                     placeholder="Write email content here..."
-                    value={emailBody}
-                    onChange={(e) => setEmailBody(e.target.value)}
-                    className="w-full p-3 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none resize-none text-sm"
-                    rows={8}
-                    required
+                    className="w-full p-3 bg-transparent text-gray-900 dark:text-white outline-none text-sm overflow-y-auto min-h-[160px] max-h-[240px] custom-broadcast-editable"
+                    style={{ whiteSpace: "pre-wrap" }}
                   />
 
                   {/* Selected Attachments Chips */}

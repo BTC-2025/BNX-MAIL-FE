@@ -332,4 +332,15 @@ aside.sidebar-collapsed hr {
 .ql-snow .ql-picker.ql-font .ql-picker-item[data-value="times-new-roman"]::before {
   content: 'Times New Roman' !important;
   font-family: 'Times New Roman', serif !important;
-}
+}
+
+/* Custom styling for contenteditable placeholder in Colab Broadcast modal */
+.custom-broadcast-editable:empty::before {
+  content: attr(placeholder);
+  color: #9ca3af; /* gray-400 */
+  pointer-events: none;
+}
+.dark .custom-broadcast-editable:empty::before {
+  color: #6b7280; /* gray-500 */
+}
+
