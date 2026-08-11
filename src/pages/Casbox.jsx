@@ -84,6 +84,14 @@ const Casbox = () => {
   const [knownContacts, setKnownContacts] = useState(new Set());
   const [showBlockedModal, setShowBlockedModal] = useState(false);
 
+  const [threadMessages, setThreadMessages] = useState([]);
+  const [loadingThread, setLoadingThread] = useState(false);
+  const [newChatText, setNewChatText] = useState("");
+  const [sendingChat, setSendingChat] = useState(false);
+
+  const chatEndRef = React.useRef(null);
+  const selectedContactRef = React.useRef(null);
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
@@ -134,6 +142,37 @@ const Casbox = () => {
       });
     };
   }, [selectedMessage]);
+
+  const fetchThread = async (contactEmail) => {
+    try {
+      setLoadingThread(true);
+      const res = await casboxAPI.getThread(contactEmail);
+      setThreadMessages(res.data || []);
+    } catch (e) {
+      console.error("Failed to fetch thread", e);
+    } finally {
+      setLoadingThread(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedMessage) {
+      const otherEmail = selectedMessage.senderEmail === user?.email 
+        ? selectedMessage.receiverEmail 
+        : selectedMessage.senderEmail;
+      selectedContactRef.current = otherEmail;
+      fetchThread(otherEmail);
+    } else {
+      selectedContactRef.current = null;
+      setThreadMessages([]);
+    }
+  }, [selectedMessage, user?.email]);
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [threadMessages]);
 
   const closePreview = () => {
     setPreviewFile((prev) => {
@@ -220,12 +259,25 @@ const Casbox = () => {
     try {
       messageSub = stompClient.subscribe('/user/queue/casbox/messages', (msg) => {
         const newMsg = JSON.parse(msg.body);
-        setMessages(prev => [newMsg, ...prev]);
+        setMessages(prev => {
+          if (prev.some(m => m.id === newMsg.id)) return prev;
+          return [newMsg, ...prev];
+        });
+        
+        // Append to threadMessages if it's the active contact
+        const activeContact = selectedContactRef.current;
+        if (activeContact && (newMsg.senderEmail === activeContact || newMsg.receiverEmail === activeContact)) {
+          setThreadMessages(prev => {
+            if (prev.some(m => m.id === newMsg.id)) return prev;
+            return [...prev, newMsg];
+          });
+        }
       });
 
       statusSub = stompClient.subscribe('/user/queue/casbox/status', (msg) => {
         const updatedMsg = JSON.parse(msg.body);
         setMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
+        setThreadMessages(prev => prev.map(m => m.id === updatedMsg.id ? updatedMsg : m));
       });
 
       casboxAPI.markAsDelivered().catch(console.error);
@@ -243,7 +295,12 @@ const Casbox = () => {
     try {
       if (!background) setLoading(true);
       const res = await casboxAPI.getAllMessages();
-      setMessages(res.data);
+      setMessages(res.data || []);
+      if (selectedContactRef.current) {
+        // Silently reload the active thread as well
+        const contactEmail = selectedContactRef.current;
+        casboxAPI.getThread(contactEmail).then(r => setThreadMessages(r.data || [])).catch(console.error);
+      }
     } catch (err) {
       if (!background) toast.error("Failed to fetch messages");
     } finally {
@@ -306,6 +363,67 @@ const Casbox = () => {
                          : activeTab === 'sent' ? sentMessages 
                          : requestMessages;
 
+  // Group messages by conversation contact
+  const conversationGroups = {};
+  filteredMessages.forEach(msg => {
+    const contact = msg.senderEmail === user?.email ? msg.receiverEmail : msg.senderEmail;
+    if (!contact) return;
+    if (!conversationGroups[contact]) {
+      conversationGroups[contact] = [];
+    }
+    conversationGroups[contact].push(msg);
+  });
+
+  const conversationList = Object.keys(conversationGroups).map(contact => {
+    const msgs = conversationGroups[contact];
+    const sorted = [...msgs].sort((a, b) => parseTimestamp(b.timestamp) - parseTimestamp(a.timestamp));
+    return {
+      contact,
+      latestMessage: sorted[0],
+      messages: sorted
+    };
+  }).sort((a, b) => parseTimestamp(b.latestMessage.timestamp) - parseTimestamp(a.latestMessage.timestamp));
+
+  const handleSendChatMessage = async (e) => {
+    if (e) e.preventDefault();
+    if (!newChatText.trim()) return;
+
+    try {
+      setSendingChat(true);
+      const otherEmail = selectedMessage.senderEmail === user?.email 
+        ? selectedMessage.receiverEmail 
+        : selectedMessage.senderEmail;
+      
+      const payload = {
+        receiverEmail: otherEmail,
+        subject: selectedMessage.subject || "Casbox Message",
+        body: newChatText.trim(),
+        attachmentsJson: null
+      };
+
+      const res = await casboxAPI.sendMessage(payload);
+      
+      setNewChatText("");
+      
+      const newMsg = res.data;
+      setThreadMessages(prev => {
+        if (prev.some(m => m.id === newMsg.id)) return prev;
+        return [...prev, newMsg];
+      });
+      
+      setMessages(prev => {
+        if (prev.some(m => m.id === newMsg.id)) return prev;
+        return [newMsg, ...prev];
+      });
+      
+    } catch (err) {
+      console.error("Failed to send Casbox message", err);
+      toast.error("Failed to send message");
+    } finally {
+      setSendingChat(false);
+    }
+  };
+
   const headerComponent = (
     <div className="flex flex-col shrink-0">
       <div className="p-4 sm:p-5 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between gap-2 shrink-0 bg-transparent">
@@ -358,64 +476,63 @@ const Casbox = () => {
 
   const listComponent = (
     <div className="flex-1 overflow-y-auto hidden-scrollbar relative bg-transparent">
-      {filteredMessages.length === 0 && !loading && (
+      {conversationList.length === 0 && !loading && (
         <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-600 opacity-80 pb-20">
           <MdSend className="text-4xl mb-3 opacity-30" />
-          <p className="text-sm font-medium">No {activeTab} messages yet</p>
+          <p className="text-sm font-medium">No {activeTab} chats yet</p>
         </div>
       )}
-      {filteredMessages.map((msg) => {
+      {conversationList.map((chat) => {
+        const msg = chat.latestMessage;
         const isMe = msg.senderEmail === user?.email;
-        const isSelected = selectedMessage?.id === msg.id;
+        const otherEmail = chat.contact;
+        const isSelected = selectedMessage && (
+          (selectedMessage.senderEmail === user?.email ? selectedMessage.receiverEmail : selectedMessage.senderEmail) === otherEmail
+        );
+        
+        const unreadCount = chat.messages.filter(m => m.receiverEmail === user?.email && m.status !== 'SEEN').length;
+
         return (
           <div
-            key={msg.id}
+            key={otherEmail}
             onClick={() => handleSelectMessage(msg)}
-            className={`group flex items-center px-4 sm:px-6 py-2.5 sm:py-3 border-b border-gray-100 dark:border-gray-800/50 hover:shadow-sm transition-all cursor-pointer relative bg-white dark:bg-[#121212] ${isSelected ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-gray-50/50 dark:hover:bg-gray-800/30'} ${!isMe && msg.status !== 'SEEN' ? 'font-bold' : ''}`}
+            className={`group flex items-center px-4 sm:px-6 py-3.5 border-b border-gray-100 dark:border-gray-800/50 hover:shadow-sm transition-all cursor-pointer relative bg-white dark:bg-[#121212] ${isSelected ? 'bg-blue-50/50 dark:bg-blue-900/20' : 'hover:bg-gray-50/50 dark:hover:bg-gray-800/30'} ${unreadCount > 0 ? 'font-bold' : ''}`}
           >
             {isSelected && (
               <div className="absolute left-0 top-0 bottom-0 w-1 rounded-r bg-blue-500"></div>
             )}
-            <div className="flex items-center gap-3 sm:gap-4 shrink-0 mr-3 sm:mr-4">
-              <input
-                type="checkbox"
-                className="w-4 h-4 rounded border-gray-300 dark:border-gray-600 text-blue-600 focus:ring-blue-500 cursor-pointer bg-transparent"
-                readOnly
-              />
-              <button className="text-gray-400 hover:text-yellow-400 transition-colors">
-                <MdStarBorder size={20} />
-              </button>
+            
+            <div className="shrink-0 mr-3.5">
+              <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">
+                {otherEmail.charAt(0).toUpperCase()}
+              </div>
             </div>
 
-            <div className="w-36 sm:w-44 md:w-48 shrink-0 truncate pr-2">
-              <span className={`text-sm ${!isMe && msg.status !== 'SEEN' ? 'font-extrabold text-gray-900 dark:text-white' : 'font-semibold text-gray-800 dark:text-gray-200'}`}>
-                {activeTab === 'sent' ? `To: ${msg.receiverEmail}` : (isMe ? "Me" : msg.senderEmail.split('@')[0])}
-              </span>
-            </div>
-
-            <div className="flex-1 min-w-0 flex items-baseline gap-2 truncate pr-4">
-              <span className={`text-sm truncate ${!isMe && msg.status !== 'SEEN' ? 'font-bold text-gray-900 dark:text-white' : 'font-medium text-gray-800 dark:text-gray-200'}`}>
-                {msg.subject || (activeTab === 'sent' ? "(No Subject)" : "")}
-              </span>
-              <span className="text-sm text-gray-400 dark:text-gray-500 truncate font-normal">
-                — {msg.body}
-              </span>
-            </div>
-
-            <div className="shrink-0 mx-2 flex items-center justify-center w-6">
-              {isMe && getStatusIcon(msg.status)}
-            </div>
-
-            <div className="shrink-0 w-20 sm:w-24 text-right">
-              <span className={`text-xs sm:text-sm ${!isMe && msg.status !== 'SEEN' ? 'font-bold text-gray-900 dark:text-white' : 'font-medium text-gray-500 dark:text-gray-400'}`}>
-                {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-              </span>
-            </div>
-
-            <div className="absolute right-4 sm:right-6 top-1/2 -translate-y-1/2 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-l from-white via-white to-transparent dark:from-[#121212] dark:via-[#121212] dark:to-transparent pl-8 pr-2 py-1">
-              <button className="p-1.5 rounded-full hover:bg-black/10 dark:hover:bg-white/10 text-gray-500 transition-colors">
-                <MdDeleteOutline size={18} />
-              </button>
+            <div className="flex-1 min-w-0 flex flex-col gap-0.5">
+              <div className="flex items-center justify-between">
+                <span className={`text-sm truncate ${unreadCount > 0 ? 'font-extrabold text-gray-900 dark:text-white' : 'font-semibold text-gray-800 dark:text-gray-200'}`}>
+                  {otherEmail.split('@')[0]}
+                </span>
+                <span className={`text-xs ${unreadCount > 0 ? 'font-bold text-gray-900 dark:text-white' : 'font-medium text-gray-400 dark:text-gray-500'}`}>
+                  {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              </div>
+              
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-xs text-gray-500 dark:text-gray-400 truncate max-w-[200px] font-normal">
+                  {isMe ? "You: " : ""}{msg.body}
+                </span>
+                
+                {unreadCount > 0 ? (
+                  <span className="bg-blue-500 text-white font-bold text-[10px] px-1.5 py-0.5 rounded-full shrink-0">
+                    {unreadCount}
+                  </span>
+                ) : isMe ? (
+                  <span className="shrink-0">
+                    {getStatusIcon(msg.status)}
+                  </span>
+                ) : null}
+              </div>
             </div>
           </div>
         );
@@ -461,163 +578,179 @@ const Casbox = () => {
     }
   };
 
-  const detailsComponent = selectedMessage ? (
-    <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-y-auto hidden-scrollbar p-6 sm:p-8">
-      {/* Toolbar */}
-      <div className="flex items-center justify-between mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
-        <div className="flex items-center gap-3">
-          <button
-            onClick={() => setSelectedMessage(null)}
-            className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
-            title="Close"
-          >
-            <MdClose size={22} className="hidden md:block" />
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
-          </button>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-            {selectedMessage.subject || "Casbox Message"}
-          </h2>
-        </div>
-      </div>
-
-      <div className="flex items-center gap-4 mb-8">
-        <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-lg">
-          {selectedMessage.senderEmail.charAt(0).toUpperCase()}
-        </div>
-        <div className="flex-1">
-          <div className="flex items-baseline gap-2">
-            <span className="font-bold text-gray-900 dark:text-gray-100">{selectedMessage.senderEmail}</span>
-          </div>
-          <div className="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
-            To: {selectedMessage.receiverEmail}
-          </div>
-        </div>
-        <div className="text-sm text-gray-500 dark:text-gray-400 shrink-0">
-          {parseTimestamp(selectedMessage.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-        </div>
-      </div>
-      <div className="text-[15px] leading-relaxed text-gray-800 dark:text-gray-200 whitespace-pre-wrap">
-        {(() => {
-          if (!selectedMessage.body) return null;
-          const urlRegex = /(https?:\/\/[^\s]+)/g;
-          return selectedMessage.body.split(urlRegex).map((part, index) => {
-            if (part.match(urlRegex)) {
-              return (
-                <a
-                  key={index}
-                  href={part}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
-                  onClick={(e) => e.stopPropagation()}
+  const renderBubbleAttachments = (msg) => {
+    if (!msg.attachmentsJson) return null;
+    try {
+      const files = JSON.parse(msg.attachmentsJson);
+      if (!files || files.length === 0) return null;
+      return (
+        <div className="mt-2 space-y-1.5 border-t border-black/5 dark:border-white/5 pt-2">
+          {files.map((fileObj, i) => {
+            const fileName = fileObj.fileName || fileObj.name || (typeof fileObj === 'string' ? fileObj.split('/').pop() : "Attachment");
+            const fileInfo = getFileIcon(fileName);
+            return (
+              <div 
+                key={i} 
+                className="flex items-center justify-between gap-3 p-1.5 rounded-lg bg-black/5 dark:bg-white/5 text-[11px]"
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className="text-base shrink-0">{fileInfo.icon}</span>
+                  <span className="font-medium truncate max-w-[120px]">{fileName}</span>
+                </div>
+                <button 
+                  onClick={(e) => { e.stopPropagation(); handleDownloadAttachment(fileObj); }}
+                  className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/5 text-current cursor-pointer shrink-0"
                 >
-                  {part}
-                </a>
-              );
-            }
-            return <React.Fragment key={index}>{part}</React.Fragment>;
-          });
-        })()}
-      </div>
+                  <MdFileDownload size={14} />
+                </button>
+              </div>
+            );
+          })}
+        </div>
+      );
+    } catch(e) {
+      return null;
+    }
+  };
 
-      {selectedMessage.attachmentsJson && (
-        <div className="mt-8 border-t border-gray-100 dark:border-gray-800 pt-6">
-          <p className="text-xs font-bold mb-4 text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-            Attachments
-          </p>
-          <div className="flex flex-wrap gap-4">
-            {JSON.parse(selectedMessage.attachmentsJson).map((fileObj, i) => {
-              const fileName = fileObj.fileName || fileObj.name || (typeof fileObj === 'string' ? fileObj.split('/').pop() : "Attachment");
-              const fileInfo = getFileIcon(fileName);
+  const getOtherUserEmail = (msg) => {
+    if (!msg) return "";
+    return msg.senderEmail === user?.email ? msg.receiverEmail : msg.senderEmail;
+  };
+
+  const detailsComponent = selectedMessage ? (() => {
+    const otherUserEmail = getOtherUserEmail(selectedMessage);
+    const isContactRequest = !knownContacts.has(otherUserEmail) && !acceptedContacts.includes(otherUserEmail);
+    const sortedThread = [...threadMessages].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
+
+    return (
+      <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden">
+        {/* Header */}
+        <div 
+          className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0"
+          style={{ borderColor: theme?.border || '#e2e8f0' }}
+        >
+          <div className="flex items-center gap-3">
+            <button
+              onClick={() => setSelectedMessage(null)}
+              className="p-2 -ml-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"
+              title="Close"
+            >
+              <MdClose size={22} className="hidden md:block" />
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 md:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg>
+            </button>
+            
+            <div className="w-10 h-10 rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 flex items-center justify-center font-bold text-base">
+              {otherUserEmail.charAt(0).toUpperCase()}
+            </div>
+            
+            <div className="flex flex-col">
+              <span className="font-bold text-sm text-gray-900 dark:text-gray-100">{otherUserEmail.split('@')[0]}</span>
+              <span className="text-[10px] text-gray-400 dark:text-gray-500 font-medium">{otherUserEmail}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Message Thread Panel */}
+        <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col hidden-scrollbar">
+          {loadingThread && threadMessages.length === 0 ? (
+            <div className="flex-1 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400">
+              Loading chat history...
+            </div>
+          ) : sortedThread.length === 0 ? (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 opacity-60">
+              <MdSend className="text-3xl text-gray-300 dark:text-gray-600 mb-2" />
+              <span className="text-xs font-semibold">No messages in this chat yet</span>
+            </div>
+          ) : (
+            sortedThread.map((msg, index) => {
+              const isMe = msg.senderEmail === user?.email;
+              const senderLabel = isMe ? "You" : msg.senderEmail.split('@')[0];
+              
               return (
-                <div
-                  key={i}
-                  className="w-[180px] h-[130px] rounded-xl border overflow-hidden flex flex-col hover:shadow-md transition-all relative shadow-sm bg-black/[0.01] dark:bg-white/[0.01] hover:bg-black/[0.02] dark:hover:bg-white/[0.02]"
-                  style={{ borderColor: theme?.border || '#eee' }}
-                >
-                  <div 
-                    className="h-[85px] w-full flex flex-col items-center justify-center bg-black/[0.03] dark:bg-white/[0.03] border-b relative overflow-hidden"
-                    style={{ borderColor: theme?.border || '#eee' }}
-                  >
-                    <span className="text-3xl filter drop-shadow-sm select-none">{fileInfo.icon}</span>
-                    <span 
-                      className="text-[9px] font-extrabold uppercase tracking-wider mt-1.5 px-2 py-0.5 rounded-full select-none"
-                      style={{ backgroundColor: `${fileInfo.color}15`, color: fileInfo.color }}
-                    >
-                      {fileInfo.name}
+                <div key={msg.id || index} className={`flex flex-col max-w-[70%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
+                  <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
+                    <span className="text-[9px] font-bold">
+                      {senderLabel}
+                    </span>
+                    <span className="text-[8px]">
+                      {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </span>
                   </div>
-
-                  <div className="p-2 flex items-center justify-between gap-1 flex-1 min-w-0">
-                    <div className="flex flex-col min-w-0 flex-1">
-                      <span 
-                        className="text-[11px] font-semibold truncate select-all text-left" 
-                        style={{ color: theme?.text || '#333' }}
-                        title={fileName}
-                      >
-                        {fileName}
-                      </span>
-                      <span className="text-[9px] opacity-50 font-medium select-none truncate text-left">
-                        {fileInfo.name} File
-                      </span>
-                    </div>
-                    
-                    <div className="flex items-center gap-0.5 shrink-0">
-                      <button
-                        onClick={() => handleDownloadAttachment(fileObj)}
-                        className="p-1 rounded hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 cursor-pointer"
-                        title="Download file"
-                      >
-                        <MdFileDownload size={15} />
-                      </button>
-                    </div>
+                  
+                  <div 
+                    className={`px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
+                    style={{
+                      backgroundColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#1e1e1e' : '#f3f4f6'),
+                      color: isMe ? '#ffffff' : (theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'),
+                      borderColor: isMe ? 'transparent' : (theme?.border || '#e2e8f0')
+                    }}
+                  >
+                    <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.body}</p>
+                    {renderBubbleAttachments(msg)}
                   </div>
+                  
+                  {isMe && index === sortedThread.length - 1 && (
+                    <div className="mt-1 mr-1">
+                      {getStatusIcon(msg.status)}
+                    </div>
+                  )}
                 </div>
               );
-            })}
-          </div>
+            })
+          )}
+          <div ref={chatEndRef} />
         </div>
-      )}
 
-      {selectedMessage.receiverEmail === user?.email && (
-        <div
-          className="flex items-center py-4 mt-8 border-t shrink-0"
-          style={{ borderColor: theme?.border || '#eee' }}
+        {/* Footer Accept Request or Message Input */}
+        <div 
+          className="p-4 border-t bg-white dark:bg-[#121212] shrink-0"
+          style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
-          {(!knownContacts.has(selectedMessage.senderEmail) && !acceptedContacts.includes(selectedMessage.senderEmail)) ? (
+          {isContactRequest && selectedMessage.receiverEmail === user?.email ? (
             <div className="flex items-center gap-3 w-full">
               <button
-                onClick={() => handleAcceptRequest(selectedMessage.senderEmail)}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
-                style={{ background: theme.accent || "#135bec" }}
+                onClick={() => handleAcceptRequest(otherUserEmail)}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer border-0"
+                style={{ background: theme?.accent || "#135bec" }}
               >
                 <MdCheck size={18} /> Accept
               </button>
               <button
-                onClick={() => handleBlockRequest(selectedMessage.senderEmail)}
-                className="flex-1 flex items-center justify-center gap-2 px-6 py-2 rounded-full font-semibold shadow-sm hover:shadow transition-all text-sm cursor-pointer text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 border border-red-100 dark:border-red-900/30"
+                onClick={() => handleBlockRequest(otherUserEmail)}
+                className="flex-1 flex items-center justify-center gap-2 px-6 py-2.5 rounded-full font-semibold shadow-sm hover:shadow transition-all text-sm cursor-pointer text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 border border-red-100 dark:border-red-900/30"
               >
                 <MdClose size={18} /> Block
               </button>
             </div>
           ) : (
-            <button
-              onClick={() => openCompose({ 
-                mode: 'casbox', 
-                replyTo: selectedMessage.senderEmail,
-                subject: selectedMessage.subject ? (selectedMessage.subject.toLowerCase().startsWith('re:') ? selectedMessage.subject : `Re: ${selectedMessage.subject}`) : '',
-                originalBody: selectedMessage.body
-              })}
-              className="flex items-center justify-center gap-2 px-6 py-2 rounded-full text-white font-semibold shadow-sm hover:shadow hover:-translate-y-0.5 transition-all text-sm cursor-pointer"
-              style={{ background: theme.accent || "#135bec" }}
+            <form 
+              onSubmit={handleSendChatMessage}
+              className="flex items-center gap-3 bg-transparent w-full"
             >
-              <MdReply size={18} /> Reply
-            </button>
+              <input 
+                type="text" 
+                placeholder="Type a message..."
+                value={newChatText}
+                onChange={(e) => setNewChatText(e.target.value)}
+                className="flex-1 px-4 py-2.5 rounded-full text-sm border focus:outline-none focus:ring-1 focus:ring-blue-500 bg-transparent"
+                style={{ borderColor: theme?.border || '#e2e8f0', color: theme?.text || '#000' }}
+                disabled={sendingChat}
+              />
+              <button
+                type="submit"
+                disabled={sendingChat || !newChatText.trim()}
+                className="p-2.5 rounded-full text-white flex items-center justify-center transition-all hover:scale-105 active:scale-95 disabled:opacity-50 cursor-pointer shadow-sm shrink-0 border-0"
+                style={{ backgroundColor: theme?.accent || "#135bec" }}
+              >
+                <MdSend size={18} />
+              </button>
+            </form>
           )}
         </div>
-      )}
-    </div>
-  ) : (
+      </div>
+    );
+  })() : (
     <div className="flex flex-col items-center justify-center h-full text-gray-400 dark:text-gray-600 bg-gray-50/30 dark:bg-[#1e1e1e]/30 border-l border-gray-100 dark:border-gray-800">
       <MdSend className="text-6xl mb-4 opacity-50" />
       <p className="text-base font-medium">Select a message to read</p>
