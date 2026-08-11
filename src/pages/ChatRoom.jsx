@@ -26,9 +26,6 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useTheme } from "../context/ThemeContext";
 import toast from "react-hot-toast";
-import ReactQuill from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import { DEFAULT_TEMPLATES } from "./Templates";
 
 
 const ChatRoom = () => {
@@ -279,68 +276,16 @@ const ChatRoom = () => {
     }
   };
 
-  const formatBodyAsHtml = (body) => {
-    if (!body) return "";
-    if (/<[a-z][\s\S]*>/i.test(body)) {
-      return body;
-    }
-    return body.split("\n").map(line => {
-      if (!line.trim()) return "<p><br></p>";
-      return `<p>${line}</p>`;
-    }).join("");
-  };
-
   const fetchTemplates = async () => {
-    const defaultMapped = DEFAULT_TEMPLATES.map(t => ({
-      ...t,
-      name: t.title || t.name,
-      isDefault: true
-    }));
-
-    let customMapped = [];
-    if (user?.email) {
-      try {
-        const res = await templateAPI.getTemplates(user.email);
-        const dataList = res.data?.data || res.data || [];
-        customMapped = dataList.map(t => ({
-          ...t,
-          name: t.title || t.name,
-          isDefault: false
-        }));
-      } catch (err) {
-        console.error("Error loading templates from backend:", err);
-        // Fallback to local storage
-        const saved = localStorage.getItem("bnx_mail_custom_templates");
-        if (saved) {
-          try {
-            const parsed = JSON.parse(saved);
-            customMapped = parsed.map(t => ({
-              ...t,
-              name: t.title || t.name,
-              isDefault: false
-            }));
-          } catch (e) {
-            console.error("Error parsing templates from local storage:", e);
-          }
-        }
+    if (!user?.email) return;
+    try {
+      const res = await templateAPI.getTemplates(user.email);
+      if (res.data?.success) {
+        setTemplates(res.data.data || []);
       }
-    } else {
-      const saved = localStorage.getItem("bnx_mail_custom_templates");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          customMapped = parsed.map(t => ({
-            ...t,
-            name: t.title || t.name,
-            isDefault: false
-          }));
-        } catch (e) {
-          console.error("Error parsing templates from local storage:", e);
-        }
-      }
+    } catch (err) {
+      console.error("Error loading templates:", err);
     }
-
-    setTemplates([...defaultMapped, ...customMapped]);
   };
 
 
@@ -453,17 +398,10 @@ const ChatRoom = () => {
     }
   };
 
-  // Helper to check if a Quill HTML value is empty
-  const isEmptyHtml = (html) => {
-    if (!html) return true;
-    const clean = html.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, '').trim();
-    return clean === '';
-  };
-
   // Broadcast Email Action
   const handleSendBroadcast = async (e) => {
     e.preventDefault();
-    if (!emailSubject.trim() || isEmptyHtml(emailBody)) {
+    if (!emailSubject.trim() || !emailBody.trim()) {
       toast.error("Subject and body are required");
       return;
     }
@@ -495,14 +433,13 @@ const ChatRoom = () => {
   const handleSelectTemplate = (templateId) => {
     setSelectedTemplate(templateId);
     if (!templateId) {
-      setEmailSubject("");
       setEmailBody("");
       return;
     }
     const selected = templates.find(t => String(t.id) === String(templateId));
     if (selected) {
-      setEmailSubject(selected.subject || selected.title || selected.name || "");
-      setEmailBody(formatBodyAsHtml(selected.body || ""));
+      setEmailSubject(selected.name || "");
+      setEmailBody(selected.body || "");
     }
   };
 
@@ -628,10 +565,9 @@ const ChatRoom = () => {
                         <h4 className="font-bold text-sm text-gray-800 dark:text-gray-200 leading-tight">
                           {cleanSub}
                         </h4>
-                      <div 
-                        className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300 break-words border-t border-gray-100 dark:border-gray-800/60 pt-2"
-                        dangerouslySetInnerHTML={{ __html: b.body || b.textPlain || "(Empty Content)" }}
-                      />
+                      <div className="mt-1 text-xs leading-relaxed text-gray-600 dark:text-gray-300 break-words whitespace-pre-line border-t border-gray-100 dark:border-gray-800/60 pt-2">
+                        {b.body || b.textPlain || "(Empty Content)"}
+                      </div>
                       
                       {/* Attachments Section */}
                       {(() => {
@@ -922,14 +858,14 @@ const ChatRoom = () => {
                   className="flex flex-col border rounded-xl overflow-hidden transition-all bg-white dark:bg-gray-900"
                   style={{ borderColor: theme.border }}
                 >
-                  {/* ReactQuill Editor */}
-                  <ReactQuill
-                    theme="snow"
-                    modules={{ toolbar: false }}
-                    value={emailBody}
-                    onChange={(content) => setEmailBody(content)}
+                  {/* Textarea */}
+                  <textarea
                     placeholder="Write email content here..."
-                    className="w-full text-gray-900 dark:text-white custom-broadcast-quill"
+                    value={emailBody}
+                    onChange={(e) => setEmailBody(e.target.value)}
+                    className="w-full p-3 bg-transparent text-gray-900 dark:text-white placeholder-gray-400 outline-none resize-none text-sm"
+                    rows={8}
+                    required
                   />
 
                   {/* Selected Attachments Chips */}
