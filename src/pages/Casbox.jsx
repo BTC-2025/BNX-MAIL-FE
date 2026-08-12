@@ -733,7 +733,7 @@ const Casbox = () => {
               const senderLabel = otherUserEmail ? otherUserEmail.split('@')[0] : (msg.senderEmail ? msg.senderEmail.split('@')[0] : "");
 
               return (
-                <div key={msg.id || index} className={`flex flex-col max-w-[70%] ${isMe ? 'self-end items-end' : 'self-start items-start'}`}>
+                <div key={msg.id || index} className="flex flex-col max-w-[70%] self-start items-start">
                   <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
                     <span className="text-[9px] font-bold">
                       {senderLabel}

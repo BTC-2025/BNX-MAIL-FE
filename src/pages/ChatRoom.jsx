@@ -681,8 +681,8 @@ const ChatRoom = () => {
               messages.map((msg, idx) => {
                 const isMe = msg.sender === user.email;
                 return (
-                  <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
-                    <div className={`max-w-[85%] sm:max-w-[75%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
+                  <div key={msg.id || idx} className="flex justify-start animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <div className="max-w-[85%] sm:max-w-[75%] flex flex-col items-start">
                       <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
                         {chatName}
                       </span>
