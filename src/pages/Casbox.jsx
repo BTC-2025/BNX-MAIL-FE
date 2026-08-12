@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useMail } from "../context/MailContext";
 import { casboxAPI, api, userAPI } from "../services/api";
-import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock, MdArrowBack, MdArchive, MdAccessTime, MdLabel, MdDelete, MdPrint, MdMoreVert } from "react-icons/md";
+import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock, MdArrowBack, MdArchive, MdAccessTime, MdLabel, MdDelete, MdMoreVert } from "react-icons/md";
 import toast from "react-hot-toast";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 import logo from "../assets/bnx-remove.png";
@@ -649,10 +649,10 @@ const Casbox = () => {
     const sortedThread = [...threadMessages].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
 
     return (
-      <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden printable-conversation">
+      <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden">
         {/* Action Toolbar */}
         <div
-          className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white dark:bg-[#121212] printable-conversation-no-print"
+          className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white dark:bg-[#121212]"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           <div className="flex items-center gap-1 sm:gap-2">
@@ -691,13 +691,6 @@ const Casbox = () => {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2">
-            <button
-              onClick={() => window.print()}
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-              title="Print"
-            >
-              <MdPrint size={20} />
-            </button>
             <div className="relative" ref={moreMenuRef}>
               <button
                 onClick={() => setShowMoreMenu(prev => !prev)}
@@ -749,15 +742,9 @@ const Casbox = () => {
           </div>
         </div>
 
-        {/* Print-Only Header */}
-        <div className="hidden print:block border-b pb-2 mb-4 px-6 pt-6 shrink-0">
-          <h1 className="text-xl font-bold">{otherUserEmail.split('@')[0]}</h1>
-          <p className="text-xs text-gray-500">{otherUserEmail}</p>
-        </div>
-
         {/* Header */}
         <div
-          className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0 printable-conversation-no-print"
+          className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           <div className="flex items-center gap-3">
@@ -834,7 +821,7 @@ const Casbox = () => {
 
         {/* Footer Accept Request or Message Input */}
         <div
-          className="p-4 border-t bg-white dark:bg-[#121212] shrink-0 printable-conversation-no-print"
+          className="p-4 border-t bg-white dark:bg-[#121212] shrink-0"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           {isContactRequest && selectedMessage.receiverEmail === user?.email ? (
@@ -887,14 +874,9 @@ const Casbox = () => {
     </div>
   );
 
-  const printSubject = selectedMessage?.subject || "Casbox Message";
-  const printContactEmail = selectedMessage ? getOtherUserEmail(selectedMessage) : "";
-  const printContactName = printContactEmail ? printContactEmail.split('@')[0] : "";
-  const printSortedThread = selectedMessage ? [...threadMessages].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp)) : [];
-
   return (
     <>
-      <div className="flex flex-col h-full w-full bg-white dark:bg-[#121212] relative overflow-hidden print:hidden">
+      <div className="flex flex-col h-full w-full bg-white dark:bg-[#121212] relative overflow-hidden">
         <ReadingPaneLayout
           mode={readingPaneMode || 'no_split'}
           hasSelection={!!selectedMessage}
@@ -1005,74 +987,6 @@ const Casbox = () => {
           </div>
         )}
       </div>
-
-      {selectedMessage && (
-        <div className="hidden print:block w-full min-h-screen bg-white text-black p-10 font-sans printable-conversation" style={{ maxWidth: "800px", margin: "0 auto" }}>
-          {/* Logo & Header */}
-          <div className="grid grid-cols-3 items-center border-b border-gray-300 pb-3 mb-6">
-            <div className="flex justify-start">
-              {/* Left spacer */}
-            </div>
-            <div className="flex items-center justify-center gap-2">
-              <img src={logo} alt="BNX Mail" className="h-8 object-contain" />
-              <span className="text-xl font-bold tracking-tight text-[#195bac]">
-                BNX<span className="font-normal text-slate-800">mail</span>
-              </span>
-            </div>
-            <div className="text-right text-sm text-gray-700 font-medium">
-              {user?.email || "user@bnxmail.com"}
-            </div>
-          </div>
-
-          {/* Subject & Meta */}
-          <div className="mb-4">
-            <h1 className="text-2xl font-extrabold text-gray-900 mb-4 tracking-tight leading-snug">
-              {printSubject}
-            </h1>
-            <div className="text-sm text-gray-600 space-y-1.5 font-medium">
-              <p>
-                <span className="text-gray-400 font-normal">From:</span>{" "}
-                <span className="text-gray-900 font-semibold">{printContactName}</span>{" "}
-                <span className="text-gray-500 font-normal">&lt;{printContactEmail}&gt;</span>
-              </p>
-              <p>
-                <span className="text-gray-400 font-normal">Date:</span>{" "}
-                <span className="text-gray-900 font-semibold">
-                  {parseTimestamp(selectedMessage.timestamp).toLocaleString([], { dateStyle: 'full', timeStyle: 'short' })}
-                </span>
-              </p>
-            </div>
-          </div>
-
-          <hr className="border-gray-300 mb-6" />
-
-          {/* Conversation Content */}
-          <div className="space-y-6">
-            {printSortedThread.map((msg, index) => {
-              const isUserSender = msg.senderEmail === user?.email;
-              const senderDisplayName = isUserSender ? (user?.email?.split('@')[0] || "You") : printContactName;
-              return (
-                <div key={msg.id || index} className="space-y-2 pb-6 border-b border-gray-200 last:border-b-0 break-inside-avoid">
-                  <div className="flex justify-between items-center text-[11px] text-gray-400 font-medium">
-                    <span className="font-bold text-gray-700 uppercase tracking-wider">{senderDisplayName}</span>
-                    <span>
-                      {parseTimestamp(msg.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
-                    </span>
-                  </div>
-                  <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed break-words font-normal">
-                    {msg.body}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Footer */}
-          <div className="mt-16 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 font-medium tracking-wide uppercase">
-            Printed from BNX Mail Casbox
-          </div>
-        </div>
-      )}
     </>
   );
 };
