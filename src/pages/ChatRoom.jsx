@@ -710,7 +710,7 @@ const ChatRoom = () => {
                   <div key={msg.id || idx} className={`flex ${isMe ? 'justify-end' : 'justify-start'} animate-in fade-in slide-in-from-bottom-2 duration-300`}>
                     <div className={`max-w-[85%] sm:max-w-[75%] flex flex-col ${isMe ? 'items-end' : 'items-start'}`}>
                       <span className="text-[10px] font-bold mb-1 ml-2 uppercase opacity-60" style={{ color: theme.subText }}>
-                        {isMe ? (user.username || user.email.split('@')[0]) : msg.sender.split('@')[0]}
+                        {chatName}
                       </span>
                       <div 
                         className={`px-4 py-2.5 rounded-full shadow-sm relative ${
