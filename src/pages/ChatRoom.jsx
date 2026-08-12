@@ -51,6 +51,29 @@ const ChatRoom = () => {
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const [isChatStarred, setIsChatStarred] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
+        setShowMoreMenu(false);
+      }
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowMoreMenu(false);
+      }
+    };
+    if (showMoreMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showMoreMenu]);
 
   // Layout States (Info Modal, Compose Modal, Collapsed Chat)
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -510,7 +533,7 @@ const ChatRoom = () => {
     <div className="flex flex-col h-full bg-transparent overflow-hidden">
       {/* Action Toolbar */}
       <div
-        className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md"
+        className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md printable-conversation-no-print"
         style={{ borderColor: theme.border || 'rgba(229,231,235,0.5)' }}
       >
         <div className="flex items-center gap-1 sm:gap-2">
@@ -556,17 +579,54 @@ const ChatRoom = () => {
 
         <div className="flex items-center gap-1 sm:gap-2">
           <button
+            onClick={() => window.print()}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
             title="Print"
           >
             <MdPrint size={20} />
           </button>
-          <button
-            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-            title="More"
-          >
-            <MdMoreVert size={20} />
-          </button>
+          <div className="relative" ref={moreMenuRef}>
+            <button
+              onClick={() => setShowMoreMenu(prev => !prev)}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              title="More"
+            >
+              <MdMoreVert size={20} />
+            </button>
+            {showMoreMenu && (
+              <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                <button
+                  onClick={() => {
+                    setIsChatStarred(prev => !prev);
+                    setShowMoreMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                >
+                  {isChatStarred ? "Unstar Conversation" : "Star Conversation"}
+                </button>
+                <button
+                  onClick={() => {
+                    setIsChatPaneOpen(prev => !prev);
+                    setShowMoreMenu(false);
+                  }}
+                  className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                >
+                  {isChatPaneOpen ? "Hide Comments Pane" : "Show Comments Pane"}
+                </button>
+                {chat?.type === 'GROUP' && (
+                  <button
+                    onClick={() => {
+                      setShowInfoModal(true);
+                      setShowMoreMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                  >
+                    View Group Info
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
           <button
             onClick={() => setIsChatStarred(!isChatStarred)}
             className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
@@ -579,7 +639,7 @@ const ChatRoom = () => {
       </div>
 
       {/* HEADER */}
-      <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-10">
+      <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-10 printable-conversation-no-print">
         <div className="flex items-center gap-3">
           <button 
             onClick={() => {
@@ -642,7 +702,7 @@ const ChatRoom = () => {
         
         {/* Left Side: Chat Room (40% width for GROUP, full width for DIRECT) */}
         <div 
-          className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-800/50"
+          className="flex flex-col h-full overflow-hidden transition-all duration-300 ease-in-out bg-white/60 dark:bg-gray-900/60 rounded-2xl shadow-sm border border-gray-200/50 dark:border-gray-800/50 printable-conversation"
           style={{ 
             width: chat?.type === 'GROUP' ? (isChatPaneOpen ? '40%' : '0%') : '100%',
             opacity: chat?.type === 'GROUP' ? (isChatPaneOpen ? 1 : 0) : 1,
@@ -650,9 +710,14 @@ const ChatRoom = () => {
             borderWidth: chat?.type === 'GROUP' && !isChatPaneOpen ? '0px' : '1px'
           }}
         >
+          {/* Print-Only Header */}
+          <div className="hidden print:block border-b pb-2 mb-4 px-6 pt-6 shrink-0">
+            <h1 className="text-xl font-bold">{chatName}</h1>
+            {chatPartner && <p className="text-xs text-gray-500">{chatPartner}</p>}
+          </div>
           {/* Header: Instant Chat Messages Title (Only when split) */}
           {chat?.type === 'GROUP' && (
-            <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0">
+            <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-black/[0.02] dark:bg-white/[0.02] shrink-0 printable-conversation-no-print">
               <h3 className="text-sm font-bold flex items-center gap-1.5" style={{ color: theme.text }}>
                 <MdChat size={18} className="text-primary" style={{ color: theme.accent }} /> Comments
               </h3>
@@ -749,7 +814,7 @@ const ChatRoom = () => {
           </div>
 
           {/* INPUT AREA */}
-          <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0">
+          <div className="p-4 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md border-t border-gray-200/50 dark:border-gray-800/50 shrink-0 printable-conversation-no-print">
             {/* Attachments Preview Area */}
             {selectedAttachments.length > 0 && (
               <div className="flex flex-wrap gap-2 mb-3 max-w-5xl mx-auto px-12">

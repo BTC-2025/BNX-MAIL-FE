@@ -343,4 +343,46 @@ aside.sidebar-collapsed hr {
 .dark .custom-broadcast-editable:empty::before {
   color: #6b7280; /* gray-500 */
 }
+
+/* Print Styling for Conversations */
+@media print {
+  body * {
+    visibility: hidden !important;
+  }
+  
+  .printable-conversation,
+  .printable-conversation * {
+    visibility: visible !important;
+  }
+
+  .printable-conversation {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: auto !important;
+    overflow: visible !important;
+    display: block !important;
+    background: white !important;
+    color: black !important;
+  }
+
+  .printable-conversation .flex-1.overflow-y-auto,
+  .printable-conversation div[ref] {
+    overflow: visible !important;
+    height: auto !important;
+    max-height: none !important;
+    display: block !important;
+  }
+
+  .printable-conversation-no-print,
+  .printable-conversation-no-print * {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    border: none !important;
+  }
+}
 

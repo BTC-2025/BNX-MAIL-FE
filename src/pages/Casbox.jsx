@@ -89,6 +89,29 @@ const Casbox = () => {
   const [newChatText, setNewChatText] = useState("");
   const [sendingChat, setSendingChat] = useState(false);
   const [isChatStarred, setIsChatStarred] = useState(false);
+  const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const moreMenuRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (moreMenuRef.current && !moreMenuRef.current.contains(event.target)) {
+        setShowMoreMenu(false);
+      }
+    };
+    const handleKeyDown = (event) => {
+      if (event.key === "Escape") {
+        setShowMoreMenu(false);
+      }
+    };
+    if (showMoreMenu) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("keydown", handleKeyDown);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [showMoreMenu]);
 
   const chatEndRef = React.useRef(null);
   const selectedContactRef = React.useRef(null);
@@ -625,10 +648,10 @@ const Casbox = () => {
     const sortedThread = [...threadMessages].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp));
 
     return (
-      <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden">
+      <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden printable-conversation">
         {/* Action Toolbar */}
         <div
-          className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white dark:bg-[#121212]"
+          className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white dark:bg-[#121212] printable-conversation-no-print"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           <div className="flex items-center gap-1 sm:gap-2">
@@ -668,17 +691,52 @@ const Casbox = () => {
 
           <div className="flex items-center gap-1 sm:gap-2">
             <button
+              onClick={() => window.print()}
               className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
               title="Print"
             >
               <MdPrint size={20} />
             </button>
-            <button
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
-              title="More"
-            >
-              <MdMoreVert size={20} />
-            </button>
+            <div className="relative" ref={moreMenuRef}>
+              <button
+                onClick={() => setShowMoreMenu(prev => !prev)}
+                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+                title="More"
+              >
+                <MdMoreVert size={20} />
+              </button>
+              {showMoreMenu && (
+                <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-xl shadow-xl z-50 py-1.5 animate-in fade-in slide-in-from-top-1 duration-200">
+                  <button
+                    onClick={() => {
+                      setIsChatStarred(prev => !prev);
+                      setShowMoreMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                  >
+                    {isChatStarred ? "Unstar Conversation" : "Star Conversation"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      handleBlockRequest(otherUserEmail);
+                      setShowMoreMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-red-600 hover:bg-red-50 dark:hover:bg-red-950/20 flex items-center gap-2"
+                  >
+                    Block Contact
+                  </button>
+                  <button
+                    onClick={() => {
+                      setShowBlockedModal(true);
+                      setShowMoreMenu(false);
+                    }}
+                    className="w-full text-left px-4 py-2 text-xs font-semibold text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-gray-700/50 flex items-center gap-2"
+                  >
+                    View Blocked Users
+                  </button>
+                </div>
+              )}
+            </div>
             <button
               onClick={() => setIsChatStarred(!isChatStarred)}
               className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
@@ -690,9 +748,15 @@ const Casbox = () => {
           </div>
         </div>
 
+        {/* Print-Only Header */}
+        <div className="hidden print:block border-b pb-2 mb-4 px-6 pt-6 shrink-0">
+          <h1 className="text-xl font-bold">{otherUserEmail.split('@')[0]}</h1>
+          <p className="text-xs text-gray-500">{otherUserEmail}</p>
+        </div>
+
         {/* Header */}
         <div
-          className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0"
+          className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0 printable-conversation-no-print"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           <div className="flex items-center gap-3">
@@ -769,7 +833,7 @@ const Casbox = () => {
 
         {/* Footer Accept Request or Message Input */}
         <div
-          className="p-4 border-t bg-white dark:bg-[#121212] shrink-0"
+          className="p-4 border-t bg-white dark:bg-[#121212] shrink-0 printable-conversation-no-print"
           style={{ borderColor: theme?.border || '#e2e8f0' }}
         >
           {isContactRequest && selectedMessage.receiverEmail === user?.email ? (
