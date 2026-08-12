@@ -650,8 +650,9 @@ const Settings = () => {
         {activeTab === "composing" && (
           <Section title="General & Composing Settings" theme={theme}>
             <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-6 max-w-2xl">
-              {/* Signatures */}
-              <div className="flex flex-col gap-4">
+              {/* Composing Section Wrapper - Shifted slightly left */}
+              <div className="relative -left-2 flex flex-col gap-4">
+                {/* Signatures */}
                 <div className="flex items-center justify-between">
                   <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signatures</label>
                   <button 
@@ -732,41 +733,44 @@ const Settings = () => {
                 <span className="text-xs text-gray-500 mt-2">The default signature will be automatically inserted into new compose frames.</span>
               </div>
 
-              {/* Undo Send */}
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Undo Send Delay</label>
-                <select 
-                  value={undoSendDelay} 
-                  onChange={e => setUndoSendDelay(Number(e.target.value))}
-                  className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
-                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                >
-                  <option value={0}>Disabled (Send instantly)</option>
-                  <option value={5}>5 seconds</option>
-                  <option value={10}>10 seconds</option>
-                  <option value={20}>20 seconds</option>
-                  <option value={30}>30 seconds</option>
-                </select>
-                <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
-              </div>
-
-              {/* Smart Filters */}
-              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Smart Filters</h4>
+              {/* General Section Wrapper - Shifted slightly up */}
+              <div className="relative -top-2 flex flex-col gap-6">
+                {/* Undo Send */}
                 <div className="flex flex-col gap-2">
-                  <div className="flex items-center justify-between py-2.5">
-                    <div className="flex flex-col gap-1 pr-4">
-                      <span className="text-sm font-medium" style={{ color: theme.text }}>Bulk Mail</span>
-                      <span className="text-xs text-gray-500">Automatically organize bulk and mass-mail emails into the Bulk Mail folder.</span>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Undo Send Delay</label>
+                  <select 
+                    value={undoSendDelay} 
+                    onChange={e => setUndoSendDelay(Number(e.target.value))}
+                    className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
+                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                  >
+                    <option value={0}>Disabled (Send instantly)</option>
+                    <option value={5}>5 seconds</option>
+                    <option value={10}>10 seconds</option>
+                    <option value={20}>20 seconds</option>
+                    <option value={30}>30 seconds</option>
+                  </select>
+                  <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
+                </div>
+
+                {/* Smart Filters */}
+                <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Smart Filters</h4>
+                  <div className="flex flex-col gap-2">
+                    <div className="flex items-center justify-between py-2.5">
+                      <div className="flex flex-col gap-1 pr-4">
+                        <span className="text-sm font-medium" style={{ color: theme.text }}>Bulk Mail</span>
+                        <span className="text-xs text-gray-500">Automatically organize bulk and mass-mail emails into the Bulk Mail folder.</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setBulkMailEnabled(!bulkMailEnabled)}
+                        className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${bulkMailEnabled ? 'justify-end' : 'justify-start'}`}
+                        style={{ backgroundColor: bulkMailEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
+                      >
+                        <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
+                      </button>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => setBulkMailEnabled(!bulkMailEnabled)}
-                      className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${bulkMailEnabled ? 'justify-end' : 'justify-start'}`}
-                      style={{ backgroundColor: bulkMailEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
-                    >
-                      <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
-                    </button>
                   </div>
                 </div>
               </div>
