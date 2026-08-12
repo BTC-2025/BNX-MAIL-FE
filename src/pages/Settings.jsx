@@ -41,7 +41,7 @@ const quillModules = {
   toolbar: [
     [{ 'header': [1, 2, false] }],
     ['bold', 'italic', 'underline', 'strike', 'blockquote'],
-    [{'list': 'ordered'}, {'list': 'bullet'}, {'indent': '-1'}, {'indent': '+1'}],
+    [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'indent': '-1' }, { 'indent': '+1' }],
     ['link'],
     ['clean']
   ],
@@ -54,12 +54,12 @@ const quillModules = {
 const Settings = () => {
   const navigate = useNavigate();
   const { user, getSessions, switchAccount } = useAuth();
-  const { 
-    theme, changeTheme, currentThemeName, 
-    backgroundImage, setBackgroundImage, clearBackgroundImage, 
+  const {
+    theme, changeTheme, currentThemeName,
+    backgroundImage, setBackgroundImage, clearBackgroundImage,
     readingPaneMode: globalReadingPaneMode,
-    setReadingPaneModeState, 
-    emailsPerPage, setEmailsPerPageState, 
+    setReadingPaneModeState,
+    emailsPerPage, setEmailsPerPageState,
     sidebarPreferences, setSidebarPreferences,
     customAccentColor, updateCustomAccentColor,
     customFontSize, updateCustomFontSize
@@ -181,7 +181,7 @@ const Settings = () => {
           ? d.readingPaneMode
           : (globalReadingPaneMode || "no_split");
         setReadingPaneMode(activeReadingPane);
-        
+
         // Update local context for reading pane immediately on load
         if (activeReadingPane) {
           setReadingPaneModeState?.(activeReadingPane);
@@ -508,12 +508,12 @@ const Settings = () => {
       setLoading(true);
       try {
         const ok = await saveBackendSettings({ undoSendDelay, bulkMailEnabled, notificationEnabled });
-        
+
         // Save all signatures to ensure any name or content changes are persisted
         for (const sig of signatures) {
           await signatureAPI.updateSignature(sig.id, { name: sig.name, content: sig.content });
         }
-        
+
         if (ok) {
           localStorage.setItem("bnx_bulk_mail_filter", bulkMailEnabled ? "true" : "false");
           localStorage.setItem("bnx_notification_filter", notificationEnabled ? "true" : "false");
@@ -544,11 +544,11 @@ const Settings = () => {
 
   const handleSaveAppearanceSettings = async (e) => {
     e.preventDefault();
-    
+
     updateCustomAccentColor(accentColor);
     updateCustomFontSize(fontSize);
     setEmailsPerPageState(localEmailsPerPage);
-    
+
     if (setReadingPaneModeState) {
       setReadingPaneModeState(readingPaneMode);
     }
@@ -604,27 +604,27 @@ const Settings = () => {
   return (
     <div className="flex h-full overflow-hidden" style={{ background: theme.bg }}>
       {/* Side Tabs Bar */}
-      <aside 
-        className="w-72 border-r p-6 flex flex-col gap-2 shrink-0" 
+      <aside
+        className="w-72 border-r p-6 flex flex-col gap-2 shrink-0"
         style={{ background: theme.cardBg, borderColor: theme.border }}
       >
-        <button 
-          onClick={() => navigate("/inbox")} 
-          className="text-sm font-semibold mb-6 hover:underline text-left cursor-pointer flex items-center gap-1.5 transition-colors hover:text-primary" 
+        <button
+          onClick={() => navigate("/inbox")}
+          className="text-sm font-semibold mb-6 hover:underline text-left cursor-pointer flex items-center gap-1.5 transition-colors hover:text-primary"
           style={{ color: theme.accent }}
         >
           ← Back to Inbox
         </button>
         <h2 className="text-2xl font-bold mb-6 px-2" style={{ color: theme.text }}>Settings</h2>
-        
+
         {tabs.map(tab => (
-          <SideTab 
+          <SideTab
             key={tab.id}
-            icon={tab.icon} 
-            label={tab.label} 
-            active={activeTab === tab.id} 
-            onClick={() => setActiveTab(tab.id)} 
-            theme={theme} 
+            icon={tab.icon}
+            label={tab.label}
+            active={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id)}
+            theme={theme}
           />
         ))}
       </aside>
@@ -636,13 +636,13 @@ const Settings = () => {
           {activeTab === "accounts" && (
             <Section title="Email Accounts" theme={theme}>
               <p className="text-sm text-gray-500 mb-6">Manage multiple linked email addresses in your current session.</p>
-              
+
               <div className="flex flex-col gap-3">
                 {getSessions().map(session => (
-                  <div 
-                    key={session.email} 
+                  <div
+                    key={session.email}
                     onClick={() => switchAccount(session.email)}
-                    className="flex items-center justify-between p-5 rounded-2xl border hover:shadow-sm transition-shadow cursor-pointer" 
+                    className="flex items-center justify-between p-5 rounded-2xl border hover:shadow-sm transition-shadow cursor-pointer"
                     style={{ borderColor: theme.border, background: user?.email === session.email ? theme.accent + '11' : theme.cardBg }}
                   >
                     <span className="text-base font-medium" style={{ color: theme.text }}>{session.email}</span>
@@ -657,700 +657,699 @@ const Settings = () => {
             </Section>
           )}
 
-        {/* composing Tab */}
-        {activeTab === "composing" && (
-          <Section title="General & Composing Settings" theme={theme}>
-            <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-6 max-w-2xl">
-              {/* Composing Section Wrapper - Shifted slightly left */}
-              <div className="relative -left-2 flex flex-col gap-4">
-                {/* Signatures */}
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signatures</label>
-                  <button 
-                    type="button" 
-                    onClick={addSignature} 
-                    className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 transition cursor-pointer"
-                  >
-                    + Add Signature
-                  </button>
-                </div>
-                
-                {signatures.length === 0 ? (
-                  <p className="text-sm text-gray-500 italic">No signatures created. Click 'Add Signature' to create one.</p>
-                ) : (
-                  <div className="flex flex-col gap-4">
-                    {/* Select Signature Tabs */}
-                    <div className="flex flex-wrap gap-2">
-                      {signatures.map((sig) => (
-                        <button
-                          key={sig.id}
-                          type="button"
-                          onClick={() => setEditingSignatureId(sig.id)}
-                          className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer border ${editingSignatureId === sig.id ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5'}`}
-                        >
-                          {sig.name || 'Unnamed'}
-                          {sig.isDefault && <span className="ml-2 text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1 rounded-sm">Default</span>}
-                        </button>
+          {/* composing Tab */}
+          {activeTab === "composing" && (
+            <Section title="General & Composing Settings" theme={theme}>
+              <form onSubmit={handleSaveComposingSettings} className="flex flex-col gap-6 max-w-2xl">
+                {/* Composing Section Wrapper - Shifted slightly left */}
+                <div className="relative -left-2 flex flex-col gap-4">
+                  {/* Signatures */}
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Email Signatures</label>
+                    <button
+                      type="button"
+                      onClick={addSignature}
+                      className="text-xs px-3 py-1.5 rounded-lg font-medium bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-900/30 dark:text-blue-400 transition cursor-pointer"
+                    >
+                      + Add Signature
+                    </button>
+                  </div>
+
+                  {signatures.length === 0 ? (
+                    <p className="text-sm text-gray-500 italic">No signatures created. Click 'Add Signature' to create one.</p>
+                  ) : (
+                    <div className="flex flex-col gap-4">
+                      {/* Select Signature Tabs */}
+                      <div className="flex flex-wrap gap-2">
+                        {signatures.map((sig) => (
+                          <button
+                            key={sig.id}
+                            type="button"
+                            onClick={() => setEditingSignatureId(sig.id)}
+                            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition cursor-pointer border ${editingSignatureId === sig.id ? 'border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-900/20 dark:text-blue-300' : 'border-gray-200 bg-white text-gray-700 hover:bg-gray-50 dark:border-white/10 dark:bg-transparent dark:text-gray-300 dark:hover:bg-white/5'}`}
+                          >
+                            {sig.name || 'Unnamed'}
+                            {sig.isDefault && <span className="ml-2 text-[10px] bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 px-1 rounded-sm">Default</span>}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Active Signature Editor */}
+                      {signatures.filter(s => s.id === editingSignatureId).map((sig) => (
+                        <div key={sig.id} className="border rounded-xl p-4 flex flex-col gap-3 shadow-sm bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
+                          <div className="flex items-center gap-3">
+                            <input
+                              type="text"
+                              value={sig.name}
+                              onChange={(e) => updateSignature(sig.id, "name", e.target.value)}
+                              className="flex-1 bg-transparent border-b outline-none text-sm font-semibold focus:border-blue-500 pb-1"
+                              style={{ color: theme.text, borderColor: theme.border }}
+                              placeholder="Signature Name"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => setDefaultSignature(sig.id)}
+                              className={`text-xs px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${sig.isDefault ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10"}`}
+                            >
+                              {sig.isDefault ? "Default ✓" : "Set Default"}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                deleteSignature(sig.id);
+                                if (editingSignatureId === sig.id) {
+                                  setEditingSignatureId(signatures.find(s => s.id !== sig.id)?.id || null);
+                                }
+                              }}
+                              className="text-red-500 hover:text-red-700 px-2 py-1 cursor-pointer font-bold"
+                              title="Delete Signature"
+                            >
+                              ×
+                            </button>
+                          </div>
+                          <div className="bg-white text-black rounded-md overflow-hidden border">
+                            <ReactQuill
+                              theme="snow"
+                              modules={quillModules}
+                              value={sig.content}
+                              onChange={(content) => updateSignature(sig.id, "content", content)}
+                              className="h-32 mb-10"
+                              placeholder="Design your signature..."
+                            />
+                          </div>
+                        </div>
                       ))}
                     </div>
-
-                    {/* Active Signature Editor */}
-                    {signatures.filter(s => s.id === editingSignatureId).map((sig) => (
-                      <div key={sig.id} className="border rounded-xl p-4 flex flex-col gap-3 shadow-sm bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
-                        <div className="flex items-center gap-3">
-                          <input 
-                            type="text" 
-                            value={sig.name} 
-                            onChange={(e) => updateSignature(sig.id, "name", e.target.value)} 
-                            className="flex-1 bg-transparent border-b outline-none text-sm font-semibold focus:border-blue-500 pb-1"
-                            style={{ color: theme.text, borderColor: theme.border }}
-                            placeholder="Signature Name"
-                          />
-                          <button 
-                            type="button"
-                            onClick={() => setDefaultSignature(sig.id)}
-                            className={`text-xs px-2.5 py-1 rounded-md font-medium transition cursor-pointer ${sig.isDefault ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" : "bg-gray-100 text-gray-600 hover:bg-gray-200 dark:bg-white/5 dark:text-gray-400 dark:hover:bg-white/10"}`}
-                          >
-                            {sig.isDefault ? "Default ✓" : "Set Default"}
-                          </button>
-                          <button 
-                            type="button"
-                            onClick={() => {
-                              deleteSignature(sig.id);
-                              if (editingSignatureId === sig.id) {
-                                setEditingSignatureId(signatures.find(s => s.id !== sig.id)?.id || null);
-                              }
-                            }}
-                            className="text-red-500 hover:text-red-700 px-2 py-1 cursor-pointer font-bold"
-                            title="Delete Signature"
-                          >
-                            ×
-                          </button>
-                        </div>
-                        <div className="bg-white text-black rounded-md overflow-hidden border">
-                          <ReactQuill 
-                            theme="snow" 
-                            modules={quillModules}
-                            value={sig.content} 
-                            onChange={(content) => updateSignature(sig.id, "content", content)} 
-                            className="h-32 mb-10"
-                            placeholder="Design your signature..."
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <span className="text-xs text-gray-500 mt-2">The default signature will be automatically inserted into new compose frames.</span>
-              </div>
-
-              {/* General Section Wrapper - Shifted slightly up */}
-              <div className="relative -top-2 flex flex-col gap-6">
-                {/* Undo Send */}
-                <div className="flex flex-col gap-2">
-                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Undo Send Delay</label>
-                  <select 
-                    value={undoSendDelay} 
-                    onChange={e => setUndoSendDelay(Number(e.target.value))}
-                    className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
-                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                  >
-                    <option value={0}>Disabled (Send instantly)</option>
-                    <option value={5}>5 seconds</option>
-                    <option value={10}>10 seconds</option>
-                    <option value={20}>20 seconds</option>
-                    <option value={30}>30 seconds</option>
-                  </select>
-                  <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
+                  )}
+                  <span className="text-xs text-gray-500 mt-2">The default signature will be automatically inserted into new compose frames.</span>
                 </div>
 
-                {/* Smart Filters */}
-                <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Smart Filters</h4>
+                {/* General Section Wrapper - Shifted slightly up */}
+                <div className="relative -top-2 flex flex-col gap-6">
+                  {/* Undo Send */}
                   <div className="flex flex-col gap-2">
-                    <div className="flex items-center justify-between py-2.5">
-                      <div className="flex flex-col gap-1 pr-4">
-                        <span className="text-sm font-medium" style={{ color: theme.text }}>Bulk Mail</span>
-                        <span className="text-xs text-gray-500">Automatically organize bulk and mass-mail emails into the Bulk Mail folder.</span>
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Undo Send Delay</label>
+                    <select
+                      value={undoSendDelay}
+                      onChange={e => setUndoSendDelay(Number(e.target.value))}
+                      className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    >
+                      <option value={0}>Disabled (Send instantly)</option>
+                      <option value={5}>5 seconds</option>
+                      <option value={10}>10 seconds</option>
+                      <option value={20}>20 seconds</option>
+                      <option value={30}>30 seconds</option>
+                    </select>
+                    <span className="text-xs text-gray-500">Sets the grace window to cancel/undo emails after pressing send.</span>
+                  </div>
+
+                  {/* Smart Filters */}
+                  <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                    <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Smart Filters</h4>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between py-2.5">
+                        <div className="flex flex-col gap-1 pr-4">
+                          <span className="text-sm font-medium" style={{ color: theme.text }}>Bulk Mail</span>
+                          <span className="text-xs text-gray-500">Automatically organize bulk and mass-mail emails into the Bulk Mail folder.</span>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setBulkMailEnabled(!bulkMailEnabled)}
+                          className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${bulkMailEnabled ? 'justify-end' : 'justify-start'}`}
+                          style={{ backgroundColor: bulkMailEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
+                        >
+                          <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
+                        </button>
                       </div>
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                  style={{ background: theme.accent }}
+                >
+                  Save Preferences
+                </button>
+              </form>
+            </Section>
+          )}
+
+          {/* Labels Tab */}
+          {activeTab === "labels" && (
+            <Section title="Sidebar Labels" theme={theme}>
+              <p className="text-sm text-gray-500 mb-6">Choose which labels are visible in the main sidebar.</p>
+              <div className="flex flex-col gap-3 max-w-lg">
+                {Object.keys(sidebarPreferences || {}).map((itemName) => (
+                  <div key={itemName} className="flex items-center justify-between p-4 rounded-xl border bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
+                    <span className="font-medium text-sm" style={{ color: theme.text }}>{itemName}</span>
+                    <label className="relative inline-flex items-center cursor-pointer">
+                      <input
+                        type="checkbox"
+                        className="sr-only peer"
+                        checked={sidebarPreferences[itemName]}
+                        onChange={(e) => {
+                          const newPrefs = { ...sidebarPreferences, [itemName]: e.target.checked };
+                          if (setSidebarPreferences) {
+                            setSidebarPreferences(newPrefs);
+                          }
+                        }}
+                      />
+                      <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
+                    </label>
+                  </div>
+                ))}
+              </div>
+            </Section>
+          )}
+
+          {/* notifications Tab */}
+          {activeTab === "notifications" && (
+            <Section title="Notification Preferences & Quiet Hours" theme={theme}>
+              <form onSubmit={handleSaveNotificationSettings} className="flex flex-col gap-8 max-w-2xl">
+                {/* Notifications triggers */}
+                <div className="flex flex-col gap-4">
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Folders & Subscriptions</h4>
+                  <ToggleRow label="Inbox Mail Alerts" checked={inboxNotifications} onChange={setInboxNotifications} theme={theme} />
+                  <ToggleRow label="Sent Confirmation Alerts" checked={sentNotifications} onChange={setSentNotifications} theme={theme} />
+                  <ToggleRow label="Starred Emails Alerts" checked={starredNotifications} onChange={setStarredNotifications} theme={theme} />
+                  <ToggleRow label="Snoozed Reminders" checked={snoozedNotifications} onChange={setSnoozedNotifications} theme={theme} />
+                </div>
+
+                <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Vibration & Sounds</h4>
+                  <ToggleRow label="Play Alert Sound" checked={soundEnabled} onChange={setSoundEnabled} theme={theme} />
+                  <ToggleRow label="Enable Haptic Vibration" checked={vibrationEnabled} onChange={setVibrationEnabled} theme={theme} />
+                </div>
+
+                {/* Quiet Hours */}
+                <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Quiet Hours Schedule</h4>
+                  <ToggleRow label="Mute Notifications Schedule" checked={quietHoursEnabled} onChange={setQuietHoursEnabled} theme={theme} />
+
+                  {quietHoursEnabled && (
+                    <div className="flex items-center gap-4 mt-2 p-4 rounded-2xl animate-fadeIn" style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
+                      <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-xs font-semibold text-gray-500">Quiet Starts At</label>
+                        <input
+                          type="time"
+                          value={quietHoursStart}
+                          onChange={e => setQuietHoursStart(e.target.value)}
+                          className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
+                          style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                        />
+                      </div>
+                      <div className="flex-1 flex flex-col gap-2">
+                        <label className="text-xs font-semibold text-gray-500">Quiet Ends At</label>
+                        <input
+                          type="time"
+                          value={quietHoursEnd}
+                          onChange={e => setQuietHoursEnd(e.target.value)}
+                          className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
+                          style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
+                        />
+                      </div>
+                    </div>
+                  )}
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-fit mt-4 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                  style={{ background: theme.accent }}
+                >
+                  Save Notification Settings
+                </button>
+              </form>
+            </Section>
+          )}
+
+          {/* appearance Tab */}
+          {activeTab === "appearance" && (
+            <Section title="Appearance & Interface Customization" theme={theme}>
+              <form onSubmit={handleSaveAppearanceSettings} className="flex flex-col gap-8 max-w-3xl">
+                {/* Density */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Mail Density View</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {["Default", "Comfortable", "Compact"].map(d => (
                       <button
+                        key={d}
                         type="button"
-                        onClick={() => setBulkMailEnabled(!bulkMailEnabled)}
-                        className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${bulkMailEnabled ? 'justify-end' : 'justify-start'}`}
-                        style={{ backgroundColor: bulkMailEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
+                        onClick={() => setDensity(d)}
+                        className={`p-4 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${density === d ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                        style={density === d ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
                       >
-                        <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
+                        {d}
                       </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <button 
-                type="submit" 
-                className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
-                style={{ background: theme.accent }}
-              >
-                Save Preferences
-              </button>
-            </form>
-          </Section>
-        )}
-
-        {/* Labels Tab */}
-        {activeTab === "labels" && (
-          <Section title="Sidebar Labels" theme={theme}>
-            <p className="text-sm text-gray-500 mb-6">Choose which labels are visible in the main sidebar.</p>
-            <div className="flex flex-col gap-3 max-w-lg">
-              {Object.keys(sidebarPreferences || {}).map((itemName) => (
-                <div key={itemName} className="flex items-center justify-between p-4 rounded-xl border bg-white dark:bg-transparent" style={{ borderColor: theme.border }}>
-                  <span className="font-medium text-sm" style={{ color: theme.text }}>{itemName}</span>
-                  <label className="relative inline-flex items-center cursor-pointer">
-                    <input 
-                      type="checkbox" 
-                      className="sr-only peer" 
-                      checked={sidebarPreferences[itemName]} 
-                      onChange={(e) => {
-                        const newPrefs = { ...sidebarPreferences, [itemName]: e.target.checked };
-                        if (setSidebarPreferences) {
-                          setSidebarPreferences(newPrefs);
-                        }
-                      }}
-                    />
-                    <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-600"></div>
-                  </label>
-                </div>
-              ))}
-            </div>
-          </Section>
-        )}
-
-        {/* notifications Tab */}
-        {activeTab === "notifications" && (
-          <Section title="Notification Preferences & Quiet Hours" theme={theme}>
-            <form onSubmit={handleSaveNotificationSettings} className="flex flex-col gap-8 max-w-2xl">
-              {/* Notifications triggers */}
-              <div className="flex flex-col gap-4">
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Folders & Subscriptions</h4>
-                <ToggleRow label="Inbox Mail Alerts" checked={inboxNotifications} onChange={setInboxNotifications} theme={theme} />
-                <ToggleRow label="Sent Confirmation Alerts" checked={sentNotifications} onChange={setSentNotifications} theme={theme} />
-                <ToggleRow label="Starred Emails Alerts" checked={starredNotifications} onChange={setStarredNotifications} theme={theme} />
-                <ToggleRow label="Snoozed Reminders" checked={snoozedNotifications} onChange={setSnoozedNotifications} theme={theme} />
-              </div>
-
-              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Vibration & Sounds</h4>
-                <ToggleRow label="Play Alert Sound" checked={soundEnabled} onChange={setSoundEnabled} theme={theme} />
-                <ToggleRow label="Enable Haptic Vibration" checked={vibrationEnabled} onChange={setVibrationEnabled} theme={theme} />
-              </div>
-
-              {/* Quiet Hours */}
-              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Quiet Hours Schedule</h4>
-                <ToggleRow label="Mute Notifications Schedule" checked={quietHoursEnabled} onChange={setQuietHoursEnabled} theme={theme} />
-                
-                {quietHoursEnabled && (
-                  <div className="flex items-center gap-4 mt-2 p-4 rounded-2xl animate-fadeIn" style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)' }}>
-                    <div className="flex-1 flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-gray-500">Quiet Starts At</label>
-                      <input 
-                        type="time" 
-                        value={quietHoursStart} 
-                        onChange={e => setQuietHoursStart(e.target.value)} 
-                        className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
-                        style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
-                      />
-                    </div>
-                    <div className="flex-1 flex flex-col gap-2">
-                      <label className="text-xs font-semibold text-gray-500">Quiet Ends At</label>
-                      <input 
-                        type="time" 
-                        value={quietHoursEnd} 
-                        onChange={e => setQuietHoursEnd(e.target.value)} 
-                        className="p-3 text-sm rounded-xl outline-none border focus:ring-2 focus:border-transparent transition-all"
-                        style={{ background: theme.bg, borderColor: theme.border, color: theme.text }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <button 
-                type="submit" 
-                className="w-fit mt-4 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
-                style={{ background: theme.accent }}
-              >
-                Save Notification Settings
-              </button>
-            </form>
-          </Section>
-        )}
-
-        {/* appearance Tab */}
-        {activeTab === "appearance" && (
-          <Section title="Appearance & Interface Customization" theme={theme}>
-            <form onSubmit={handleSaveAppearanceSettings} className="flex flex-col gap-8 max-w-3xl">
-              {/* Density */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Mail Density View</label>
-                <div className="grid grid-cols-3 gap-4">
-                  {["Default", "Comfortable", "Compact"].map(d => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDensity(d)}
-                      className={`p-4 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${density === d ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
-                      style={density === d ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Emails Per Page */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Emails Per Page</label>
-                <div className="grid grid-cols-4 gap-4">
-                  {[10, 20, 50, 100].map(count => (
-                    <button
-                      key={count}
-                      type="button"
-                      onClick={() => setLocalEmailsPerPage(count)}
-                      className={`p-3 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${localEmailsPerPage === count ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
-                      style={localEmailsPerPage === count ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
-                    >
-                      {count}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Accent Color picker */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Custom Accent Color</label>
-                <div className="flex items-center gap-4">
-                  <input 
-                    type="color" 
-                    value={accentColor} 
-                    onChange={e => setAccentColor(e.target.value)} 
-                    className="w-12 h-12 rounded-xl cursor-pointer border-0 bg-transparent shrink-0 outline-none"
-                  />
-                  <div className="flex flex-wrap gap-3">
-                    {["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(c => (
-                      <button 
-                        key={c} 
-                        type="button"
-                        onClick={() => setAccentColor(c)}
-                        className="w-8 h-8 rounded-full border border-white dark:border-gray-800 shadow-md cursor-pointer hover:scale-110 transition-transform"
-                        style={{ backgroundColor: c }}
-                      />
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* Font scaling size */}
-              <div className="flex flex-col gap-3">
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex justify-between">
-                  <span>Font Size Scale</span>
-                  <span className="font-mono text-xs opacity-75">{fontSize}x</span>
-                </label>
-                <input 
-                  type="range" 
-                  min="0.8" 
-                  max="1.5" 
-                  step="0.05"
-                  value={fontSize} 
-                  onChange={e => setFontSize(Number(e.target.value))}
-                  className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
-                />
-              </div>
+                {/* Emails Per Page */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Emails Per Page</label>
+                  <div className="grid grid-cols-4 gap-4">
+                    {[10, 20, 50, 100].map(count => (
+                      <button
+                        key={count}
+                        type="button"
+                        onClick={() => setLocalEmailsPerPage(count)}
+                        className={`p-3 text-sm font-semibold rounded-2xl border transition-all cursor-pointer shadow-sm ${localEmailsPerPage === count ? 'border-primary ring-2 ring-primary bg-primary/5' : 'hover:bg-black/5 dark:hover:bg-white/5'}`}
+                        style={localEmailsPerPage === count ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
+                      >
+                        {count}
+                      </button>
+                    ))}
+                  </div>
+                </div>
 
-              {/* Theme palettes picker */}
-              <div className="flex flex-col gap-3 border-t pt-6" style={{ borderColor: theme.border }}>
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Visual Theme Palette</label>
-                <div className="grid grid-cols-3 gap-4">
-                  {["Classic", "Dark", "Nature", "Ocean", "Sunset", "Minimal"].map(t => (
-                    <button 
-                      key={t} 
+                {/* Accent Color picker */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Custom Accent Color</label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="color"
+                      value={accentColor}
+                      onChange={e => setAccentColor(e.target.value)}
+                      className="w-12 h-12 rounded-xl cursor-pointer border-0 bg-transparent shrink-0 outline-none"
+                    />
+                    <div className="flex flex-wrap gap-3">
+                      {["#135bec", "#ef4444", "#10b981", "#f59e0b", "#8b5cf6", "#ec4899"].map(c => (
+                        <button
+                          key={c}
+                          type="button"
+                          onClick={() => setAccentColor(c)}
+                          className="w-8 h-8 rounded-full border border-white dark:border-gray-800 shadow-md cursor-pointer hover:scale-110 transition-transform"
+                          style={{ backgroundColor: c }}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Font scaling size */}
+                <div className="flex flex-col gap-3">
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300 flex justify-between">
+                    <span>Font Size Scale</span>
+                    <span className="font-mono text-xs opacity-75">{fontSize}x</span>
+                  </label>
+                  <input
+                    type="range"
+                    min="0.8"
+                    max="1.5"
+                    step="0.05"
+                    value={fontSize}
+                    onChange={e => setFontSize(Number(e.target.value))}
+                    className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-lg appearance-none cursor-pointer accent-primary"
+                  />
+                </div>
+
+                {/* Theme palettes picker */}
+                <div className="flex flex-col gap-3 border-t pt-6" style={{ borderColor: theme.border }}>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Visual Theme Palette</label>
+                  <div className="grid grid-cols-3 gap-4">
+                    {["Classic", "Dark", "Nature", "Ocean", "Sunset", "Minimal"].map(t => (
+                      <button
+                        key={t}
+                        type="button"
+                        onClick={() => {
+                          changeTheme(t);
+                          setThemeMode(t === "Dark" ? "Dark" : "Light");
+                        }}
+                        className={`p-4 text-sm font-medium rounded-2xl border cursor-pointer transition-all shadow-sm flex items-center justify-center gap-1.5 ${currentThemeName === t ? "border-primary ring-2 ring-primary" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
+                        style={currentThemeName === t ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
+                      >
+                        <span>{t}</span>
+                        {t === "Classic" && (
+                          <span
+                            className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md"
+                            style={
+                              currentThemeName === "Classic"
+                                ? { backgroundColor: `${theme.accent}15`, color: theme.accent }
+                                : { backgroundColor: "rgba(100, 116, 139, 0.15)", color: "rgba(100, 116, 139, 0.75)" }
+                            }
+                          >
+                            Default
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Background Image section */}
+                <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
+                  <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Background Wallpaper</label>
+
+                  {/* Current background preview */}
+                  {selectedWallpaper && (
+                    <div className="relative rounded-2xl overflow-hidden border h-40 shadow-sm" style={{ borderColor: theme.border }}>
+                      <img
+                        src={selectedWallpaper}
+                        alt="Current background"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
+                        <button
+                          type="button"
+                          onClick={() => setSelectedWallpaper(null)}
+                          className="px-4 py-2 text-sm font-bold rounded-xl bg-white/90 text-gray-800 hover:bg-white cursor-pointer shadow-lg transition-transform active:scale-95"
+                        >
+                          Remove Background
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Preset wallpapers grid */}
+                  <div className="grid grid-cols-4 gap-3">
+                    {PRESET_BACKGROUNDS.map((bg) => (
+                      <button
+                        key={bg.label}
+                        type="button"
+                        onClick={() => setSelectedWallpaper(bg.url)}
+                        className={`relative rounded-xl overflow-hidden h-20 border-2 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-md ${selectedWallpaper === bg.url ? "ring-2 ring-offset-2" : ""
+                          }`}
+                        style={{
+                          borderColor: selectedWallpaper === bg.url ? theme.accent : theme.border,
+                          ringColor: theme.accent
+                        }}
+                        title={bg.label}
+                      >
+                        <img
+                          src={bg.url.replace('w=1920', 'w=300')}
+                          alt={bg.label}
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1">
+                          <span className="text-[10px] text-white font-bold">{bg.label}</span>
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+
+                  {/* Custom URL input */}
+                  <div className="flex gap-3">
+                    <input
+                      type="url"
+                      placeholder="Paste custom image URL..."
+                      value={customBgUrl}
+                      onChange={(e) => setCustomBgUrl(e.target.value)}
+                      className="flex-1 p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    />
+                    <button
                       type="button"
                       onClick={() => {
-                        changeTheme(t);
-                        setThemeMode(t === "Dark" ? "Dark" : "Light");
-                      }} 
-                      className={`p-4 text-sm font-medium rounded-2xl border cursor-pointer transition-all shadow-sm flex items-center justify-center gap-1.5 ${currentThemeName === t ? "border-primary ring-2 ring-primary" : "hover:bg-black/5 dark:hover:bg-white/5"}`}
-                      style={currentThemeName === t ? { borderColor: theme.accent, color: theme.accent } : { borderColor: theme.border, color: theme.text }}
-                    >
-                      <span>{t}</span>
-                      {t === "Classic" && (
-                        <span 
-                          className="px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md"
-                          style={
-                            currentThemeName === "Classic" 
-                              ? { backgroundColor: `${theme.accent}15`, color: theme.accent }
-                              : { backgroundColor: "rgba(100, 116, 139, 0.15)", color: "rgba(100, 116, 139, 0.75)" }
-                          }
-                        >
-                          Default
-                        </span>
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Background Image section */}
-              <div className="flex flex-col gap-4 border-t pt-6" style={{ borderColor: theme.border }}>
-                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Background Wallpaper</label>
-                
-                {/* Current background preview */}
-                {selectedWallpaper && (
-                  <div className="relative rounded-2xl overflow-hidden border h-40 shadow-sm" style={{ borderColor: theme.border }}>
-                    <img 
-                      src={selectedWallpaper} 
-                      alt="Current background" 
-                      className="w-full h-full object-cover"
-                    />
-                    <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
-                      <button
-                        type="button"
-                        onClick={() => setSelectedWallpaper(null)}
-                        className="px-4 py-2 text-sm font-bold rounded-xl bg-white/90 text-gray-800 hover:bg-white cursor-pointer shadow-lg transition-transform active:scale-95"
-                      >
-                        Remove Background
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                {/* Preset wallpapers grid */}
-                <div className="grid grid-cols-4 gap-3">
-                  {PRESET_BACKGROUNDS.map((bg) => (
-                    <button
-                      key={bg.label}
-                      type="button"
-                      onClick={() => setSelectedWallpaper(bg.url)}
-                      className={`relative rounded-xl overflow-hidden h-20 border-2 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-md ${
-                        selectedWallpaper === bg.url ? "ring-2 ring-offset-2" : ""
-                      }`}
-                      style={{ 
-                        borderColor: selectedWallpaper === bg.url ? theme.accent : theme.border,
-                        ringColor: theme.accent
+                        if (customBgUrl.trim()) {
+                          setSelectedWallpaper(customBgUrl.trim());
+                          setCustomBgUrl("");
+                          toast.success("Custom background selected (click Save Layout Settings to apply)");
+                        }
                       }}
-                      title={bg.label}
+                      className="px-5 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shrink-0 shadow-sm"
+                      style={{ background: theme.accent }}
                     >
-                      <img 
-                        src={bg.url.replace('w=1920', 'w=300')} 
-                        alt={bg.label} 
-                        className="w-full h-full object-cover" 
-                        loading="lazy"
-                      />
-                      <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-2 py-1">
-                        <span className="text-[10px] text-white font-bold">{bg.label}</span>
-                      </div>
+                      Apply
                     </button>
-                  ))}
-                </div>
+                  </div>
 
-                {/* Custom URL input */}
-                <div className="flex gap-3">
+                  {/* File upload option */}
                   <input
-                    type="url"
-                    placeholder="Paste custom image URL..."
-                    value={customBgUrl}
-                    onChange={(e) => setCustomBgUrl(e.target.value)}
-                    className="flex-1 p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                    style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    type="file"
+                    ref={bgFileRef}
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      if (file.size > 5 * 1024 * 1024) {
+                        toast.error("Image must be under 5MB");
+                        return;
+                      }
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        setSelectedWallpaper(ev.target.result);
+                        toast.success("Background image uploaded and selected (click Save Layout Settings to apply)");
+                      };
+                      reader.readAsDataURL(file);
+                      if (bgFileRef.current) bgFileRef.current.value = "";
+                    }}
                   />
                   <button
                     type="button"
-                    onClick={() => {
-                      if (customBgUrl.trim()) {
-                        setSelectedWallpaper(customBgUrl.trim());
-                        setCustomBgUrl("");
-                        toast.success("Custom background selected (click Save Layout Settings to apply)");
-                      }
-                    }}
-                    className="px-5 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shrink-0 shadow-sm"
-                    style={{ background: theme.accent }}
+                    onClick={() => bgFileRef.current?.click()}
+                    className="w-fit px-5 py-2.5 rounded-xl text-sm font-medium border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all shadow-sm"
+                    style={{ borderColor: theme.border, color: theme.text }}
                   >
-                    Apply
+                    📁 Upload from device
                   </button>
                 </div>
 
-                {/* File upload option */}
-                <input
-                  type="file"
-                  ref={bgFileRef}
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (!file) return;
-                    if (file.size > 5 * 1024 * 1024) {
-                      toast.error("Image must be under 5MB");
-                      return;
-                    }
-                    const reader = new FileReader();
-                    reader.onload = (ev) => {
-                      setSelectedWallpaper(ev.target.result);
-                      toast.success("Background image uploaded and selected (click Save Layout Settings to apply)");
-                    };
-                    reader.readAsDataURL(file);
-                    if (bgFileRef.current) bgFileRef.current.value = "";
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => bgFileRef.current?.click()}
-                  className="w-fit px-5 py-2.5 rounded-xl text-sm font-medium border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition-all shadow-sm"
-                  style={{ borderColor: theme.border, color: theme.text }}
-                >
-                  📁 Upload from device
-                </button>
-              </div>
-
-              {/* Reading Pane */}
-              <div className="flex flex-col gap-2 mt-4 pt-4 border-t" style={{ borderColor: theme.border }}>
-                <label className="text-sm font-semibold" style={{ color: theme.text }}>Reading Pane</label>
-                <select 
-                  value={readingPaneMode}
-                  onChange={e => {
-                    const val = e.target.value;
-                    setReadingPaneMode(val);
-                    if (setReadingPaneModeState) {
-                      setReadingPaneModeState(val);
-                    }
-                  }}
-                  className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
-                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                >
-                  <option value="no_split">No split (Full screen)</option>
-                  <option value="right">Right of inbox</option>
-                  <option value="below">Below inbox</option>
-                </select>
-                <span className="text-xs text-gray-500">Choose how emails open in your mailbox.</span>
-              </div>
-
-              <button 
-                type="submit" 
-                className="w-fit px-5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity" 
-                style={{ background: theme.accent }}
-              >
-                Save Layout Settings
-              </button>
-            </form>
-          </Section>
-        )}
-
-        {/* security Tab */}
-        {activeTab === "security" && (
-          <Section title="Security & Account Recovery" theme={theme}>
-            <div className="flex flex-col gap-8 max-w-2xl">
-              {/* Details and 2FA */}
-              <form onSubmit={handleSaveSecuritySettings} className="flex flex-col gap-5">
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Profile Information</h4>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-gray-500">Job Title</label>
-                    <input 
-                      placeholder="Software Engineer" 
-                      value={jobTitle} 
-                      onChange={e => setJobTitle(e.target.value)} 
-                      className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                    />
-                  </div>
-                  <div className="flex flex-col gap-2">
-                    <label className="text-xs font-semibold text-gray-500">Location</label>
-                    <input 
-                      placeholder="New York, USA" 
-                      value={location} 
-                      onChange={e => setLocation(e.target.value)} 
-                      className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-2 mt-2">
-                  <label className="text-xs font-semibold text-gray-500">Phone Contact</label>
-                  <input 
-                    placeholder="+1 (555) 019-2834" 
-                    value={phoneNumber} 
-                    onChange={e => setPhoneNumber(e.target.value)} 
-                    className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                {/* Reading Pane */}
+                <div className="flex flex-col gap-2 mt-4 pt-4 border-t" style={{ borderColor: theme.border }}>
+                  <label className="text-sm font-semibold" style={{ color: theme.text }}>Reading Pane</label>
+                  <select
+                    value={readingPaneMode}
+                    onChange={e => {
+                      const val = e.target.value;
+                      setReadingPaneMode(val);
+                      if (setReadingPaneModeState) {
+                        setReadingPaneModeState(val);
+                      }
+                    }}
+                    className="w-full p-3 text-sm rounded-xl border outline-none cursor-pointer focus:ring-2 focus:border-transparent transition-all"
                     style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                  />
+                  >
+                    <option value="no_split">No split (Full screen)</option>
+                    <option value="right">Right of inbox</option>
+                    <option value="below">Below inbox</option>
+                  </select>
+                  <span className="text-xs text-gray-500">Choose how emails open in your mailbox.</span>
                 </div>
 
-                <div className="border-t my-4" style={{ borderColor: theme.border }} />
-
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Multi-Factor Authenticator</h4>
-                <ToggleRow label="Enable Two-Factor Authentication (2FA)" checked={twoFactorEnabled} onChange={setTwoFactorEnabled} theme={theme} />
-                <ToggleRow label="Enable Biometrics Access" checked={biometricsEnabled} onChange={setBiometricsEnabled} theme={theme} />
-
-                <button 
-                  type="submit" 
-                  className="w-fit mt-3 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm" 
+                <button
+                  type="submit"
+                  className="w-fit px-5 py-2.5 rounded-xl text-xs font-bold text-white cursor-pointer hover:opacity-95 transition-opacity"
                   style={{ background: theme.accent }}
                 >
-                  Save Security Preferences
+                  Save Layout Settings
                 </button>
               </form>
+            </Section>
+          )}
 
-              {/* Password update form */}
-              <form onSubmit={handleChangePassword} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Update Account Password</h4>
-                <input 
-                  type="password" 
-                  placeholder="Current Password" 
-                  value={passwords.oldPassword} 
-                  onChange={e => setPasswords({...passwords, oldPassword: e.target.value})} 
-                  className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                />
-                <input 
-                  type="password" 
-                  placeholder="New Password" 
-                  value={passwords.newPassword} 
-                  onChange={e => setPasswords({...passwords, newPassword: e.target.value})} 
-                  className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
-                  style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
-                />
-                <button 
-                  type="submit" 
-                  className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-sm"
-                >
-                  Update Password
-                </button>
-              </form>
+          {/* security Tab */}
+          {activeTab === "security" && (
+            <Section title="Security & Account Recovery" theme={theme}>
+              <div className="flex flex-col gap-8 max-w-2xl">
+                {/* Details and 2FA */}
+                <form onSubmit={handleSaveSecuritySettings} className="flex flex-col gap-5">
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Profile Information</h4>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-semibold text-gray-500">Job Title</label>
+                      <input
+                        placeholder="Software Engineer"
+                        value={jobTitle}
+                        onChange={e => setJobTitle(e.target.value)}
+                        className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                        style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                      />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                      <label className="text-xs font-semibold text-gray-500">Location</label>
+                      <input
+                        placeholder="New York, USA"
+                        value={location}
+                        onChange={e => setLocation(e.target.value)}
+                        className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                        style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                      />
+                    </div>
+                  </div>
 
-              {/* Recovery Setup */}
-              <form onSubmit={handleUpdateRecovery} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
-                <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Backup Account Recovery</h4>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-gray-500">Recovery Email Address</label>
-                  <input 
-                    type="email" 
-                    placeholder="backup@example.com" 
-                    value={recoveryInfo.recoveryEmail || ""} 
-                    onChange={e => setRecoveryInfo({...recoveryInfo, recoveryEmail: e.target.value})} 
+                  <div className="flex flex-col gap-2 mt-2">
+                    <label className="text-xs font-semibold text-gray-500">Phone Contact</label>
+                    <input
+                      placeholder="+1 (555) 019-2834"
+                      value={phoneNumber}
+                      onChange={e => setPhoneNumber(e.target.value)}
+                      className="p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    />
+                  </div>
+
+                  <div className="border-t my-4" style={{ borderColor: theme.border }} />
+
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider">Multi-Factor Authenticator</h4>
+                  <ToggleRow label="Enable Two-Factor Authentication (2FA)" checked={twoFactorEnabled} onChange={setTwoFactorEnabled} theme={theme} />
+                  <ToggleRow label="Enable Biometrics Access" checked={biometricsEnabled} onChange={setBiometricsEnabled} theme={theme} />
+
+                  <button
+                    type="submit"
+                    className="w-fit mt-3 px-6 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shadow-sm"
+                    style={{ background: theme.accent }}
+                  >
+                    Save Security Preferences
+                  </button>
+                </form>
+
+                {/* Password update form */}
+                <form onSubmit={handleChangePassword} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Update Account Password</h4>
+                  <input
+                    type="password"
+                    placeholder="Current Password"
+                    value={passwords.oldPassword}
+                    onChange={e => setPasswords({ ...passwords, oldPassword: e.target.value })}
                     className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
                     style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
-                </div>
-                <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold text-gray-500">Backup Phone Number</label>
-                  <input 
-                    type="text" 
-                    placeholder="+1234567890" 
-                    value={recoveryInfo.phoneNumber || ""} 
-                    onChange={e => setRecoveryInfo({...recoveryInfo, phoneNumber: e.target.value})} 
+                  <input
+                    type="password"
+                    placeholder="New Password"
+                    value={passwords.newPassword}
+                    onChange={e => setPasswords({ ...passwords, newPassword: e.target.value })}
                     className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
                     style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
                   />
-                </div>
-                <button 
-                  type="submit" 
-                  className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shadow-sm"
-                >
-                  Save Recovery Details
-                </button>
-              </form>
-            </div>
-          </Section>
-        )}
+                  <button
+                    type="submit"
+                    className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-red-500 hover:bg-red-600 active:scale-95 transition-all cursor-pointer shadow-sm"
+                  >
+                    Update Password
+                  </button>
+                </form>
 
-        {/* sessions Tab */}
-        {activeTab === "sessions" && (
-          <div className="flex flex-col gap-8">
-            <Section title="Active Device Sessions" theme={theme}>
-              <p className="text-sm text-gray-500 mb-6">Below are the devices currently logged into your account.</p>
-              <div className="flex flex-col gap-4">
-                {sessions.length > 0 ? sessions.map((s) => {
-                  const device = parseUserAgent(s.userAgent);
-                  return (
+                {/* Recovery Setup */}
+                <form onSubmit={handleUpdateRecovery} className="flex flex-col gap-4 border-t pt-8" style={{ borderColor: theme.border }}>
+                  <h4 className="text-sm font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2">Backup Account Recovery</h4>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-500">Recovery Email Address</label>
+                    <input
+                      type="email"
+                      placeholder="backup@example.com"
+                      value={recoveryInfo.recoveryEmail || ""}
+                      onChange={e => setRecoveryInfo({ ...recoveryInfo, recoveryEmail: e.target.value })}
+                      className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    />
+                  </div>
+                  <div className="flex flex-col gap-2">
+                    <label className="text-xs font-semibold text-gray-500">Backup Phone Number</label>
+                    <input
+                      type="text"
+                      placeholder="+1234567890"
+                      value={recoveryInfo.phoneNumber || ""}
+                      onChange={e => setRecoveryInfo({ ...recoveryInfo, phoneNumber: e.target.value })}
+                      className="w-full p-3 text-sm rounded-xl border outline-none focus:ring-2 focus:border-transparent transition-all"
+                      style={{ background: theme.mode === 'dark' ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)', borderColor: theme.border, color: theme.text }}
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    className="w-fit mt-2 px-6 py-3 rounded-xl text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 active:scale-95 transition-all cursor-pointer shadow-sm"
+                  >
+                    Save Recovery Details
+                  </button>
+                </form>
+              </div>
+            </Section>
+          )}
+
+          {/* sessions Tab */}
+          {activeTab === "sessions" && (
+            <div className="flex flex-col gap-8">
+              <Section title="Active Device Sessions" theme={theme}>
+                <p className="text-sm text-gray-500 mb-6">Below are the devices currently logged into your account.</p>
+                <div className="flex flex-col gap-4">
+                  {sessions.length > 0 ? sessions.map((s) => {
+                    const device = parseUserAgent(s.userAgent);
+                    return (
+                      <div key={s.id} className="p-5 rounded-2xl border flex justify-between items-center shadow-sm hover:shadow transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
+                        <div className="flex items-center gap-4">
+                          <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5" style={{ color: theme.accent }}>
+                            {device.type === 'phone' ? <MdPhoneAndroid size={20} /> :
+                              device.type === 'tablet' ? <MdTabletMac size={20} /> : <MdComputer size={20} />}
+                          </div>
+                          <div className="flex flex-col gap-0.5">
+                            <div className="flex items-center gap-2">
+                              <span className="text-base font-semibold" style={{ color: theme.text }}>{device.name}</span>
+                              {s.isCurrentSession && (
+                                <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white bg-green-500 uppercase tracking-wider">This device</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-500">{s.ipAddress} — {device.browser}</p>
+                            <p className="text-xs text-gray-400 mt-1">Logged in: {new Date(s.createdAt).toLocaleString()}</p>
+                          </div>
+                        </div>
+                        {!s.isCurrentSession && (
+                          <button
+                            onClick={() => handleRevokeSession(s.id)}
+                            className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                          >
+                            Sign Out
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }) : (
+                    <p className="text-sm text-gray-400 text-center py-6">No active sessions found.</p>
+                  )}
+                </div>
+              </Section>
+
+              <Section title="Connected Applications" theme={theme}>
+                <p className="text-sm text-gray-500 mb-6">Third-party applications authorized to access your mailbox profile.</p>
+                <div className="flex flex-col gap-4">
+                  {externalSessions.length > 0 ? externalSessions.map((s) => (
                     <div key={s.id} className="p-5 rounded-2xl border flex justify-between items-center shadow-sm hover:shadow transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
                       <div className="flex items-center gap-4">
                         <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5" style={{ color: theme.accent }}>
-                          {device.type === 'phone' ? <MdPhoneAndroid size={20} /> :
-                           device.type === 'tablet' ? <MdTabletMac size={20} /> : <MdComputer size={20} />}
+                          <MdSecurity size={20} />
                         </div>
                         <div className="flex flex-col gap-0.5">
-                          <div className="flex items-center gap-2">
-                            <span className="text-base font-semibold" style={{ color: theme.text }}>{device.name}</span>
-                            {s.isCurrentSession && (
-                              <span className="px-2 py-0.5 rounded text-[10px] font-bold text-white bg-green-500 uppercase tracking-wider">This device</span>
-                            )}
-                          </div>
-                          <p className="text-sm text-gray-500">{s.ipAddress} — {device.browser}</p>
-                          <p className="text-xs text-gray-400 mt-1">Logged in: {new Date(s.createdAt).toLocaleString()}</p>
+                          <span className="text-base font-semibold" style={{ color: theme.text }}>{s.appName}</span>
+                          <p className="text-sm text-gray-500">{s.ipAddress} — Basic Profile Access</p>
+                          <p className="text-xs text-gray-400 mt-1">Authorized: {new Date(s.loggedInAt).toLocaleString()}</p>
                         </div>
                       </div>
-                      {!s.isCurrentSession && (
-                        <button 
-                          onClick={() => handleRevokeSession(s.id)}
-                          className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                        >
-                          Sign Out
-                        </button>
-                      )}
+                      <button
+                        onClick={() => handleRevokeExternalSession(s.id)}
+                        className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
+                      >
+                        Revoke Access
+                      </button>
                     </div>
-                  );
-                }) : (
-                  <p className="text-sm text-gray-400 text-center py-6">No active sessions found.</p>
-                )}
-              </div>
-            </Section>
+                  )) : (
+                    <p className="text-sm text-gray-400 text-center py-6">No connected applications found.</p>
+                  )}
+                </div>
+              </Section>
 
-            <Section title="Connected Applications" theme={theme}>
-              <p className="text-sm text-gray-500 mb-6">Third-party applications authorized to access your mailbox profile.</p>
-              <div className="flex flex-col gap-4">
-                {externalSessions.length > 0 ? externalSessions.map((s) => (
-                  <div key={s.id} className="p-5 rounded-2xl border flex justify-between items-center shadow-sm hover:shadow transition-shadow" style={{ borderColor: theme.border, background: theme.cardBg }}>
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-xl bg-black/5 dark:bg-white/5" style={{ color: theme.accent }}>
-                        <MdSecurity size={20} />
+              <Section title="Security Activity Log" theme={theme}>
+                <p className="text-sm text-gray-500 mb-6">Audit history of recent security-critical adjustments on your account.</p>
+                <div className="flex flex-col gap-3 max-h-96 overflow-y-auto hidden-scrollbar pr-2">
+                  {activityLogs.length > 0 ? activityLogs.map((log, idx) => (
+                    <div key={idx} className="p-4 border rounded-xl flex justify-between items-center bg-black/5 dark:bg-white/5" style={{ borderColor: theme.border }}>
+                      <div className="flex flex-col gap-1">
+                        <p className="font-semibold text-sm" style={{ color: theme.text }}>{log.action}</p>
+                        <p className="text-xs text-gray-500">{log.ipAddress}</p>
                       </div>
-                      <div className="flex flex-col gap-0.5">
-                        <span className="text-base font-semibold" style={{ color: theme.text }}>{s.appName}</span>
-                        <p className="text-sm text-gray-500">{s.ipAddress} — Basic Profile Access</p>
-                        <p className="text-xs text-gray-400 mt-1">Authorized: {new Date(s.loggedInAt).toLocaleString()}</p>
-                      </div>
+                      <span className="text-xs text-gray-400 font-medium text-right">{new Date(log.timestamp).toLocaleString()}</span>
                     </div>
-                    <button 
-                      onClick={() => handleRevokeExternalSession(s.id)}
-                      className="px-4 py-2 text-xs font-bold rounded-xl text-red-500 border border-red-500 hover:bg-red-500 hover:text-white transition-all cursor-pointer"
-                    >
-                      Revoke Access
-                    </button>
-                  </div>
-                )) : (
-                  <p className="text-sm text-gray-400 text-center py-6">No connected applications found.</p>
-                )}
-              </div>
-            </Section>
-
-            <Section title="Security Activity Log" theme={theme}>
-              <p className="text-sm text-gray-500 mb-6">Audit history of recent security-critical adjustments on your account.</p>
-              <div className="flex flex-col gap-3 max-h-96 overflow-y-auto hidden-scrollbar pr-2">
-                {activityLogs.length > 0 ? activityLogs.map((log, idx) => (
-                  <div key={idx} className="p-4 border rounded-xl flex justify-between items-center bg-black/5 dark:bg-white/5" style={{ borderColor: theme.border }}>
-                    <div className="flex flex-col gap-1">
-                      <p className="font-semibold text-sm" style={{ color: theme.text }}>{log.action}</p>
-                      <p className="text-xs text-gray-500">{log.ipAddress}</p>
-                    </div>
-                    <span className="text-xs text-gray-400 font-medium text-right">{new Date(log.timestamp).toLocaleString()}</span>
-                  </div>
-                )) : (
-                  <p className="text-sm text-gray-400 text-center py-6">No activity logs recorded.</p>
-                )}
-              </div>
-            </Section>
-          </div>
-        )}
+                  )) : (
+                    <p className="text-sm text-gray-400 text-center py-6">No activity logs recorded.</p>
+                  )}
+                </div>
+              </Section>
+            </div>
+          )}
         </div>
       </main>
     </div>
@@ -1358,12 +1357,12 @@ const Settings = () => {
 };
 
 const SideTab = ({ icon, label, active, onClick, theme }) => (
-  <button 
-    onClick={onClick} 
-    className="flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-left cursor-pointer w-full hover:bg-black/5 dark:hover:bg-white/5" 
-    style={{ 
-      background: active ? (theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : "transparent", 
-      color: active ? theme.accent : theme.text 
+  <button
+    onClick={onClick}
+    className="flex items-center gap-3 px-4 py-3 rounded-xl transition text-sm font-medium text-left cursor-pointer w-full hover:bg-black/5 dark:hover:bg-white/5"
+    style={{
+      background: active ? (theme.mode === 'dark' ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.05)') : "transparent",
+      color: active ? theme.accent : theme.text
     }}
   >
     {icon} {label}
@@ -1371,8 +1370,8 @@ const SideTab = ({ icon, label, active, onClick, theme }) => (
 );
 
 const Section = ({ title, children, theme }) => (
-  <div 
-    className="max-w-4xl p-8 rounded-3xl border shadow-sm mb-8" 
+  <div
+    className="max-w-4xl p-8 rounded-3xl border shadow-sm mb-8"
     style={{ background: theme.cardBg, borderColor: theme.border, color: theme.text }}
   >
     <h3 className="text-xl font-bold border-b pb-4 mb-6 flex items-center gap-2" style={{ borderColor: theme.border }}>
