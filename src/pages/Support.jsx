@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { useTheme } from "../context/ThemeContext";
-import { 
-  MdHelpOutline, 
-  MdAssignment, 
-  MdArrowDropDown, 
-  MdArrowDropUp, 
-  MdSend, 
-  MdEmail, 
+import {
+  MdHelpOutline,
+  MdAssignment,
+  MdArrowDropDown,
+  MdArrowDropUp,
+  MdSend,
+  MdEmail,
   MdLanguage,
   MdForum
 } from "react-icons/md";
@@ -14,7 +14,7 @@ import toast from "react-hot-toast";
 
 const Support = () => {
   const { theme } = useTheme();
-  
+
   // Ticket Form State
   const [ticketSubject, setTicketSubject] = useState("");
   const [ticketPriority, setTicketPriority] = useState("Medium - Performance/Glitch");
@@ -28,14 +28,6 @@ const Support = () => {
     {
       q: "How do I reset my password?",
       a: "To reset your password, click on the 'Forgot Password' link on the login page and follow the OTP verification instructions sent to your recovery email."
-    },
-    {
-      q: "Can I export my financial data?",
-      a: "Currently, financial data export is not directly supported in BNX Mail. You can view all billing receipts under Settings → Billing."
-    },
-    {
-      q: "How do I add a new team member?",
-      a: "For business accounts, you can add new members by going to Settings → Organization and clicking the 'Add Member' button."
     },
     {
       q: "Is my data secure?",
@@ -75,7 +67,7 @@ const Support = () => {
   return (
     <div className="h-full flex flex-col overflow-y-auto bg-transparent font-sans">
       {/* HEADER */}
-      <div 
+      <div
         className="p-6 border-b shrink-0 flex flex-col items-start gap-1 bg-white/10 backdrop-blur-md"
         style={{ borderColor: theme.border }}
       >
@@ -95,11 +87,11 @@ const Support = () => {
 
       {/* Main Responsive Grid Layout */}
       <div className="flex-1 p-6 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        
+
         {/* Left Column: Form & Logs */}
         <div className="flex flex-col gap-6">
           {/* Open a Support Ticket Card */}
-          <form 
+          <form
             onSubmit={handleLodgeTicket}
             className="bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md rounded-2xl p-6 shadow-sm flex flex-col gap-4 text-left"
           >
@@ -181,7 +173,7 @@ const Support = () => {
           </form>
 
           {/* My Support Log Card */}
-          <div 
+          <div
             className="bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md rounded-2xl p-6 shadow-sm flex flex-col gap-4 text-left"
           >
             <div className="flex items-center justify-between">
@@ -205,8 +197,8 @@ const Support = () => {
             ) : (
               <div className="space-y-3 max-h-48 overflow-y-auto hidden-scrollbar">
                 {tickets.map((t) => (
-                  <div 
-                    key={t.id} 
+                  <div
+                    key={t.id}
                     className="p-3.5 rounded-xl border border-gray-100 dark:border-gray-800/50 bg-white/40 dark:bg-black/10 flex flex-col gap-1"
                   >
                     <div className="flex justify-between items-center gap-4">
@@ -227,7 +219,7 @@ const Support = () => {
         {/* Right Column: FAQs & Direct Support coordinates */}
         <div className="flex flex-col gap-6">
           {/* FAQs Accordion Card */}
-          <div 
+          <div
             className="bg-white/70 dark:bg-gray-900/70 border border-gray-200/50 dark:border-gray-800/50 backdrop-blur-md rounded-2xl p-6 shadow-sm flex flex-col gap-4 text-left"
           >
             <div className="flex items-center gap-3">
@@ -250,11 +242,10 @@ const Support = () => {
                       <span>{faq.q}</span>
                       {isExpanded ? <MdArrowDropUp size={20} className="text-gray-400" /> : <MdArrowDropDown size={20} className="text-gray-400" />}
                     </button>
-                    
-                    <div 
-                      className={`transition-all duration-300 overflow-hidden ${
-                        isExpanded ? "max-h-24 opacity-100 mt-2" : "max-h-0 opacity-0"
-                      }`}
+
+                    <div
+                      className={`transition-all duration-300 overflow-hidden ${isExpanded ? "max-h-24 opacity-100 mt-2" : "max-h-0 opacity-0"
+                        }`}
                     >
                       <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
                         {faq.a}
@@ -277,7 +268,7 @@ const Support = () => {
             <p className="text-xs text-emerald-100 leading-relaxed text-left">
               Need instant answers or have specialized billing queries? Get in touch directly via our channels below:
             </p>
-            
+
             <div className="flex flex-col gap-3 mt-1">
               {/* Email Support Card */}
               <div className="bg-white/10 p-4 rounded-xl border border-white/10 flex items-center gap-3">
