@@ -6,8 +6,7 @@ const ReadingPaneLayout = ({
   hasSelection = false,
   listComponent,
   detailsComponent,
-  headerComponent,
-  reverseLayout = false
+  headerComponent
 }) => {
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
 
@@ -44,15 +43,13 @@ const ReadingPaneLayout = ({
 
     if (effectiveMode === 'right') {
       const newPercentage = ((e.clientX - rect.left) / rect.width) * 100;
-      const targetFlex = reverseLayout ? (100 - newPercentage) : newPercentage;
-      if (targetFlex > 20 && targetFlex < 80) {
-        setListFlex(targetFlex);
+      if (newPercentage > 20 && newPercentage < 80) {
+        setListFlex(newPercentage);
       }
     } else if (effectiveMode === 'below') {
       const newPercentage = ((e.clientY - rect.top) / rect.height) * 100;
-      const targetFlex = reverseLayout ? (100 - newPercentage) : newPercentage;
-      if (targetFlex > 20 && targetFlex < 80) {
-        setListFlex(targetFlex);
+      if (newPercentage > 20 && newPercentage < 80) {
+        setListFlex(newPercentage);
       }
     }
   };
@@ -91,11 +88,7 @@ const ReadingPaneLayout = ({
 
   return (
     <div
-      className={`flex h-full w-full overflow-hidden bg-transparent relative ${
-        isRight
-          ? (reverseLayout ? 'flex-row-reverse' : 'flex-row')
-          : (reverseLayout ? 'flex-col-reverse' : 'flex-col')
-      }`}
+      className={`flex h-full w-full overflow-hidden bg-transparent relative ${isRight ? 'flex-row' : 'flex-col'}`}
       ref={containerRef}
     >
       {/* Master View (List) */}
@@ -103,10 +96,8 @@ const ReadingPaneLayout = ({
         className="flex flex-col overflow-hidden bg-transparent shrink-0 relative"
         style={{
           flexBasis: `${listFlex}%`,
-          borderRight: (isRight && !reverseLayout) ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
-          borderLeft: (isRight && reverseLayout) ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
-          borderBottom: (!isRight && !reverseLayout) ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
-          borderTop: (!isRight && reverseLayout) ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
+          borderRight: isRight ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
+          borderBottom: !isRight ? '1px solid rgba(150, 150, 150, 0.2)' : 'none',
         }}
       >
         {headerComponent}
