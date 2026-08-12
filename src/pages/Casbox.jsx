@@ -830,6 +830,7 @@ const Casbox = () => {
         headerComponent={headerComponent}
         listComponent={listComponent}
         detailsComponent={detailsComponent}
+        reverseLayout={true}
       />
 
       {previewFile && (
