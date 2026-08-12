@@ -67,6 +67,11 @@ const Settings = () => {
 
   const bgFileRef = useRef(null);
   const [customBgUrl, setCustomBgUrl] = useState("");
+  const [selectedWallpaper, setSelectedWallpaper] = useState(backgroundImage);
+
+  useEffect(() => {
+    setSelectedWallpaper(backgroundImage);
+  }, [backgroundImage]);
 
   const [activeTab, setActiveTab] = useState("accounts");
   const [emails, setEmails] = useState([]);
@@ -548,6 +553,12 @@ const Settings = () => {
       setReadingPaneModeState(readingPaneMode);
     }
 
+    if (selectedWallpaper === null) {
+      clearBackgroundImage();
+    } else {
+      setBackgroundImage(selectedWallpaper);
+    }
+
     await saveBackendSettings({
       themeMode,
       accentColor,
@@ -994,17 +1005,17 @@ const Settings = () => {
                 <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">Background Wallpaper</label>
                 
                 {/* Current background preview */}
-                {backgroundImage && (
+                {selectedWallpaper && (
                   <div className="relative rounded-2xl overflow-hidden border h-40 shadow-sm" style={{ borderColor: theme.border }}>
                     <img 
-                      src={backgroundImage} 
+                      src={selectedWallpaper} 
                       alt="Current background" 
                       className="w-full h-full object-cover"
                     />
                     <div className="absolute inset-0 bg-black/20 flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity">
                       <button
                         type="button"
-                        onClick={clearBackgroundImage}
+                        onClick={() => setSelectedWallpaper(null)}
                         className="px-4 py-2 text-sm font-bold rounded-xl bg-white/90 text-gray-800 hover:bg-white cursor-pointer shadow-lg transition-transform active:scale-95"
                       >
                         Remove Background
@@ -1019,12 +1030,12 @@ const Settings = () => {
                     <button
                       key={bg.label}
                       type="button"
-                      onClick={() => setBackgroundImage(bg.url)}
+                      onClick={() => setSelectedWallpaper(bg.url)}
                       className={`relative rounded-xl overflow-hidden h-20 border-2 cursor-pointer transition-all hover:scale-[1.03] hover:shadow-md ${
-                        backgroundImage === bg.url ? "ring-2 ring-offset-2" : ""
+                        selectedWallpaper === bg.url ? "ring-2 ring-offset-2" : ""
                       }`}
                       style={{ 
-                        borderColor: backgroundImage === bg.url ? theme.accent : theme.border,
+                        borderColor: selectedWallpaper === bg.url ? theme.accent : theme.border,
                         ringColor: theme.accent
                       }}
                       title={bg.label}
@@ -1056,9 +1067,9 @@ const Settings = () => {
                     type="button"
                     onClick={() => {
                       if (customBgUrl.trim()) {
-                        setBackgroundImage(customBgUrl.trim());
+                        setSelectedWallpaper(customBgUrl.trim());
                         setCustomBgUrl("");
-                        toast.success("Custom background applied");
+                        toast.success("Custom background selected (click Save Layout Settings to apply)");
                       }
                     }}
                     className="px-5 py-3 rounded-xl text-sm font-medium text-white cursor-pointer hover:opacity-90 active:scale-95 transition-all shrink-0 shadow-sm"
@@ -1083,8 +1094,8 @@ const Settings = () => {
                     }
                     const reader = new FileReader();
                     reader.onload = (ev) => {
-                      setBackgroundImage(ev.target.result);
-                      toast.success("Background image uploaded");
+                      setSelectedWallpaper(ev.target.result);
+                      toast.success("Background image uploaded and selected (click Save Layout Settings to apply)");
                     };
                     reader.readAsDataURL(file);
                     if (bgFileRef.current) bgFileRef.current.value = "";
