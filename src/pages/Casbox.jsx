@@ -4,7 +4,7 @@ import { useAuth } from "../context/AuthContext";
 import { useSocket } from "../context/SocketContext";
 import { useMail } from "../context/MailContext";
 import { casboxAPI, api, userAPI } from "../services/api";
-import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock } from "react-icons/md";
+import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock, MdArrowBack, MdArchive, MdAccessTime, MdLabel, MdDelete, MdPrint, MdMoreVert } from "react-icons/md";
 import toast from "react-hot-toast";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
 
@@ -88,6 +88,7 @@ const Casbox = () => {
   const [loadingThread, setLoadingThread] = useState(false);
   const [newChatText, setNewChatText] = useState("");
   const [sendingChat, setSendingChat] = useState(false);
+  const [isChatStarred, setIsChatStarred] = useState(false);
 
   const chatEndRef = React.useRef(null);
   const selectedContactRef = React.useRef(null);
@@ -625,6 +626,70 @@ const Casbox = () => {
 
     return (
       <div className="flex flex-col h-full bg-white dark:bg-[#121212] border-l border-gray-100 dark:border-gray-800 overflow-hidden">
+        {/* Action Toolbar */}
+        <div
+          className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white dark:bg-[#121212]"
+          style={{ borderColor: theme?.border || '#e2e8f0' }}
+        >
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              onClick={() => setSelectedMessage(null)}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+              title="Back"
+            >
+              <MdArrowBack size={20} />
+            </button>
+            <div className="h-5 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1" />
+            <button
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 cursor-pointer"
+              title="Archive"
+            >
+              <MdArchive size={20} />
+            </button>
+            <button
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
+              title="Snooze"
+            >
+              <MdAccessTime size={20} />
+            </button>
+            <button
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-indigo-500 cursor-pointer"
+              title="Labels"
+            >
+              <MdLabel size={20} />
+            </button>
+            <button
+              className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
+              title="Delete"
+            >
+              <MdDelete size={20} />
+            </button>
+          </div>
+
+          <div className="flex items-center gap-1 sm:gap-2">
+            <button
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              title="Print"
+            >
+              <MdPrint size={20} />
+            </button>
+            <button
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+              title="More"
+            >
+              <MdMoreVert size={20} />
+            </button>
+            <button
+              onClick={() => setIsChatStarred(!isChatStarred)}
+              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+              title={isChatStarred ? "Starred" : "Star"}
+              style={{ color: isChatStarred ? "#e3b341" : "rgb(107,114,128)" }}
+            >
+              {isChatStarred ? <MdStar size={20} /> : <MdStarBorder size={20} />}
+            </button>
+          </div>
+        </div>
+
         {/* Header */}
         <div
           className="px-6 py-4 border-b flex items-center justify-between bg-white dark:bg-[#121212] shrink-0"

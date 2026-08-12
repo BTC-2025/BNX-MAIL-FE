@@ -19,7 +19,14 @@ import {
   MdEdit,
   MdPictureAsPdf,
   MdVisibility,
-  MdFileDownload
+  MdFileDownload,
+  MdArchive,
+  MdAccessTime,
+  MdLabel,
+  MdDelete,
+  MdPrint,
+  MdStarBorder,
+  MdStar
 } from "react-icons/md";
 import { chatAPI, mailAPI, templateAPI } from "../services/api";
 import { useAuth } from "../context/AuthContext";
@@ -43,6 +50,7 @@ const ChatRoom = () => {
   const [loading, setLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
+  const [isChatStarred, setIsChatStarred] = useState(false);
 
   // Layout States (Info Modal, Compose Modal, Collapsed Chat)
   const [showInfoModal, setShowInfoModal] = useState(false);
@@ -500,6 +508,76 @@ const ChatRoom = () => {
 
   return (
     <div className="flex flex-col h-full bg-transparent overflow-hidden">
+      {/* Action Toolbar */}
+      <div
+        className="flex items-center justify-between px-4 sm:px-6 py-2 border-b shrink-0 bg-white/40 dark:bg-gray-900/40 backdrop-blur-md"
+        style={{ borderColor: theme.border || 'rgba(229,231,235,0.5)' }}
+      >
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            onClick={() => {
+              if (chat?.type === 'DIRECT') {
+                navigate("/chat");
+              } else {
+                navigate("/colab");
+              }
+            }}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors flex items-center justify-center text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+            title="Back"
+          >
+            <MdArrowBack size={20} />
+          </button>
+          <div className="h-5 w-[1px] bg-gray-200 dark:bg-gray-700 mx-1" />
+          <button
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-100 cursor-pointer"
+            title="Archive"
+          >
+            <MdArchive size={20} />
+          </button>
+          <button
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-blue-500 cursor-pointer"
+            title="Snooze"
+          >
+            <MdAccessTime size={20} />
+          </button>
+          <button
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-indigo-500 cursor-pointer"
+            title="Labels"
+          >
+            <MdLabel size={20} />
+          </button>
+          <button
+            className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
+            title="Delete"
+          >
+            <MdDelete size={20} />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1 sm:gap-2">
+          <button
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            title="Print"
+          >
+            <MdPrint size={20} />
+          </button>
+          <button
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100"
+            title="More"
+          >
+            <MdMoreVert size={20} />
+          </button>
+          <button
+            onClick={() => setIsChatStarred(!isChatStarred)}
+            className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            title={isChatStarred ? "Starred" : "Star"}
+            style={{ color: isChatStarred ? "#e3b341" : "rgb(107,114,128)" }}
+          >
+            {isChatStarred ? <MdStar size={20} /> : <MdStarBorder size={20} />}
+          </button>
+        </div>
+      </div>
+
       {/* HEADER */}
       <div className="p-4 border-b border-gray-200/50 dark:border-gray-800/50 flex items-center justify-between bg-white/40 dark:bg-gray-900/40 backdrop-blur-md sticky top-0 z-10">
         <div className="flex items-center gap-3">
