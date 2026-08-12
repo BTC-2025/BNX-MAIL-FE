@@ -1009,8 +1009,11 @@ const Casbox = () => {
       {selectedMessage && (
         <div className="hidden print:block w-full min-h-screen bg-white text-black p-10 font-sans printable-conversation" style={{ maxWidth: "800px", margin: "0 auto" }}>
           {/* Logo & Header */}
-          <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-6">
-            <div className="flex items-center gap-2">
+          <div className="grid grid-cols-3 items-center border-b border-gray-300 pb-3 mb-6">
+            <div className="flex justify-start">
+              {/* Left spacer */}
+            </div>
+            <div className="flex items-center justify-center gap-2">
               <img src={logo} alt="BNX Mail" className="h-8 object-contain" />
               <span className="text-xl font-bold tracking-tight text-[#195bac]">
                 BNX<span className="font-normal text-slate-800">mail</span>
