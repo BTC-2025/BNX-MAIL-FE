@@ -7,6 +7,7 @@ import { casboxAPI, api, userAPI } from "../services/api";
 import { MdCheck, MdDoneAll, MdStarBorder, MdStar, MdDeleteOutline, MdRefresh, MdSend, MdClose, MdRemoveRedEye, MdFileDownload, MdReply, MdBlock, MdArrowBack, MdArchive, MdAccessTime, MdLabel, MdDelete, MdPrint, MdMoreVert } from "react-icons/md";
 import toast from "react-hot-toast";
 import ReadingPaneLayout from "../components/ReadingPaneLayout";
+import logo from "../assets/bnx-remove.png";
 
 const getMimeType = (fileName) => {
   const ext = fileName?.split('.').pop().toLowerCase() || '';
@@ -886,118 +887,190 @@ const Casbox = () => {
     </div>
   );
 
+  const printSubject = selectedMessage?.subject || "Casbox Message";
+  const printContactEmail = selectedMessage ? getOtherUserEmail(selectedMessage) : "";
+  const printContactName = printContactEmail ? printContactEmail.split('@')[0] : "";
+  const printSortedThread = selectedMessage ? [...threadMessages].sort((a, b) => parseTimestamp(a.timestamp) - parseTimestamp(b.timestamp)) : [];
+
   return (
-    <div className="flex flex-col h-full w-full bg-white dark:bg-[#121212] relative overflow-hidden">
-      <ReadingPaneLayout
-        mode={readingPaneMode || 'no_split'}
-        hasSelection={!!selectedMessage}
-        headerComponent={headerComponent}
-        listComponent={listComponent}
-        detailsComponent={detailsComponent}
-      />
+    <>
+      <div className="flex flex-col h-full w-full bg-white dark:bg-[#121212] relative overflow-hidden print:hidden">
+        <ReadingPaneLayout
+          mode={readingPaneMode || 'no_split'}
+          hasSelection={!!selectedMessage}
+          headerComponent={headerComponent}
+          listComponent={listComponent}
+          detailsComponent={detailsComponent}
+        />
 
-      {previewFile && (
-        <div className="fixed inset-0 bg-black/90 z-[1000] flex flex-col animate-fade-in">
-          <div className="flex items-center justify-between px-6 py-4 bg-black/30 border-b border-white/5 text-white select-none">
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-semibold truncate max-w-[60vw]">
-                {previewFile.fileName}
-              </span>
-              <span className="text-[10px] opacity-60">
-                {previewFile.mimeType}
-              </span>
-            </div>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleDownloadAttachment(previewFile.rawFileObj)}
-                className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
-                title="Download file"
-              >
-                <MdFileDownload size={20} />
-              </button>
-              <button
-                onClick={closePreview}
-                className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
-                title="Close preview"
-              >
-                <MdClose size={20} />
-              </button>
-            </div>
-          </div>
-
-          <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
-            {previewFile.mimeType.startsWith("image/") ? (
-              <img
-                src={previewFile.blobUrl}
-                alt={previewFile.fileName}
-                className="max-w-full max-h-[82vh] object-contain rounded shadow-2xl select-none"
-              />
-            ) : previewFile.mimeType === "application/pdf" ? (
-              <iframe
-                src={previewFile.blobUrl}
-                title={previewFile.fileName}
-                className="w-[90vw] h-[80vh] rounded-lg shadow-2xl bg-white border-none"
-              />
-            ) : previewFile.mimeType === "text/plain" ? (
-              <pre className="bg-zinc-950 text-zinc-100 p-6 rounded-xl shadow-2xl overflow-auto max-w-[90vw] max-h-[80vh] text-left font-mono text-xs sm:text-sm leading-relaxed border border-zinc-800 hidden-scrollbar">
-                {previewFile.textContent}
-              </pre>
-            ) : (
-              <div className="flex flex-col items-center justify-center bg-zinc-900/60 text-white p-8 rounded-2xl border border-zinc-800 max-w-sm text-center shadow-xl">
-                <span className="text-5xl mb-4 select-none">📎</span>
-                <p className="font-semibold text-sm mb-1 truncate max-w-[280px]">{previewFile.fileName}</p>
-                <p className="text-[11px] text-gray-400 mb-6">No inline preview available for this file type</p>
+        {previewFile && (
+          <div className="fixed inset-0 bg-black/90 z-[1000] flex flex-col animate-fade-in">
+            <div className="flex items-center justify-between px-6 py-4 bg-black/30 border-b border-white/5 text-white select-none">
+              <div className="flex flex-col min-w-0">
+                <span className="text-sm font-semibold truncate max-w-[60vw]">
+                  {previewFile.fileName}
+                </span>
+                <span className="text-[10px] opacity-60">
+                  {previewFile.mimeType}
+                </span>
+              </div>
+              <div className="flex items-center gap-3">
                 <button
                   onClick={() => handleDownloadAttachment(previewFile.rawFileObj)}
-                  className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                  className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  title="Download file"
                 >
-                  <MdFileDownload size={15} /> Download Attachment
+                  <MdFileDownload size={20} />
+                </button>
+                <button
+                  onClick={closePreview}
+                  className="p-2 rounded-full hover:bg-white/10 text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  title="Close preview"
+                >
+                  <MdClose size={20} />
                 </button>
               </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {showBlockedModal && (
-        <div className="fixed inset-0 bg-black/60 z-[2000] flex items-center justify-center animate-fade-in p-4 backdrop-blur-sm">
-          <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden max-h-[80vh]">
-            <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black/20">
-              <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
-                <MdBlock className="text-red-500" size={20} /> Blocked Users
-              </h3>
-              <button
-                onClick={() => setShowBlockedModal(false)}
-                className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 transition-colors"
-              >
-                <MdClose size={20} />
-              </button>
             </div>
 
-            <div className="flex-1 overflow-y-auto p-2">
-              {blockedContacts.length === 0 ? (
-                <div className="p-8 text-center text-gray-500 dark:text-gray-400">
-                  <MdCheck className="mx-auto text-4xl mb-3 opacity-30 text-green-500" />
-                  <p>No blocked users</p>
-                </div>
+            <div className="flex-1 flex items-center justify-center p-6 overflow-hidden">
+              {previewFile.mimeType.startsWith("image/") ? (
+                <img
+                  src={previewFile.blobUrl}
+                  alt={previewFile.fileName}
+                  className="max-w-full max-h-[82vh] object-contain rounded shadow-2xl select-none"
+                />
+              ) : previewFile.mimeType === "application/pdf" ? (
+                <iframe
+                  src={previewFile.blobUrl}
+                  title={previewFile.fileName}
+                  className="w-[90vw] h-[80vh] rounded-lg shadow-2xl bg-white border-none"
+                />
+              ) : previewFile.mimeType === "text/plain" ? (
+                <pre className="bg-zinc-950 text-zinc-100 p-6 rounded-xl shadow-2xl overflow-auto max-w-[90vw] max-h-[80vh] text-left font-mono text-xs sm:text-sm leading-relaxed border border-zinc-800 hidden-scrollbar">
+                  {previewFile.textContent}
+                </pre>
               ) : (
-                blockedContacts.map((email) => (
-                  <div key={email} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors mx-2 my-1">
-                    <span className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate pr-4">{email}</span>
-                    <button
-                      onClick={() => handleUnblockUser(email)}
-                      className="px-4 py-1.5 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shrink-0"
-                    >
-                      Unblock
-                    </button>
-                  </div>
-                ))
+                <div className="flex flex-col items-center justify-center bg-zinc-900/60 text-white p-8 rounded-2xl border border-zinc-800 max-w-sm text-center shadow-xl">
+                  <span className="text-5xl mb-4 select-none">📎</span>
+                  <p className="font-semibold text-sm mb-1 truncate max-w-[280px]">{previewFile.fileName}</p>
+                  <p className="text-[11px] text-gray-400 mb-6">No inline preview available for this file type</p>
+                  <button
+                    onClick={() => handleDownloadAttachment(previewFile.rawFileObj)}
+                    className="px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white rounded-full text-xs font-semibold shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <MdFileDownload size={15} /> Download Attachment
+                  </button>
+                </div>
               )}
             </div>
           </div>
+        )}
+
+        {showBlockedModal && (
+          <div className="fixed inset-0 bg-black/60 z-[2000] flex items-center justify-center animate-fade-in p-4 backdrop-blur-sm">
+            <div className="bg-white dark:bg-[#1e1e1e] rounded-2xl w-full max-w-md shadow-2xl flex flex-col overflow-hidden max-h-[80vh]">
+              <div className="flex items-center justify-between p-5 border-b border-gray-100 dark:border-gray-800 bg-gray-50/50 dark:bg-black/20">
+                <h3 className="font-bold text-lg text-gray-900 dark:text-white flex items-center gap-2">
+                  <MdBlock className="text-red-500" size={20} /> Blocked Users
+                </h3>
+                <button
+                  onClick={() => setShowBlockedModal(false)}
+                  className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 text-gray-500 transition-colors"
+                >
+                  <MdClose size={20} />
+                </button>
+              </div>
+
+              <div className="flex-1 overflow-y-auto p-2">
+                {blockedContacts.length === 0 ? (
+                  <div className="p-8 text-center text-gray-500 dark:text-gray-400">
+                    <MdCheck className="mx-auto text-4xl mb-3 opacity-30 text-green-500" />
+                    <p>No blocked users</p>
+                  </div>
+                ) : (
+                  blockedContacts.map((email) => (
+                    <div key={email} className="flex items-center justify-between p-4 hover:bg-gray-50 dark:hover:bg-white/5 rounded-xl transition-colors mx-2 my-1">
+                      <span className="font-medium text-sm text-gray-800 dark:text-gray-200 truncate pr-4">{email}</span>
+                      <button
+                        onClick={() => handleUnblockUser(email)}
+                        className="px-4 py-1.5 rounded-full text-xs font-bold border border-gray-200 dark:border-gray-700 hover:border-gray-300 dark:hover:border-gray-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-white/10 transition-all shrink-0"
+                      >
+                        Unblock
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {selectedMessage && (
+        <div className="hidden print:block w-full min-h-screen bg-white text-black p-10 font-sans printable-conversation" style={{ maxWidth: "800px", margin: "0 auto" }}>
+          {/* Logo & Header */}
+          <div className="flex items-center justify-between border-b border-gray-300 pb-3 mb-6">
+            <div className="flex items-center gap-2">
+              <img src={logo} alt="BNX Mail" className="h-8 object-contain" />
+              <span className="text-xl font-bold tracking-tight text-[#195bac]">
+                BNX<span className="font-normal text-slate-800">mail</span>
+              </span>
+            </div>
+            <div className="text-right text-sm text-gray-700 font-medium">
+              {user?.email || "user@bnxmail.com"}
+            </div>
+          </div>
+
+          {/* Subject & Meta */}
+          <div className="mb-4">
+            <h1 className="text-2xl font-extrabold text-gray-900 mb-4 tracking-tight leading-snug">
+              {printSubject}
+            </h1>
+            <div className="text-sm text-gray-600 space-y-1.5 font-medium">
+              <p>
+                <span className="text-gray-400 font-normal">From:</span>{" "}
+                <span className="text-gray-900 font-semibold">{printContactName}</span>{" "}
+                <span className="text-gray-500 font-normal">&lt;{printContactEmail}&gt;</span>
+              </p>
+              <p>
+                <span className="text-gray-400 font-normal">Date:</span>{" "}
+                <span className="text-gray-900 font-semibold">
+                  {parseTimestamp(selectedMessage.timestamp).toLocaleString([], { dateStyle: 'full', timeStyle: 'short' })}
+                </span>
+              </p>
+            </div>
+          </div>
+
+          <hr className="border-gray-300 mb-6" />
+
+          {/* Conversation Content */}
+          <div className="space-y-6">
+            {printSortedThread.map((msg, index) => {
+              const isUserSender = msg.senderEmail === user?.email;
+              const senderDisplayName = isUserSender ? (user?.email?.split('@')[0] || "You") : printContactName;
+              return (
+                <div key={msg.id || index} className="space-y-2 pb-6 border-b border-gray-200 last:border-b-0 break-inside-avoid">
+                  <div className="flex justify-between items-center text-[11px] text-gray-400 font-medium">
+                    <span className="font-bold text-gray-700 uppercase tracking-wider">{senderDisplayName}</span>
+                    <span>
+                      {parseTimestamp(msg.timestamp).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-800 whitespace-pre-wrap leading-relaxed break-words font-normal">
+                    {msg.body}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Footer */}
+          <div className="mt-16 pt-4 border-t border-gray-200 text-center text-[10px] text-gray-400 font-medium tracking-wide uppercase">
+            Printed from BNX Mail Casbox
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
