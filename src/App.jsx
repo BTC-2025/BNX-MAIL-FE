@@ -22,6 +22,7 @@ import ForgotPassword from "./pages/ForgotPassword";
 import CreateMailbox from "./pages/CreateMailbox";
 import Inbox from "./pages/Inbox";
 import Starred from "./pages/Starred";
+import Unread from "./pages/Unread";
 import Draft from "./pages/Draft";
 import Send from "./pages/Send";
 import Outbox from "./pages/Outbox";
@@ -264,6 +265,7 @@ const AppContent = () => {
               <Route path="/inbox" element={<Inbox searchQuery={searchQuery} />} />
               <Route path="/all-inbox" element={<Inbox searchQuery={searchQuery} />} />
               <Route path="/starred" element={<Starred searchQuery={searchQuery} />} />
+              <Route path="/unread" element={<Unread searchQuery={searchQuery} />} />
               <Route path="/snoozed" element={<Snoozed searchQuery={searchQuery} />} />
               <Route path="/draft" element={<Draft searchQuery={searchQuery} />} />
               <Route path="/sent" element={<Send searchQuery={searchQuery} />} />
