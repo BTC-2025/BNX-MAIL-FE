@@ -768,26 +768,6 @@ const Settings = () => {
                       <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
                     </button>
                   </div>
-
-                  <div className="flex items-center justify-between py-2.5 border-t border-gray-150/10 dark:border-gray-800/10 mt-1">
-                    <div className="flex flex-col gap-1 pr-4">
-                      <span className="text-sm font-medium" style={{ color: theme.text }}>NotifyHub</span>
-                      <span className="text-xs text-gray-500">Automatically organize notification and alert emails into the NotifyHub folder.</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => setNotificationEnabled(!notificationEnabled)}
-                      className={`w-12 h-6 rounded-full p-1 transition-colors duration-300 outline-none cursor-pointer flex items-center shrink-0 ${notificationEnabled ? 'justify-end' : 'justify-start'}`}
-                      style={{ backgroundColor: notificationEnabled ? theme.accent : 'rgba(156,163,175,0.4)' }}
-                    >
-                      <span className="w-5 h-5 rounded-full bg-white shadow-md transform transition-transform duration-300" />
-                    </button>
-                  </div>
-
-                  <div className="text-xs text-gray-500 bg-blue-50/50 dark:bg-blue-950/10 p-3.5 rounded-xl border border-blue-100/50 dark:border-blue-900/20 mt-3 flex items-start gap-2 max-w-xl">
-                    <span className="shrink-0 text-blue-600 dark:text-blue-400">ℹ️</span>
-                    <span>BNX Mail can automatically identify notification and alert emails and organize them separately from your regular emails.</span>
-                  </div>
                 </div>
               </div>
 
