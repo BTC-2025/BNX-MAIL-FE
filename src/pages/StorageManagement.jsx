@@ -57,6 +57,7 @@ const StorageManagement = () => {
 
         {/* 2-Column Responsive Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <StorageCard name="BNX Mail" logo={beta2} />
           <StorageCard name="Cliks Business" logo={cliksBusinessLogo} />
           <StorageCard name="Cliks" logo={cliksLogo} />
           <StorageCard name="B2Auth" logo={b2authLogo} />
