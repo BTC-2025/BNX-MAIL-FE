@@ -21,7 +21,7 @@ const StorageManagement = () => {
         style={{ borderColor: theme.border }}
       >
         <div className="flex items-center gap-3">
-          <img src={beta2.png} alt="BNX Mail" className="h-7 w-auto" />
+          <img src={logo} alt="BNX Mail" className="h-7 w-auto" />
           <span className="h-4 w-px bg-gray-300 dark:bg-gray-700" />
           <span className="text-xs font-bold uppercase tracking-wider opacity-75">Storage Control Center</span>
         </div>
