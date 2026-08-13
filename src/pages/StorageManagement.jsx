@@ -56,10 +56,10 @@ const StorageManagement = () => {
 
         {/* 2-Column Responsive Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StorageCard name="BNX Mail" logo={beta2} usedStorage={322122547} />
-          <StorageCard name="Cliks Business" logo={cliksBusinessLogo} usedStorage={697932185} />
-          <StorageCard name="Cliks" logo={cliksLogo} usedStorage={128849018} />
-          <StorageCard name="BitTool" logo={bittoolLogo} usedStorage={858993459} />
+          <StorageCard name="BNX Mail" logo={beta2} />
+          <StorageCard name="Cliks Business" logo={cliksBusinessLogo} />
+          <StorageCard name="Cliks" logo={cliksLogo} />
+          <StorageCard name="BitTool" logo={bittoolLogo} />
         </div>
 
       </div>
