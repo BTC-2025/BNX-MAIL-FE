@@ -8,6 +8,7 @@ import { useTheme } from "../context/ThemeContext";
 import AppLauncher from "./AppLauncher";
 import { NotesManager } from "./StickyNotes";
 import CalendarPanel from "./CalendarPanel";
+import ContactPanel from "./ContactPanel";
 import betalogo from '../assets/beta2.png'
 
 // Tools Definition
@@ -139,42 +140,8 @@ const BitToolSidebar = ({
             </div>
           </div>
         );
-      case "contacts": {
-        const list = [
-          { name: "Sridharan", email: "sridharan@bnxmail.com" },
-          { name: "Sri", email: "sri@bnxmail.com" },
-          { name: "Beta Account", email: "beta@bnxmail.com" },
-          { name: "Admin Support", email: "support@bnxmail.com" }
-        ].filter(c => c.name.toLowerCase().includes(contactsSearch.toLowerCase()) || c.email.toLowerCase().includes(contactsSearch.toLowerCase()));
-
-        return (
-          <div className="flex flex-col h-full text-gray-700 dark:text-gray-200">
-            <input 
-              type="text" 
-              placeholder="Search contacts"
-              value={contactsSearch}
-              onChange={(e) => setContactsSearch(e.target.value)}
-              className="w-full px-3 py-2 rounded-xl text-xs bg-black/5 dark:bg-white/5 border border-transparent focus:border-gray-300 dark:focus:border-gray-700 outline-none mb-4"
-            />
-            <div className="flex-1 space-y-2 overflow-y-auto hidden-scrollbar">
-              {list.map((c, i) => (
-                <div key={i} className="p-2.5 rounded-xl border border-gray-100 dark:border-gray-800/60 bg-white/40 dark:bg-gray-900/40 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-blue-500/10 text-blue-500 flex items-center justify-center font-bold text-xs shrink-0">
-                    {c.name[0]}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="font-semibold text-xs truncate">{c.name}</div>
-                    <div className="text-[10px] opacity-60 truncate">{c.email}</div>
-                  </div>
-                </div>
-              ))}
-              {list.length === 0 && (
-                <div className="text-center py-6 text-xs opacity-50">No contacts found</div>
-              )}
-            </div>
-          </div>
-        );
-      }
+      case "contacts":
+        return <ContactPanel />;
       case "security":
         return (
           <div className="flex flex-col h-full items-center text-center text-gray-700 dark:text-gray-200">
