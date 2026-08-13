@@ -208,38 +208,18 @@ const Templates = () => {
     if (editingTemplate) return;
     if (!selectedCategory || !selectedCategory.trim()) {
       setFormBody("");
+      setFormSubject("");
       return;
     }
 
     const cleanCategory = selectedCategory.trim().toLowerCase();
-
-    if (user?.email) {
-      templateAPI.getTemplates(user.email)
-        .then((res) => {
-          const templates = res.data?.data || res.data || [];
-          const match = templates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
-          if (match) {
-            setFormBody(match.body || "");
-          } else {
-            setFormBody("");
-          }
-        })
-        .catch((err) => {
-          console.error("Failed to fetch templates on category change:", err);
-          const match = customTemplates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
-          if (match) {
-            setFormBody(match.body || "");
-          } else {
-            setFormBody("");
-          }
-        });
+    const match = DEFAULT_TEMPLATES.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
+    if (match) {
+      setFormBody(match.body || "");
+      setFormSubject(match.subject || "");
     } else {
-      const match = customTemplates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
-      if (match) {
-        setFormBody(match.body || "");
-      } else {
-        setFormBody("");
-      }
+      setFormBody("");
+      setFormSubject("");
     }
   };
 
