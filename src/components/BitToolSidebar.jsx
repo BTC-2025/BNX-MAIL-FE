@@ -7,6 +7,7 @@ import {
 import { useTheme } from "../context/ThemeContext";
 import AppLauncher from "./AppLauncher";
 import { NotesManager } from "./StickyNotes";
+import CalendarPanel from "./CalendarPanel";
 import betalogo from '../assets/beta2.png'
 
 // Tools Definition
@@ -17,10 +18,7 @@ const ALL_TOOLS = [
   { id: "security", name: "Security", icon: MdSecurity, color: "#0d9488", ringClass: "border-[#0d9488]", textClass: "text-[#0d9488]", bgClass: "bg-teal-50 dark:bg-teal-950/20" },
   { id: "notes", name: "Sticky Notes", icon: MdOutlineNoteAlt, color: "#eab308", ringClass: "border-[#eab308]", textClass: "text-[#eab308]", bgClass: "bg-yellow-50 dark:bg-yellow-950/20" },
   { id: "keyboard", name: "Keyboard", icon: MdKeyboard, color: "#6366f1", ringClass: "border-[#6366f1]", textClass: "text-[#6366f1]", bgClass: "bg-indigo-50 dark:bg-indigo-950/20" },
-  { id: "translator", name: "Translator", icon: MdTranslate, color: "#ec4899", ringClass: "border-[#ec4899]", textClass: "text-[#ec4899]", bgClass: "bg-pink-50 dark:bg-pink-950/20" },
-  { id: "lens", name: "Lens", icon: MdFilterCenterFocus, color: "#8b5cf6", ringClass: "border-[#8b5cf6]", textClass: "text-[#8b5cf6]", bgClass: "bg-purple-50 dark:bg-purple-950/20" },
-  { id: "weather", name: "Weather", icon: MdCloudQueue, color: "#06b6d4", ringClass: "border-[#06b6d4]", textClass: "text-[#06b6d4]", bgClass: "bg-cyan-50 dark:bg-cyan-950/20" },
-  { id: "news", name: "News", icon: MdNewspaper, color: "#6b7280", ringClass: "border-[#6b7280]", textClass: "text-[#6b7280]", bgClass: "bg-gray-50 dark:bg-gray-800/30" }
+  { id: "weather", name: "Weather", icon: MdCloudQueue, color: "#06b6d4", ringClass: "border-[#06b6d4]", textClass: "text-[#06b6d4]", bgClass: "bg-cyan-50 dark:bg-cyan-950/20" }
 ];
 
 const BitToolSidebar = ({ 
@@ -45,10 +43,7 @@ const BitToolSidebar = ({
   const [calcInput, setCalcInput] = useState("");
   const [calcResult, setCalcResult] = useState("");
 
-  // Translator State
-  const [transText, setTransText] = useState("");
-  const [transTarget, setTransTarget] = useState("es");
-  const [transOutput, setTransOutput] = useState("");
+
 
   // Contacts Search State
   const [contactsSearch, setContactsSearch] = useState("");
@@ -96,19 +91,6 @@ const BitToolSidebar = ({
     }
   };
 
-  // Translator Translate Trigger
-  const handleTranslate = () => {
-    if (!transText.trim()) return;
-    const dictionary = {
-      es: { hello: "Hola", welcome: "Bienvenido", security: "Seguridad", email: "Correo electrónico" },
-      fr: { hello: "Bonjour", welcome: "Bienvenue", security: "Sécurité", email: "E-mail" },
-      de: { hello: "Hallo", welcome: "Willkommen", security: "Sicherheit", email: "E-Mail" }
-    };
-    const key = transText.toLowerCase().trim();
-    const targetDict = dictionary[transTarget] || {};
-    const translated = targetDict[key] || `[Translated to ${transTarget.toUpperCase()}]: ${transText}`;
-    setTransOutput(translated);
-  };
 
   // Security Scan Trigger
   const handleStartScan = () => {
@@ -129,47 +111,8 @@ const BitToolSidebar = ({
 
   const renderMiniApp = () => {
     switch (selectedTool) {
-      case "calendar": {
-        const today = new Date();
-        const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
-        const firstDayIndex = new Date(today.getFullYear(), today.getMonth(), 1).getDay();
-        const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-        
-        return (
-          <div className="flex flex-col h-full text-gray-700 dark:text-gray-200">
-            <div className="flex items-center justify-between mb-4">
-              <span className="font-bold text-sm">{monthNames[today.getMonth()]} {today.getFullYear()}</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-[10px] text-center font-bold opacity-60 mb-2">
-              <span>Su</span><span>Mo</span><span>Tu</span><span>We</span><span>Th</span><span>Fr</span><span>Sa</span>
-            </div>
-            <div className="grid grid-cols-7 gap-1 text-center text-xs">
-              {Array.from({ length: firstDayIndex }).map((_, i) => (
-                <div key={`empty-${i}`} />
-              ))}
-              {Array.from({ length: daysInMonth }).map((_, i) => {
-                const day = i + 1;
-                const isToday = day === today.getDate();
-                return (
-                  <div 
-                    key={`day-${day}`}
-                    className={`py-1.5 rounded-full flex items-center justify-center font-semibold ${isToday ? "bg-amber-500 text-white shadow-sm" : "hover:bg-gray-100 dark:hover:bg-gray-800"}`}
-                  >
-                    {day}
-                  </div>
-                );
-              })}
-            </div>
-            <div className="mt-6 border-t border-gray-100 dark:border-gray-800 pt-4">
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider block mb-2">Today's Schedule</span>
-              <div className="p-3 bg-amber-500/10 rounded-xl border border-amber-500/20 text-xs flex flex-col gap-1">
-                <span className="font-bold text-amber-600 dark:text-amber-400">14:00 - Project Review</span>
-                <span className="opacity-75">Reviewing mail client features with team members.</span>
-              </div>
-            </div>
-          </div>
-        );
-      }
+      case "calendar":
+        return <CalendarPanel />;
       case "calculator":
         return (
           <div className="flex flex-col h-full text-gray-700 dark:text-gray-200">
@@ -274,87 +217,7 @@ const BitToolSidebar = ({
             </div>
           </div>
         );
-      case "translator":
-        return (
-          <div className="flex flex-col h-full text-gray-700 dark:text-gray-200 text-xs">
-            <label className="block font-bold text-gray-400 uppercase tracking-wider mb-1 text-[10px]">Translate text</label>
-            <textarea 
-              value={transText}
-              onChange={(e) => setTransText(e.target.value)}
-              placeholder="Type word (e.g. hello, welcome...)"
-              className="w-full h-16 p-2 rounded-xl bg-black/5 dark:bg-white/5 border border-transparent focus:border-gray-300 dark:focus:border-gray-700 outline-none resize-none mb-3"
-            />
-            <div className="flex items-center gap-2 mb-3">
-              <span className="opacity-60">Translate to:</span>
-              <select 
-                value={transTarget}
-                onChange={(e) => setTransTarget(e.target.value)}
-                className="bg-black/5 dark:bg-white/5 p-1 rounded border border-transparent outline-none font-semibold cursor-pointer"
-              >
-                <option value="es" className="dark:bg-gray-900">Spanish</option>
-                <option value="fr" className="dark:bg-gray-900">French</option>
-                <option value="de" className="dark:bg-gray-900">German</option>
-              </select>
-            </div>
-            <button 
-              onClick={handleTranslate}
-              className="w-full py-2.5 rounded-xl bg-pink-500 text-white font-bold shadow-md hover:scale-[1.01] active:scale-[0.99] transition-all cursor-pointer mb-4"
-            >
-              Translate
-            </button>
-            {transOutput && (
-              <div className="p-3 bg-pink-500/10 rounded-xl border border-pink-500/20 font-semibold">
-                {transOutput}
-              </div>
-            )}
-          </div>
-        );
-      case "lens":
-        return (
-          <div className="flex flex-col h-full items-center text-center text-gray-700 dark:text-gray-200">
-            <div className="w-full aspect-video border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center p-4 mb-4 bg-black/5 dark:bg-white/5">
-              <MdFilterCenterFocus size={32} className="text-purple-500 mb-2" />
-              <span className="text-[10px] opacity-65">Drop images here to scan</span>
-            </div>
-            <button className="px-5 py-2 rounded-xl bg-purple-600 text-white font-bold text-xs hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer">
-              Upload Image
-            </button>
-          </div>
-        );
-      case "weather":
-        return (
-          <div className="flex flex-col h-full text-gray-700 dark:text-gray-200">
-            <select 
-              value={weatherCity}
-              onChange={(e) => setWeatherCity(e.target.value)}
-              className="bg-black/5 dark:bg-white/5 p-2 rounded-xl border border-transparent outline-none font-semibold cursor-pointer mb-4 text-xs"
-            >
-              <option value="New York" className="dark:bg-gray-900">New York</option>
-              <option value="London" className="dark:bg-gray-900">London</option>
-              <option value="Tokyo" className="dark:bg-gray-900">Tokyo</option>
-            </select>
-            <div className="flex flex-col items-center text-center bg-cyan-500/10 p-4 rounded-2xl border border-cyan-500/20">
-              <MdCloudQueue size={40} className="text-cyan-500 mb-2" />
-              <span className="text-3xl font-extrabold">{weatherCity === "New York" ? "24°C" : weatherCity === "London" ? "16°C" : "28°C"}</span>
-              <span className="text-xs font-semibold mt-1 opacity-75">{weatherCity === "London" ? "Light Rain" : "Sunny & Clear"}</span>
-            </div>
-          </div>
-        );
-      case "news":
-        return (
-          <div className="flex flex-col h-full text-gray-700 dark:text-gray-200 text-xs space-y-3 overflow-y-auto hidden-scrollbar">
-            {[
-              { title: "Vite 5.0 Release", desc: "Significant startup performance boosts and cleaner CLI logs." },
-              { title: "Java 21 LTS", desc: "Virtual threads and structured concurrency now generally stable." },
-              { title: "Next.js 14 Speed", desc: "Turbopack integration now passing 99% of integration tests." }
-            ].map((feed, idx) => (
-              <div key={idx} className="p-2.5 rounded-xl bg-gray-500/10 border border-gray-500/20">
-                <div className="font-bold mb-0.5 truncate">{feed.title}</div>
-                <div className="opacity-75 text-[10px] leading-relaxed">{feed.desc}</div>
-              </div>
-            ))}
-          </div>
-        );
+
       default:
         return null;
     }
