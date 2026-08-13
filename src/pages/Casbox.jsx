@@ -199,6 +199,26 @@ const Casbox = () => {
     }
   }, [threadMessages]);
 
+  useEffect(() => {
+    const activeContact = selectedContactRef.current;
+    if (!activeContact || !user?.email || threadMessages.length === 0) return;
+
+    const unreadMsgs = threadMessages.filter(m => 
+      m.receiverEmail === user.email && 
+      m.status !== 'SEEN'
+    );
+
+    if (unreadMsgs.length > 0) {
+      const ids = unreadMsgs.map(m => m.id);
+      casboxAPI.updateStatus({ messageIds: ids, status: 'SEEN' })
+        .then(() => {
+          setMessages(prev => prev.map(m => ids.includes(m.id) ? { ...m, status: 'SEEN' } : m));
+          setThreadMessages(prev => prev.map(m => ids.includes(m.id) ? { ...m, status: 'SEEN' } : m));
+        })
+        .catch(console.error);
+    }
+  }, [threadMessages, user?.email]);
+
 
   const closePreview = () => {
     setPreviewFile((prev) => {
@@ -335,15 +355,23 @@ const Casbox = () => {
 
   const handleSelectMessage = async (msg) => {
     setSelectedMessage(msg);
-    if (msg.receiverEmail === user?.email && msg.status !== 'SEEN') {
+    const otherEmail = msg.senderEmail === user?.email ? msg.receiverEmail : msg.senderEmail;
+    const unreadMsgs = messages.filter(m => 
+      (m.senderEmail === otherEmail || m.receiverEmail === otherEmail) && 
+      m.receiverEmail === user?.email && 
+      m.status !== 'SEEN'
+    );
+
+    if (unreadMsgs.length > 0) {
       try {
-        await casboxAPI.updateStatus({ messageIds: [msg.id], status: 'SEEN' });
-        setMessages(prev => prev.map(m => m.id === msg.id ? { ...m, status: 'SEEN' } : m));
-        if (selectedMessage?.id === msg.id) {
+        const ids = unreadMsgs.map(m => m.id);
+        await casboxAPI.updateStatus({ messageIds: ids, status: 'SEEN' });
+        setMessages(prev => prev.map(m => ids.includes(m.id) ? { ...m, status: 'SEEN' } : m));
+        if (ids.includes(msg.id)) {
           setSelectedMessage({ ...msg, status: 'SEEN' });
         }
       } catch (e) {
-        console.error(e);
+        console.error("Failed to mark messages as seen", e);
       }
     }
   };
