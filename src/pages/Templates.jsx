@@ -204,6 +204,58 @@ const Templates = () => {
     setIsModalOpen(true);
   };
 
+  const handleCategoryChange = (selectedCategory) => {
+    if (editingTemplate) return;
+    if (!selectedCategory) {
+      setFormBody("");
+      return;
+    }
+
+    if (user?.email) {
+      templateAPI.getTemplates(user.email)
+        .then((res) => {
+          const templates = res.data?.data || res.data || [];
+          const match = templates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+          if (match) {
+            setFormBody(match.body || "");
+          } else {
+            const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+            if (defaultMatch) {
+              setFormBody(defaultMatch.body || "");
+            } else {
+              setFormBody("");
+            }
+          }
+        })
+        .catch((err) => {
+          console.error("Failed to fetch templates on category change:", err);
+          const match = customTemplates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+          if (match) {
+            setFormBody(match.body || "");
+          } else {
+            const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+            if (defaultMatch) {
+              setFormBody(defaultMatch.body || "");
+            } else {
+              setFormBody("");
+            }
+          }
+        });
+    } else {
+      const match = customTemplates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+      if (match) {
+        setFormBody(match.body || "");
+      } else {
+        const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+        if (defaultMatch) {
+          setFormBody(defaultMatch.body || "");
+        } else {
+          setFormBody("");
+        }
+      }
+    }
+  };
+
   // Handle Save
   const handleSave = (e) => {
     e.preventDefault();
@@ -603,7 +655,11 @@ const Templates = () => {
                 <div className="flex items-center gap-3">
                   <select
                     value={formCategory}
-                    onChange={(e) => setFormCategory(e.target.value)}
+                    onChange={(e) => {
+                      const selectedCategory = e.target.value;
+                      setFormCategory(selectedCategory);
+                      handleCategoryChange(selectedCategory);
+                    }}
                     className="flex-1 px-4 py-2.5 rounded-xl border outline-none text-sm transition-all focus:ring-1 cursor-pointer"
                     style={{
                       backgroundColor: theme.bg,
@@ -619,7 +675,10 @@ const Templates = () => {
                   </select>
                   <button
                     type="button"
-                    onClick={() => setFormCategory("")}
+                    onClick={() => {
+                      setFormCategory("");
+                      handleCategoryChange("");
+                    }}
                     className="text-sm font-semibold hover:underline cursor-pointer"
                     style={{ color: theme.accent }}
                   >
