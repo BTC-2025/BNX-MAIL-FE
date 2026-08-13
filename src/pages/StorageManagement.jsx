@@ -4,7 +4,6 @@ import StorageCard from '../components/StorageCard';
 import beta2 from '../assets/beta2.png';
 import cliksBusinessLogo from '../assets/cliks-business.png';
 import cliksLogo from '../assets/cliks.png';
-import b2authLogo from '../assets/b2auth.png';
 import bittoolLogo from '../assets/BIT-TOOL-2.png';
 
 const StorageManagement = () => {
@@ -60,7 +59,6 @@ const StorageManagement = () => {
           <StorageCard name="BNX Mail" logo={beta2} />
           <StorageCard name="Cliks Business" logo={cliksBusinessLogo} />
           <StorageCard name="Cliks" logo={cliksLogo} />
-          <StorageCard name="B2Auth" logo={b2authLogo} />
           <StorageCard name="BitTool" logo={bittoolLogo} />
         </div>
 
