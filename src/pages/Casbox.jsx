@@ -782,7 +782,7 @@ const Casbox = () => {
               return (
                 <div key={msg.id || index} className="flex items-start gap-4 sm:gap-6 w-full py-1">
                   {/* Left Column: Contact Card */}
-                  <div className="w-36 sm:w-48 md:w-52 shrink-0 select-none text-left">
+                  <div className="w-36 sm:w-48 md:w-52 shrink-0 pt-0 select-none text-left">
                     <div 
                       className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border relative shadow-sm w-full bg-gray-50/50 dark:bg-[#1e1e1e]/40"
                       style={{
@@ -815,17 +815,10 @@ const Casbox = () => {
 
                   {/* Right Column: Chat Message */}
                   <div className="flex-1 flex flex-col items-start min-w-0">
-                    {/* Timestamp */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1 opacity-60">
-                      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500">
-                        {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
-                    </div>
-
                     {/* Bubble */}
                     <div className="max-w-[85%] flex flex-col items-start">
                       <div
-                        className={`px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
+                        className={`px-4 py-2.5 rounded-2xl text-sm flex flex-col gap-1 ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
                         style={{
                           backgroundColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#1e1e1e' : '#f3f4f6'),
                           color: isMe ? '#ffffff' : (theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'),
@@ -834,6 +827,11 @@ const Casbox = () => {
                       >
                         <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.body}</p>
                         {renderBubbleAttachments(msg)}
+                        
+                        {/* Timestamp inside bubble at the bottom right */}
+                        <div className="text-[9px] opacity-70 self-end mt-1 text-right select-none font-normal">
+                          {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </div>
                       </div>
 
                       {isMe && index === sortedThread.length - 1 && (
