@@ -113,15 +113,15 @@ export const SIDEBAR_ITEMS = [
     count: 0
   },
   {
-    name: 'Subscriptions',
-    icon: <MdNotifications size={20} />,
-    path: '/subscriptions',
-    count: 0
-  },
-  {
     name: 'Unread',
     icon: <MdMailOutline size={20} />,
     path: '/unread',
+    count: 0
+  },
+  {
+    name: 'Subscriptions',
+    icon: <MdNotifications size={20} />,
+    path: '/subscriptions',
     count: 0
   }
 ];
