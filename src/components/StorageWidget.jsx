@@ -7,7 +7,7 @@ const StorageWidget = ({ isDesktopOpen }) => {
   const { theme } = useTheme();
   const [storageData, setStorageData] = useState({
     used: 0,
-    limit: 5368709120, // default 5 GB
+    limit: 1073741824, // default 1 GB
     percentage: 0
   });
   const [loading, setLoading] = useState(true);

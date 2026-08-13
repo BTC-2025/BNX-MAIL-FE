@@ -6,7 +6,7 @@ const StorageCard = ({
   icon: Icon, 
   logo,
   usedStorage, 
-  totalStorage = 5368709120, // 5 GB in bytes
+  totalStorage = 1073741824, // 1 GB in bytes
   usagePercentage, 
   remainingStorage 
 }) => {
@@ -20,20 +20,27 @@ const StorageCard = ({
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Determine status color and text dynamically if percentage is provided
+  // Determine displayed values dynamically if not explicitly provided
+  const displayUsed = usedStorage !== undefined ? usedStorage : 0;
+  const pct = usagePercentage !== undefined 
+    ? usagePercentage 
+    : (usedStorage !== undefined ? Math.round((displayUsed / totalStorage) * 100) : 0);
+  const displayRemaining = remainingStorage !== undefined 
+    ? remainingStorage 
+    : (usedStorage !== undefined ? Math.max(0, totalStorage - displayUsed) : totalStorage);
+
+  // Determine status color and text dynamically
   let statusColor = theme.accent || '#2563eb';
   let statusText = 'Normal';
   
-  if (usagePercentage !== undefined) {
-    if (usagePercentage >= 95) {
-      statusColor = '#ef4444'; // Red (Storage full)
-      statusText = 'Storage Full';
-    } else if (usagePercentage >= 80) {
-      statusColor = '#f59e0b'; // Amber (Storage almost full)
-      statusText = 'Storage Almost Full';
-    } else {
-      statusText = 'Normal';
-    }
+  if (pct >= 95) {
+    statusColor = '#ef4444'; // Red (Storage full)
+    statusText = 'Storage Full';
+  } else if (pct >= 80) {
+    statusColor = '#f59e0b'; // Amber (Storage almost full)
+    statusText = 'Storage Almost Full';
+  } else {
+    statusText = 'Normal';
   }
 
   return (
@@ -63,7 +70,7 @@ const StorageCard = ({
         </div>
 
         {/* Dynamic Status Badge */}
-        {usagePercentage !== undefined && (
+        {(usagePercentage !== undefined || usedStorage !== undefined) && (
           <span 
             className="px-2 py-0.5 text-[9px] font-bold uppercase tracking-wider rounded-md"
             style={{ backgroundColor: `${statusColor}15`, color: statusColor }}
@@ -77,10 +84,10 @@ const StorageCard = ({
       <div className="mt-2 space-y-2">
         <div className="flex items-baseline justify-between text-xs font-semibold">
           <span style={{ color: theme.subText }}>
-            {usedStorage !== undefined ? formatSize(usedStorage) : '[Used Storage]'} / {formatSize(totalStorage)}
+            {usedStorage !== undefined ? formatSize(displayUsed) : '[Used Storage]'} / {formatSize(totalStorage)}
           </span>
           <span style={{ color: theme.subText }}>
-            {usagePercentage !== undefined ? `${usagePercentage}%` : '[Usage Percentage]'}
+            {usedStorage !== undefined || usagePercentage !== undefined ? `${pct}%` : '[Usage Percentage]'}
           </span>
         </div>
 
@@ -92,7 +99,7 @@ const StorageCard = ({
           <div 
             className="h-full rounded-full transition-all duration-500"
             style={{ 
-              width: `${usagePercentage !== undefined ? Math.min(usagePercentage, 100) : 0}%`, 
+              width: `${(usedStorage !== undefined || usagePercentage !== undefined) ? Math.min(pct, 100) : 0}%`, 
               backgroundColor: statusColor 
             }}
           />
@@ -100,7 +107,7 @@ const StorageCard = ({
 
         {/* Remaining Storage Description */}
         <div className="text-xs font-medium" style={{ color: theme.subText }}>
-          {remainingStorage !== undefined ? `${formatSize(remainingStorage)} remaining` : '[Available Storage]'}
+          {usedStorage !== undefined || remainingStorage !== undefined ? `${formatSize(displayRemaining)} remaining` : '[Available Storage]'}
         </div>
       </div>
 

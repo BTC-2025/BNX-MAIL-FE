@@ -49,17 +49,17 @@ const StorageManagement = () => {
               className="inline-flex items-center px-3 py-1 rounded-full text-[10px] sm:text-xs font-bold uppercase tracking-wider"
               style={{ backgroundColor: `${theme.accent}15`, color: theme.accent }}
             >
-              5 GB per application
+              1 GB per application
             </span>
           </div>
         </div>
 
         {/* 2-Column Responsive Grid Layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <StorageCard name="BNX Mail" logo={beta2} />
-          <StorageCard name="Cliks Business" logo={cliksBusinessLogo} />
-          <StorageCard name="Cliks" logo={cliksLogo} />
-          <StorageCard name="BitTool" logo={bittoolLogo} />
+          <StorageCard name="BNX Mail" logo={beta2} usedStorage={322122547} />
+          <StorageCard name="Cliks Business" logo={cliksBusinessLogo} usedStorage={697932185} />
+          <StorageCard name="Cliks" logo={cliksLogo} usedStorage={128849018} />
+          <StorageCard name="BitTool" logo={bittoolLogo} usedStorage={858993459} />
         </div>
 
       </div>
