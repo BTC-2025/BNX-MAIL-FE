@@ -206,52 +206,39 @@ const Templates = () => {
 
   const handleCategoryChange = (selectedCategory) => {
     if (editingTemplate) return;
-    if (!selectedCategory) {
+    if (!selectedCategory || !selectedCategory.trim()) {
       setFormBody("");
       return;
     }
+
+    const cleanCategory = selectedCategory.trim().toLowerCase();
 
     if (user?.email) {
       templateAPI.getTemplates(user.email)
         .then((res) => {
           const templates = res.data?.data || res.data || [];
-          const match = templates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+          const match = templates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
           if (match) {
             setFormBody(match.body || "");
           } else {
-            const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
-            if (defaultMatch) {
-              setFormBody(defaultMatch.body || "");
-            } else {
-              setFormBody("");
-            }
+            setFormBody("");
           }
         })
         .catch((err) => {
           console.error("Failed to fetch templates on category change:", err);
-          const match = customTemplates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+          const match = customTemplates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
           if (match) {
             setFormBody(match.body || "");
           } else {
-            const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
-            if (defaultMatch) {
-              setFormBody(defaultMatch.body || "");
-            } else {
-              setFormBody("");
-            }
+            setFormBody("");
           }
         });
     } else {
-      const match = customTemplates.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
+      const match = customTemplates.find(t => (t.category || "").trim().toLowerCase() === cleanCategory);
       if (match) {
         setFormBody(match.body || "");
       } else {
-        const defaultMatch = DEFAULT_TEMPLATES.find(t => (t.category || "").toLowerCase() === selectedCategory.toLowerCase());
-        if (defaultMatch) {
-          setFormBody(defaultMatch.body || "");
-        } else {
-          setFormBody("");
-        }
+        setFormBody("");
       }
     }
   };
