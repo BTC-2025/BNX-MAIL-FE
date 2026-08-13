@@ -119,12 +119,6 @@ export const SIDEBAR_ITEMS = [
     count: 0
   },
   {
-    name: 'Bulk Mail',
-    icon: <MdMailOutline size={20} />,
-    path: '/bulk-mail',
-    count: 0
-  },
-  {
     name: 'Unread',
     icon: <MdMailOutline size={20} />,
     path: '/unread',
