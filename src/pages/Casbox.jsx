@@ -781,26 +781,46 @@ const Casbox = () => {
 
               return (
                 <div key={msg.id || index} className="flex items-start gap-4 sm:gap-6 w-full py-1">
-                  {/* Left Column: Sender Name */}
-                  <div className="w-24 sm:w-32 md:w-40 shrink-0 pt-[18px] select-none text-left">
+                  {/* Left Column: Contact Card */}
+                  <div className="w-36 sm:w-48 md:w-52 shrink-0 select-none text-left">
                     <div 
-                      className="px-2 py-1 rounded-lg border text-[10px] sm:text-xs font-semibold sm:font-bold text-center truncate shadow-sm"
+                      className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 rounded-xl border relative shadow-sm w-full bg-gray-50/50 dark:bg-[#1e1e1e]/40"
                       style={{
-                        backgroundColor: theme?.mode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
                         borderColor: theme?.border || '#e2e8f0',
-                        color: theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'
+                        borderLeftWidth: '4px',
+                        borderLeftColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#4b5563' : '#d1d5db'),
                       }}
-                      title={senderLabel}
                     >
-                      {senderLabel}
+                      {/* Avatar Container */}
+                      <div className="relative shrink-0">
+                        <div className={`w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm ${
+                          isMe 
+                            ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' 
+                            : 'bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400'
+                        }`}>
+                          {senderLabel.charAt(0).toUpperCase()}
+                        </div>
+                        {/* Green online dot */}
+                        <div className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 rounded-full border-2 border-white dark:border-[#121212]" />
+                      </div>
+
+                      {/* Details */}
+                      <div className="flex flex-col min-w-0">
+                        <span className="font-bold text-[10px] sm:text-xs text-gray-800 dark:text-gray-200 truncate">
+                          {senderLabel}
+                        </span>
+                        <span className="text-[8px] sm:text-[9px] text-gray-400 dark:text-gray-500 font-medium">
+                          Contact
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   {/* Right Column: Chat Message */}
                   <div className="flex-1 flex flex-col items-start min-w-0">
                     {/* Timestamp */}
-                    <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
-                      <span className="text-[8px]">
+                    <div className="flex items-center gap-1.5 mb-1 px-1 opacity-60">
+                      <span className="text-[10px] font-semibold text-gray-400 dark:text-gray-500">
                         {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </div>
