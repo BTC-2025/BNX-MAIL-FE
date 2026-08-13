@@ -780,33 +780,44 @@ const Casbox = () => {
               const senderLabel = senderEmail ? senderEmail.split("@")[0] : "";
 
               return (
-                <div key={msg.id || index} className="flex flex-col max-w-[70%] self-start items-start">
-                  <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
-                    <span className="text-[9px] font-bold">
+                <div key={msg.id || index} className="flex items-start gap-4 sm:gap-6 w-full py-1">
+                  {/* Left Column: Sender Name */}
+                  <div className="w-24 sm:w-32 md:w-40 shrink-0 pt-4 opacity-85 select-none text-left">
+                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 break-words block">
                       {senderLabel}
                     </span>
-                    <span className="text-[8px]">
-                      {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
                   </div>
 
-                  <div
-                    className={`px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
-                    style={{
-                      backgroundColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#1e1e1e' : '#f3f4f6'),
-                      color: isMe ? '#ffffff' : (theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'),
-                      borderColor: isMe ? 'transparent' : (theme?.border || '#e2e8f0')
-                    }}
-                  >
-                    <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.body}</p>
-                    {renderBubbleAttachments(msg)}
-                  </div>
-
-                  {isMe && index === sortedThread.length - 1 && (
-                    <div className="mt-1 mr-1">
-                      {getStatusIcon(msg.status)}
+                  {/* Right Column: Chat Message */}
+                  <div className="flex-1 flex flex-col items-start min-w-0">
+                    {/* Timestamp */}
+                    <div className="flex items-center gap-1.5 mb-1 px-1 opacity-55">
+                      <span className="text-[8px]">
+                        {parseTimestamp(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                  )}
+
+                    {/* Bubble */}
+                    <div className="max-w-[85%] flex flex-col items-start">
+                      <div
+                        className={`px-4 py-2.5 rounded-2xl text-sm ${isMe ? 'rounded-tr-none text-white shadow-sm font-medium' : 'rounded-tl-none border shadow-sm font-medium'}`}
+                        style={{
+                          backgroundColor: isMe ? (theme?.accent || '#135bec') : (theme?.mode === 'dark' ? '#1e1e1e' : '#f3f4f6'),
+                          color: isMe ? '#ffffff' : (theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'),
+                          borderColor: isMe ? 'transparent' : (theme?.border || '#e2e8f0')
+                        }}
+                      >
+                        <p className="whitespace-pre-wrap leading-relaxed break-words">{msg.body}</p>
+                        {renderBubbleAttachments(msg)}
+                      </div>
+
+                      {isMe && index === sortedThread.length - 1 && (
+                        <div className="mt-1 mr-1">
+                          {getStatusIcon(msg.status)}
+                        </div>
+                      )}
+                    </div>
+                  </div>
                 </div>
               );
             })
