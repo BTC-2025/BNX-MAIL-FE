@@ -782,10 +782,18 @@ const Casbox = () => {
               return (
                 <div key={msg.id || index} className="flex items-start gap-4 sm:gap-6 w-full py-1">
                   {/* Left Column: Sender Name */}
-                  <div className="w-24 sm:w-32 md:w-40 shrink-0 pt-4 opacity-85 select-none text-left">
-                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300 break-words block">
+                  <div className="w-24 sm:w-32 md:w-40 shrink-0 pt-[18px] select-none text-left">
+                    <div 
+                      className="px-2 py-1 rounded-lg border text-[10px] sm:text-xs font-semibold sm:font-bold text-center truncate shadow-sm"
+                      style={{
+                        backgroundColor: theme?.mode === 'dark' ? 'rgba(255, 255, 255, 0.04)' : 'rgba(0, 0, 0, 0.02)',
+                        borderColor: theme?.border || '#e2e8f0',
+                        color: theme?.mode === 'dark' ? '#f3f4f6' : '#1f2937'
+                      }}
+                      title={senderLabel}
+                    >
                       {senderLabel}
-                    </span>
+                    </div>
                   </div>
 
                   {/* Right Column: Chat Message */}
