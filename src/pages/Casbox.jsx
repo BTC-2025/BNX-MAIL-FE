@@ -809,9 +809,6 @@ const Casbox = () => {
                         <span className="font-bold text-[10px] sm:text-xs text-gray-800 dark:text-gray-200 truncate">
                           {senderLabel}
                         </span>
-                        <span className="text-[8px] sm:text-[9px] text-gray-400 dark:text-gray-500 font-medium">
-                          Contact
-                        </span>
                       </div>
                     </div>
                   </div>
