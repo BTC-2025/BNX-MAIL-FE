@@ -1,4 +1,5 @@
 import React from 'react';
+import unreadMailIcon from '../assets/unread-mail.png';
 import {
   MdInbox,
   MdStarBorder,
@@ -114,7 +115,7 @@ export const SIDEBAR_ITEMS = [
   },
   {
     name: 'Unread',
-    icon: <MdMailOutline size={20} />,
+    icon: <img src={unreadMailIcon} alt="Unread" className="w-5 h-5 object-contain shrink-0" />,
     path: '/unread',
     count: 0
   },
