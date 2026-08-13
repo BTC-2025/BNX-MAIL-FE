@@ -677,12 +677,6 @@ const Casbox = () => {
               <MdAccessTime size={20} />
             </button>
             <button
-              className="p-2 rounded-full hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-gray-500 dark:text-gray-400 hover:text-indigo-500 cursor-pointer"
-              title="Labels"
-            >
-              <MdLabel size={20} />
-            </button>
-            <button
               className="p-2 rounded-full hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-gray-500 dark:text-gray-400 hover:text-red-500 cursor-pointer"
               title="Delete"
             >
