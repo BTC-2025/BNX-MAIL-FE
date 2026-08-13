@@ -782,7 +782,8 @@ const Casbox = () => {
           ) : (
             sortedThread.map((msg, index) => {
               const isMe = msg.senderEmail === user?.email;
-              const senderLabel = otherUserEmail ? otherUserEmail.split('@')[0] : (msg.senderEmail ? msg.senderEmail.split('@')[0] : "");
+              const senderEmail = msg.senderEmail || "";
+              const senderLabel = senderEmail ? senderEmail.split("@")[0] : "";
 
               return (
                 <div key={msg.id || index} className="flex flex-col max-w-[70%] self-start items-start">
